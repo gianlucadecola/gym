@@ -6,6 +6,7 @@ from pygame import Surface
 from pygame.event import Event
 
 from gym import Env, logger
+from gym.logger import deprecation
 
 try:
     import matplotlib
@@ -192,6 +193,8 @@ def play(
 
 
 class PlayPlot:
+    deprecation("`PlayPlot` is marked as deprecated and will be removed in the future.")
+
     def __init__(self, callback, horizon_timesteps, plot_names):
         self.data_callback = callback
         self.horizon_timesteps = horizon_timesteps
