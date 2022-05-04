@@ -17,7 +17,12 @@ def test_clip_action():
     actions = [[0.4], [1.2], [-0.3], [0.0], [-2.5]]
     for action in actions:
         obs1, r1, d1, _ = env.step(
-            np.clip(action, env.action_space.low, env.action_space.high)
+            np.clip(
+                action,
+                env.action_space.low,
+                env.action_space.high,
+                dtype=env.action_space.dtype,
+            )
         )
         obs2, r2, d2, _ = wrapped_env.step(action)
         assert np.allclose(r1, r2)

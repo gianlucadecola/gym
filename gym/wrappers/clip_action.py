@@ -12,4 +12,9 @@ class ClipAction(ActionWrapper):
         super().__init__(env)
 
     def action(self, action):
-        return np.clip(action, self.action_space.low, self.action_space.high)
+        return np.clip(
+            action,
+            self.action_space.low,
+            self.action_space.high,
+            dtype=self.action_space.dtype,
+        )
