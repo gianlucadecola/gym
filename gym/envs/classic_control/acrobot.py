@@ -6,6 +6,7 @@ from numpy import cos, pi, sin
 
 from gym import core, spaces
 from gym.error import DependencyNotInstalled
+from gym.utils.action_validator import validate_action
 
 __copyright__ = "Copyright 2013, RLPy http://acl.mit.edu/RLPy"
 __credits__ = [
@@ -184,10 +185,9 @@ class AcrobotEnv(core.Env):
         else:
             return self._get_ob(), {}
 
+    @validate_action
     def step(self, a):
         s = self.state
-        err_msg = f"{a!r} ({type(a)}) invalid"
-        assert self.action_space.contains(a), err_msg
         assert s is not None, "Call reset before using AcrobotEnv object."
         torque = self.AVAIL_TORQUE[a]
 

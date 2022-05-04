@@ -7,6 +7,7 @@ import numpy as np
 
 from gym import Env, spaces
 from gym.envs.toy_text.utils import categorical_sample
+from gym.utils.action_validator import validate_action
 
 UP = 0
 RIGHT = 1
@@ -118,9 +119,8 @@ class CliffWalkingEnv(Env):
         is_done = tuple(new_position) == terminal_state
         return [(1.0, new_state, -1, is_done)]
 
+    @validate_action
     def step(self, a):
-        err_msg = f"{a!r} ({type(a)}) invalid"
-        assert self.action_space.contains(a), err_msg
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
         p, s, r, d = transitions[i]

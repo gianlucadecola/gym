@@ -8,6 +8,7 @@ import numpy as np
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
 from gym.error import DependencyNotInstalled
+from gym.utils.action_validator import validate_action
 
 MAP = [
     "+---------+",
@@ -207,9 +208,8 @@ class TaxiEnv(Env):
         assert 0 <= i < 5
         return reversed(out)
 
+    @validate_action
     def step(self, a):
-        err_msg = f"{a!r} ({type(a)}) invalid"
-        assert self.action_space.contains(a), err_msg
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
         p, s, r, d = transitions[i]
