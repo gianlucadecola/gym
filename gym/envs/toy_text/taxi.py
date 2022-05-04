@@ -208,6 +208,8 @@ class TaxiEnv(Env):
         return reversed(out)
 
     def step(self, a):
+        err_msg = f"{a!r} ({type(a)}) invalid"
+        assert self.action_space.contains(a), err_msg
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
         p, s, r, d = transitions[i]

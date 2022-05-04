@@ -173,7 +173,7 @@ class AcrobotEnv(core.Env):
         *,
         seed: Optional[int] = None,
         return_info: bool = False,
-        options: Optional[dict] = None
+        options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
@@ -186,6 +186,8 @@ class AcrobotEnv(core.Env):
 
     def step(self, a):
         s = self.state
+        err_msg = f"{a!r} ({type(a)}) invalid"
+        assert self.action_space.contains(a), err_msg
         assert s is not None, "Call reset before using AcrobotEnv object."
         torque = self.AVAIL_TORQUE[a]
 
