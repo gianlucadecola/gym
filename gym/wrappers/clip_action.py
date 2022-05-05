@@ -16,5 +16,4 @@ class ClipAction(ActionWrapper):
             action,
             self.action_space.low,
             self.action_space.high,
-            dtype=self.action_space.dtype,
         )

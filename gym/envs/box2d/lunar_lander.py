@@ -413,6 +413,9 @@ class LunarLander(gym.Env, EzPickle):
 
     @validate_action
     def step(self, action):
+        if self.continuous:
+            action = np.clip(action, -1, +1).astype(np.float32)
+
         # Update wind
         if self.enable_wind and not (
             self.legs[0].ground_contact or self.legs[1].ground_contact

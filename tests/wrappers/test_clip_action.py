@@ -21,7 +21,6 @@ def test_clip_action():
                 action,
                 env.action_space.low,
                 env.action_space.high,
-                dtype=env.action_space.dtype,
             )
         )
         obs2, r2, d2, _ = wrapped_env.step(action)
