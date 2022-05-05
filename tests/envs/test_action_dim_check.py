@@ -27,6 +27,8 @@ def test_serialize_deserialize(environment_id):
         "Acrobot-v1",
         "CartPole-v1",
         "MountainCar-v0",
+        "CarRacingDiscrete-v1",
+        "LunarLander-v2",
         "Blackjack-v1",
         "CliffWalking-v0",
         "FrozenLake-v1",
@@ -46,7 +48,10 @@ def test_discrete_actions_out_of_bound(environment_id):
 
 @pytest.mark.parametrize(
     "environment_id",
-    ("MountainCarContinuous-v0",),
+    (
+        "MountainCarContinuous-v0",
+        "LunarLanderContinuous-v2",
+    ),
 )
 def test_box_actions_out_of_bound(environment_id):
     env = envs.make(environment_id)

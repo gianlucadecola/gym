@@ -9,6 +9,7 @@ import gym
 from gym import error, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
+from gym.utils.action_validator import validate_action
 
 try:
     import Box2D
@@ -373,9 +374,20 @@ class LunarLander(gym.Env, EzPickle):
         self.drawlist = [self.lander] + self.legs
 
         if not return_info:
-            return self.step(np.array([0, 0]) if self.continuous else 0)[0]
+            return self.step(
+                np.zeros(self.action_space.shape, dtype=self.action_space.dtype)
+                if self.continuous
+                else 0
+            )[0]
         else:
-            return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
+            return (
+                self.step(
+                    np.zeros(self.action_space.shape, dtype=self.action_space.dtype)
+                    if self.continuous
+                    else 0
+                )[0],
+                {},
+            )
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -399,6 +411,7 @@ class LunarLander(gym.Env, EzPickle):
         while self.particles and (all or self.particles[0].ttl < 0):
             self.world.DestroyBody(self.particles.pop(0))
 
+    @validate_action
     def step(self, action):
         # Update wind
         if self.enable_wind and not (
@@ -418,13 +431,6 @@ class LunarLander(gym.Env, EzPickle):
                 (wind_mag, 0.0),
                 True,
             )
-
-        if self.continuous:
-            action = np.clip(action, -1, +1).astype(np.float32)
-        else:
-            assert self.action_space.contains(
-                action
-            ), f"{action!r} ({type(action)}) invalid "
 
         # Engines
         tip = (math.sin(self.lander.angle), math.cos(self.lander.angle))
@@ -697,7 +703,9 @@ def heuristic(env, s):
         )  # override to reduce fall speed, that's all we need after contact
 
     if env.continuous:
-        a = np.array([hover_todo * 20 - 1, -angle_todo * 20])
+        a = np.array(
+            [hover_todo * 20 - 1, -angle_todo * 20], dtype=env.action_space.dtype
+        )
         a = np.clip(a, -1, +1)
     else:
         a = 0
