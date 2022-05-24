@@ -331,7 +331,7 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
 
 
 @overload
-def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
 def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
@@ -438,7 +438,8 @@ class EnvRegistry(dict):
     @property
     def env_specs(self):
         logger.warn(
-            "The `registry.env_specs` property along with `EnvSpecTree` is deprecated. Please use `registry` directly as a dictionary instead."
+            "The `registry.env_specs` property along with `EnvSpecTree` is deprecated. "
+            "Please use `registry` directly as a dictionary instead."
         )
         return self
 
