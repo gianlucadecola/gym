@@ -21,6 +21,7 @@ from gym.spaces import (
     Space,
     Tuple,
 )
+from gym.dev_wrappers import FuncArgType
 
 
 @singledispatch
@@ -132,7 +133,7 @@ def _flatten_tuple(space, x) -> np.ndarray:
 
 @flatten.register(Dict)
 def _flatten_dict(space, x) -> np.ndarray:
-    return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
+    return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])  # TODO, why do we not return a dictionary here?
 
 
 @flatten.register(Graph)
@@ -341,8 +342,8 @@ def _flatten_space_graph(space: Graph) -> Graph:
         else None,
     )
 @singledispatch
-def apply_function(space: Space, x, func: Callable, args: Optional[Any]) -> Any:
-    """TODO
+def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> Any:
+    """Applies a function on ``x`` of shape ``space`` using the ``func`` callable and ``args`` arguments.
 
     Example with fundamental space::
         TODO
@@ -354,13 +355,13 @@ def apply_function(space: Space, x, func: Callable, args: Optional[Any]) -> Any:
         TODO
 
     Args:
-        space: TODO
-        x: TODO
-        func: TODO
-        args: TODO
+        space: The space of ``x``
+        x: The parameter to apply the function to
+        func: The function to apply to ``x``
+        args: The arguments to use with the function
 
     Returns:
-        TODO
+        The updated ``x`` through the applied function and arguments
     """
 
 
