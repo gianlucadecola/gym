@@ -1,11 +1,14 @@
-from typing import Callable, Any, Dict, Tuple as TypingTuple
+"""Lambda action wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
+
+from typing import Any, Callable
+from typing import Tuple as TypingTuple
 
 import jumpy as jp
 
 import gym
 from gym import Space
 from gym.dev_wrappers import FuncArgType
-from gym.spaces import apply_function, Box, Dict
+from gym.spaces import Box, Dict, Tuple, apply_function
 
 
 class lambda_action_v0(gym.ActionWrapper):
@@ -36,8 +39,13 @@ class lambda_action_v0(gym.ActionWrapper):
     """
 
     def __init__(
-        self, env: gym.Env, func: Callable, args: FuncArgType[Any], action_space: Space = None
+        self,
+        env: gym.Env,
+        func: Callable,
+        args: FuncArgType[Any],
+        action_space: Space = None,
     ):
+        """Initialize lambda_action."""
         super().__init__(env)
 
         self.func = func
@@ -48,7 +56,8 @@ class lambda_action_v0(gym.ActionWrapper):
             self.action_space = action_space
 
     def action(self, action):
-        return apply_function(self.env.action_space, action, self.func, self.func_args)
+        """Apply function to action."""
+        return apply_function(self.action_space, action, self.func, self.func_args)
 
 
 class clip_actions_v0(lambda_action_v0):
@@ -56,12 +65,18 @@ class clip_actions_v0(lambda_action_v0):
 
     Basic Example:
         >>> import gym
-        >>> env = gym.make("TODO")
+        >>> env = gym.make("BipedalWalker-v3")
         >>> env.action_space
-        TODO
-        >>> env = clip_actions_v0(env, TODO)
+        Box(-1.0, 1.0, (4,), float32)
+        >>> env = clip_actions_v0(
+        ...     env, 
+        ...     (
+        ...         np.array([-0.5], dtype='float32'), 
+        ...         np.array([0.5], dtype='float32'))
+        ...     )
+        ... )
         >>> env.action_space
-        TODO
+        Box([-0.5], [0.5], (4,), float32)
 
     Clip with only a lower or upper bound:
         >>> env = gym.make(TODO)
@@ -73,59 +88,68 @@ class clip_actions_v0(lambda_action_v0):
 
     Composite action space example:
         >>> env = ExampleEnv()
+        >>> env.actions_space
+        TODO
         >>> env = clip_actions_v0(env, TODO)
         >>> env.action_space
         TODO
     """
 
     def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
-        """Constructor for the clip action wrapper
+        """Constructor for the clip action wrapper.
 
         Args:
             env: The environment to wrap
             args: The arguments for clipping the action space
         """
         action_space = self._make_clipped_action_space(env, args)
-        
+
         func = lambda action, args: jp.clip(action, *args)
-        
+
         super().__init__(env, func, args, action_space)
 
-    def _make_clipped_action_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def _make_clipped_action_space(
+        self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]
+    ):
         if type(env.action_space) == Box:
             action_space = Box(*args, shape=env.action_space.shape)
-        
+
         elif type(env.action_space) == Dict:
             assert type(args) == dict
             action_space = Dict()
+            
             for k in env.action_space.keys():
-                action_space = self._compute_nested_action_space(env.action_space, action_space, k, args)         
+                action_space = self._compute_nested_action_space(
+                    env.action_space, action_space, k, args
+                )
         else:
             action_space = None
-        
+
         return action_space
-    
+
     def _compute_nested_action_space(self, env_action_space, action_space, k, args):
         if k not in args:
             action_space[k] = env_action_space[k]
             return action_space
 
         args = args[k]
-        env_action_space = env_action_space[k]   
-        
+        env_action_space = env_action_space[k]
+
         if type(env_action_space) == Box:
             action_space[k] = Box(*args, shape=env_action_space.shape)
-        
+
         elif type(env_action_space) == Dict:
             action_space[k] = Dict()
             for m in env_action_space.keys():
-                action_space[k] = self._compute_nested_action_space(env_action_space, action_space[k], m, args)
-        
+                action_space[k] = self._compute_nested_action_space(
+                    env_action_space, action_space[k], m, args
+                )
+
         return action_space
 
 
 class scale_actions_v0(lambda_action_v0):
-    """A wrapper that scales actions passed to :meth:`step` with a scale factor
+    """A wrapper that scales actions passed to :meth:`step` with a scale factor.
 
     Basic Example:
         >>> import gym
@@ -144,7 +168,7 @@ class scale_actions_v0(lambda_action_v0):
     """
 
     def __init__(self, env: gym.Env, args: FuncArgType[float]):
-        """Constructor for the scale action wrapper
+        """Constructor for the scale action wrapper.
 
         Args:
             env: The environment to wrap
