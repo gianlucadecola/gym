@@ -68,13 +68,7 @@ class clip_actions_v0(lambda_action_v0):
         >>> env = gym.make("BipedalWalker-v3")
         >>> env.action_space
         Box(-1.0, 1.0, (4,), float32)
-        >>> env = clip_actions_v0(
-        ...     env, 
-        ...     (
-        ...         -0.5, 
-        ...         0.5
-        ...     )
-        ... )
+        >>> env = clip_actions_v0(env, (-0.5, 0.5))
         >>> env.action_space
         Box(-0.5, 0.5, (4,), float32)
 
