@@ -71,12 +71,12 @@ class clip_actions_v0(lambda_action_v0):
         >>> env = clip_actions_v0(
         ...     env, 
         ...     (
-        ...         np.array([-0.5], dtype='float32'), 
-        ...         np.array([0.5], dtype='float32'))
+        ...         -0.5, 
+        ...         0.5
         ...     )
         ... )
         >>> env.action_space
-        Box([-0.5], [0.5], (4,), float32)
+        Box(-0.5, 0.5, (4,), float32)
 
     Clip with only a lower or upper bound:
         >>> env = gym.make(TODO)
