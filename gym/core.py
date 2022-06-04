@@ -114,7 +114,8 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     # Set this in SOME subclasses
     metadata: Dict[str, Any] = {"render_modes": []}
     reward_range: Tuple[float, float] = (-float("inf"), float("inf"))
-    spec: EnvSpec = None
+    # spec: EnvSpec = None TODO: circular import
+    spec = None
 
     # Set these in ALL subclasses
     action_space: spaces.Space[ActType]
