@@ -1,15 +1,17 @@
 """Implementation of utility functions that can be applied to spaces.
 
-These functions mostly take care of flattening and unflattening elements of spaces
- to facilitate their usage in learning code.
+These functions mostly take care of flattening and unflattening elements of spaces to facilitate their usage in learning code.
 """
+from __future__ import annotations
+
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
-from typing import TypeVar, Union, cast
+from typing import TypeVar, Union, cast, Callable, Optional, Any, Sequence
 
 import numpy as np
 
+from gym.dev_wrappers import FuncArgType
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 
@@ -17,21 +19,16 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, T
 def flatdim(space: Space) -> int:
     """Return the number of dimensions a flattened equivalent of this space would have.
 
-    Example usage::
-
-        >>> from gym.spaces import Discrete
-        >>> space = Dict({"position": Discrete(2), "velocity": Discrete(3)})
-        >>> flatdim(space)
-        5
-
-    Args:
-        space: The space to return the number of dimensions of the flattened spaces
-
-    Returns:
-        The number of dimensions for the flattened spaces
+    Accepts a space and returns an integer.
 
     Raises:
          NotImplementedError: if the space is not defined in ``gym.spaces``.
+
+    Example usage::
+
+        >>> s = Dict({"position": Discrete(2), "velocity": Discrete(3)})
+        >>> flatdim(s)
+        5
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -72,15 +69,9 @@ def flatten(space: Space[T], x: T) -> np.ndarray:
     This is useful when e.g. points from spaces must be passed to a neural
     network, which only understands flat arrays of floats.
 
-    Args:
-        space: The space that ``x`` is flattened by
-        x: The value to flatten
-
-    Returns:
-        The flattened ``x``, always returns a 1D array.
-
-    Raises:
-        NotImplementedError: If the space is not defined in ``gym.spaces``.
+    Accepts a space and a point from that space. Always returns a 1D array.
+    Raises ``NotImplementedError`` if the space is not defined in
+    ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -115,7 +106,7 @@ def _flatten_tuple(space, x) -> np.ndarray:
 
 @flatten.register(Dict)
 def _flatten_dict(space, x) -> np.ndarray:
-    return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
+    return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])  # TODO, why do we not return a dictionary here?
 
 
 @singledispatch
@@ -125,24 +116,16 @@ def unflatten(space: Space[T], x: np.ndarray) -> T:
     This reverses the transformation applied by :func:`flatten`. You must ensure
     that the ``space`` argument is the same as for the :func:`flatten` call.
 
-    Args:
-        space: The space used to unflatten ``x``
-        x: The array to unflatten
-
-    Returns:
-        A point with a structure that matches the space.
-
-    Raises:
-        NotImplementedError: if the space is not defined in ``gym.spaces``.
+    Accepts a space and a flattened point. Returns a point with a structure
+    that matches the space. Raises ``NotImplementedError`` if the space is not
+    defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
 
 @unflatten.register(Box)
 @unflatten.register(MultiBinary)
-def _unflatten_box_multibinary(
-    space: Union[Box, MultiBinary], x: np.ndarray
-) -> np.ndarray:
+def _unflatten_box_multibinary(space: Box | MultiBinary, x: np.ndarray) -> np.ndarray:
     return np.asarray(x, dtype=space.dtype).reshape(space.shape)
 
 
@@ -190,6 +173,9 @@ def flatten_space(space: Space) -> Box:
     :func:`flatdim` dimensions. Flattening a sample of the original space
     has the same effect as taking a sample of the flattenend space.
 
+    Raises ``NotImplementedError`` if the space is not defined in
+    ``gym.spaces``.
+
     Example::
 
         >>> box = Box(0.0, 1.0, shape=(3, 4, 5))
@@ -215,15 +201,6 @@ def flatten_space(space: Space) -> Box:
         Box(6,)
         >>> flatten(space, space.sample()) in flatten_space(space)
         True
-
-    Args:
-        space: The space to flatten
-
-    Returns:
-        A flattened Box
-
-    Raises:
-        NotImplementedError: if the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -258,3 +235,80 @@ def _flatten_space_dict(space: Dict) -> Box:
         high=np.concatenate([s.high for s in space_list]),
         dtype=np.result_type(*[s.dtype for s in space_list]),
     )
+
+
+@singledispatch
+def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> Any:
+    """Applies a function on ``x`` of shape ``space`` using the ``func`` callable and ``args`` arguments.
+
+    Example with fundamental space::
+        TODO
+
+    Example with dict (composite) space::
+        TODO
+
+    Example with tuple (composite) space::
+        TODO
+
+    Args:
+        space: The space of ``x``
+        x: The parameter to apply the function to
+        func: The function to apply to ``x``
+        args: The arguments to use with the function
+
+    Returns:
+        The updated ``x`` through the applied function and arguments
+    """
+
+
+@apply_function.register(Box)
+@apply_function.register(Discrete)
+@apply_function.register(MultiDiscrete)
+@apply_function.register(MultiBinary)
+def _apply_function_fundamental(_, x: Any, func: Callable, *args: Optional[Any]):
+    return func(x, *args)
+
+
+@apply_function.register(Dict)
+def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any]):
+    if args is None:
+        return OrderedDict([(space_key, apply_function(subspace, x[space_key], func, None))
+                            for space_key, subspace in space.spaces.items()])
+    elif isinstance(args, dict):
+        ordered_dict = OrderedDict()
+        for k, _ in space.items():
+            ordered_dict = _apply_function_dict_helper(ordered_dict, space, x, k, func, args)
+        return ordered_dict
+    else:
+        raise Exception  # TODO, maybe unsure
+
+
+@apply_function.register(Tuple)
+def _apply_function_tuple(space: Tuple, x: Any, func: Callable, args: Optional[Any]):
+    if args is None:
+        return tuple(apply_function(subspace, val, func, None) for subspace, val in zip(space.spaces, x))
+    elif isinstance(args, Sequence):
+        assert len(args) == len(space)  # TODO, not sure if we can deal with less args than
+        return tuple(apply_function(subspace, val, func, arg)
+                     for subspace, val, arg in zip(space.spaces, x, args))
+    else:
+        raise Exception  # TODO
+
+
+def _apply_function_dict_helper(ordered_dict, space, x, k, func, args):
+    if k not in args:
+        ordered_dict[k] = x.get(k)
+        return ordered_dict
+
+    space = space[k]
+    args = args[k]
+    x = x[k]
+
+    if type(space) != Dict:
+        ordered_dict[k] = apply_function(space, x, func, args)
+    else:
+        for k, _ in space.items():
+            ordered_dict[k] = _apply_function_dict_helper(ordered_dict, space, x, k, func, args)
+
+    return ordered_dict
+        

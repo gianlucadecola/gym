@@ -106,6 +106,11 @@ class clip_actions_v0(lambda_action_v0):
     def _make_clipped_action_space(
         self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]
     ):
+        """Make the new action space based on clipping parameters.
+
+        This function will change the action space of the wrapped
+        environment according to the clipping parameters.
+        """
         if type(env.action_space) == Box:
             action_space = Box(*args, shape=env.action_space.shape)
 
@@ -123,6 +128,12 @@ class clip_actions_v0(lambda_action_v0):
         return action_space
 
     def _compute_nested_action_space(self, env_action_space, action_space, k, args):
+        """Generate clipped action space in `Dict`.
+
+        This helper function will create the clipped action
+        space of the wrapped environment by recursively 
+        inspecting a `Dict` action space.
+        """
         if k not in args:
             action_space[k] = env_action_space[k]
             return action_space
