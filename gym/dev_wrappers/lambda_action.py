@@ -97,61 +97,53 @@ class clip_actions_v0(lambda_action_v0):
             env: The environment to wrap
             args: The arguments for clipping the action space
         """
-        action_space = self._make_clipped_action_space(env, args)
-
-        func = lambda action, args: jp.clip(action, *args)
-
-        super().__init__(env, func, args, action_space)
-
-    def _make_clipped_action_space(
-        self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]
-    ):
-        """Make the new action space based on clipping parameters.
-
-        This function will change the action space of the wrapped
-        environment according to the clipping parameters.
-        """
         if type(env.action_space) == Box:
             action_space = Box(*args, shape=env.action_space.shape)
-
         elif type(env.action_space) == Dict:
-            assert type(args) == dict
-            action_space = Dict()
-            
-            for k in env.action_space.keys():
-                action_space = self._compute_nested_action_space(
-                    env.action_space, action_space, k, args
-                )
+            assert isinstance(args, dict)
+            action_space = self._transform_dict_space(env, args)
         else:
             action_space = None
 
+        super().__init__(
+            env, lambda action, args: jp.clip(action, *args), args, action_space
+        )
+
+    def _transform_dict_space(
+        self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]
+    ):
+        action_space = Dict()
+
+        for k in env.action_space.keys():
+            action_space = self._transform_dict_space_helper(
+                env.action_space, action_space, k, args
+            )
         return action_space
 
-    def _compute_nested_action_space(self, env_action_space, action_space, k, args):
-        """Generate clipped action space in `Dict`.
-
-        This helper function will create the clipped action
-        space of the wrapped environment by recursively 
-        inspecting a `Dict` action space.
-        """
+    def _transform_dict_space_helper(
+        self,
+        env_space: gym.Space,
+        space: gym.Space,
+        k: str,
+        args: FuncArgType[TypingTuple[int, int]],
+    ):
         if k not in args:
-            action_space[k] = env_action_space[k]
-            return action_space
+            space[k] = env_space[k]
+            return space
 
         args = args[k]
-        env_action_space = env_action_space[k]
+        env_space = env_space[k]
 
-        if type(env_action_space) == Box:
-            action_space[k] = Box(*args, shape=env_action_space.shape)
+        if isinstance(env_space, Box):
+            space[k] = Box(*args, shape=env_space.shape)
 
-        elif type(env_action_space) == Dict:
-            action_space[k] = Dict()
-            for m in env_action_space.keys():
-                action_space[k] = self._compute_nested_action_space(
-                    env_action_space, action_space[k], m, args
+        elif isinstance(env_space, Dict):
+            space[k] = Dict()
+            for m in env_space.keys():
+                space[k] = self._transform_dict_space_helper(
+                    env_space, space[k], m, args
                 )
-
-        return action_space
+        return space
 
 
 class scale_actions_v0(lambda_action_v0):
