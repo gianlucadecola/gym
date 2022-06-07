@@ -19,7 +19,7 @@ class lambda_action_v0(gym.ActionWrapper):
         >>> from gym.spaces import Dict
         >>> import numpy as np
         >>> env = gym.make('CarRacing-v2')
-        >>> env = lambda_action_v0(env, lambda action, _: np.astype(action, np.int32), None)
+        >>> env = lambda_action_v0(env, lambda action, _: action.astype(np.int32), None)
         >>> env.action_space
         TODO
         >>> env.reset()
@@ -28,13 +28,18 @@ class lambda_action_v0(gym.ActionWrapper):
         TODO
 
     Composite action shape:
-        >>> env = ExampleEnv(action_space=Dict(TODO))
-        >>> env = lambda_action_v0(env, TODO, TODO, TODO)
+        >>> env = ExampleEnv(action_space=Dict(left_arm=Discrete(4), right_arm=Box(0.0, 5.0, (1,)))
+        >>> env = lambda_action_v0(
+        ...     env,
+        ...     lambda action, _: action.astype(np.int32),
+        ...     {"right_arm": True},
+        ...     None
+        ... )
         >>> env.action_space
         TODO
         >>> env.reset()
         TODO
-        >>> env.step()[0]
+        >>> env.step()
         TODO
     """
 
@@ -58,6 +63,42 @@ class lambda_action_v0(gym.ActionWrapper):
     def action(self, action):
         """Apply function to action."""
         return apply_function(self.action_space, action, self.func, self.func_args)
+
+    def _transform_dict_space(
+        self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]
+    ):
+        """Process the `Dict` space and apply the transformation."""
+        action_space = Dict()
+
+        for k in env.action_space.keys():
+            self._transform_dict_space_helper(env.action_space, action_space, k, args)
+        return action_space
+
+    def _transform_dict_space_helper(
+        self,
+        env_space: gym.Space,
+        space: gym.Space,
+        space_key: str,
+        args: FuncArgType[TypingTuple[int, int]],
+    ):
+        """Recursive function to process possibly nested `Dict` spaces."""
+        if space_key not in args:
+            space[space_key] = env_space[space_key]
+            return space
+
+        args = args[space_key]
+        env_space = env_space[space_key]
+
+        if isinstance(env_space, Box):
+            space[space_key] = Box(*args, shape=env_space.shape)
+
+        elif isinstance(env_space, Dict):
+            space[space_key] = Dict()
+            for m in env_space.keys():
+                space[space_key] = self._transform_dict_space_helper(
+                    env_space, space[space_key], m, args
+                )
+        return space
 
 
 class clip_actions_v0(lambda_action_v0):
@@ -109,51 +150,15 @@ class clip_actions_v0(lambda_action_v0):
             env, lambda action, args: jp.clip(action, *args), args, action_space
         )
 
-    def _transform_dict_space(
-        self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]
-    ):
-        action_space = Dict()
-
-        for k in env.action_space.keys():
-            action_space = self._transform_dict_space_helper(
-                env.action_space, action_space, k, args
-            )
-        return action_space
-
-    def _transform_dict_space_helper(
-        self,
-        env_space: gym.Space,
-        space: gym.Space,
-        k: str,
-        args: FuncArgType[TypingTuple[int, int]],
-    ):
-        if k not in args:
-            space[k] = env_space[k]
-            return space
-
-        args = args[k]
-        env_space = env_space[k]
-
-        if isinstance(env_space, Box):
-            space[k] = Box(*args, shape=env_space.shape)
-
-        elif isinstance(env_space, Dict):
-            space[k] = Dict()
-            for m in env_space.keys():
-                space[k] = self._transform_dict_space_helper(
-                    env_space, space[k], m, args
-                )
-        return space
-
 
 class scale_actions_v0(lambda_action_v0):
     """A wrapper that scales actions passed to :meth:`step` with a scale factor.
 
     Basic Example:
         >>> import gym
-        >>> env = gym.make(TODO)
+        >>> env = gym.make('BipedalWalker-v3')
         >>> env.action_space
-        TODO
+        Box(-1.0, 1.0, (4,), float32)
         >>> env = scale_actions_v0(env, TODO, TODO)
         >>> env.action_space
         TODO
@@ -172,5 +177,36 @@ class scale_actions_v0(lambda_action_v0):
             env: The environment to wrap
             args: The arguments for scaling the actions
         """
-        action_space = None  # TODO, add action space
-        super().__init__(env, lambda action, arg: action * arg, args, action_space)
+        if type(env.action_space) == Box:
+            action_space = Box(*args, shape=env.action_space.shape)
+            args = (*args, env.action_space.low, env.action_space.high)
+        elif type(env.action_space) == Dict:
+            assert isinstance(args, dict)
+            action_space = self._transform_dict_space(env, args)
+            # TODO: recursive function to add low and high to args
+            """
+            args before: {"body":{"left_arm": (-0.5,0.5)}, ...}
+            args after: {"body":{"left_arm": (-0.5,0.5,-1,1)}, ...}
+            where -1, 1 was the old action space bound.
+            """
+            
+        else:
+            action_space = env.action_space
+
+        def func(action, args):
+            action_space_low = args[0]
+            action_space_high = args[1]
+            low = args[2]
+            high = args[3]
+
+            return jp.clip(
+                low
+                + (high - low)
+                * (
+                    (action - action_space_low) / (action_space_high - action_space_low)
+                ),
+                low,
+                high,
+            )
+
+        super().__init__(env, func, args, action_space)
