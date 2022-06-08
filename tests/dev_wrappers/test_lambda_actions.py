@@ -80,7 +80,7 @@ def test_lambda_action_v0(env, fn, action):
     _, _, _, info = wrapped_env.step(action)
     executed_action = info["action"]
 
-    assert isinstance(executed_action, type((fn(action, None))))
+    assert isinstance(executed_action, type(fn(action, None)))
 
 
 @pytest.mark.parametrize(
@@ -173,9 +173,7 @@ def test_clip_actions_v0(env_name, args, action_unclipped_env, action_clipped_en
     ("env", "args", "action"),
     [
         (
-            TestingEnv(
-                action_space=TESTING_DICT_ACTION_SPACE
-            ),
+            TestingEnv(action_space=TESTING_DICT_ACTION_SPACE),
             {"box": (CLIP_BOX_LOW, CLIP_BOX_HIGH)},
             {"box": CLIP_BOX_HIGH + 1},
         )
@@ -229,7 +227,7 @@ def test_scale_actions_v0_box():
     """Test action rescaling.
 
     Scale action wrapper allow to rescale action
-    to a new range. 
+    to a new range.
     Supposed the old action space is of type
     `Box(-1, 1, (1,))` and we rescale to
     `Box(-0.5, 0.5, (1,))`, an action on the wrapped
@@ -240,7 +238,7 @@ def test_scale_actions_v0_box():
     ENV_ID = "BipedalWalker-v3"
     SCALE_LOW, SCALE_HIGH = -0.5, 0.5
     ARGS = (SCALE_LOW, SCALE_HIGH)
-    
+
     ACTION = np.array([1, 1, 1, 1])
     RESCALED_ACTION = np.array([SCALE_HIGH, SCALE_HIGH, SCALE_HIGH, SCALE_HIGH])
 
@@ -254,3 +252,31 @@ def test_scale_actions_v0_box():
     obs_scaled, _, _, _ = wrapped_env.step(RESCALED_ACTION)
 
     assert np.alltrue(obs == obs_scaled)
+
+
+@pytest.mark.parametrize(
+    ("env", "args", "action"),
+    [
+        (
+            TestingEnv(action_space=TESTING_NESTED_DICT_ACTION_SPACE),
+            {
+                "box": (CLIP_BOX_LOW, CLIP_BOX_HIGH),
+                "dict": {"nested": (CLIP_NESTED_BOX_LOW, CLIP_NESTED_BOX_HIGH)},
+            },
+            {
+                "box": CLIP_BOX_HIGH,
+                "discrete": 0,
+                "dict": {"nested": CLIP_NESTED_BOX_HIGH},
+            },
+        )
+    ],
+)
+def test_scale_actions_v0_nested_dict(env, args, action):
+    """Test action rescaling for nested dict action spaces."""
+
+    wrapped_env = scale_actions_v0(env, args)
+    _, _, _, info = wrapped_env.step(action)
+    executed_actions = info["action"]
+
+    assert executed_actions["box"] == BOX_HIGH
+    assert executed_actions["dict"]["nested"] == NESTED_BOX_HIGH
