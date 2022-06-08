@@ -189,7 +189,10 @@ class scale_actions_v0(lambda_action_v0):
             args after: {"body":{"left_arm": (-0.5,0.5,-1,1)}, ...}
             where -1, 1 was the old action space bound.
             """
-            
+            new_args = {}
+            for k in args:
+                transform_args(env.action_space, new_args, args, k)
+            args = new_args
         else:
             action_space = env.action_space
 
@@ -210,3 +213,23 @@ class scale_actions_v0(lambda_action_v0):
             )
 
         super().__init__(env, func, args, action_space)
+
+
+def transform_args(action_space, new_args, args, space_key):
+    if space_key not in args:
+        return new_args
+
+    args = args[space_key]
+
+    if isinstance(args, dict):
+        new_args[space_key] = {}
+        for m in args:
+            transform_args(action_space[space_key], new_args[space_key], args, m)
+    else:
+        new_args[space_key] = (
+            *args,
+            *list(action_space[space_key].low),
+            *list(action_space[space_key].high)
+            )
+
+    return new_args

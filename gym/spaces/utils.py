@@ -276,7 +276,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
                             for space_key, subspace in space.spaces.items()])
     elif isinstance(args, dict):
         ordered_dict = OrderedDict()
-        for k, _ in space.items():
+        for k in space:
             ordered_dict = _apply_function_dict_helper(ordered_dict, space, x, k, func, args)
         return ordered_dict
     else:
@@ -307,8 +307,8 @@ def _apply_function_dict_helper(ordered_dict, space, x, k, func, args):
     if type(space) != Dict:
         ordered_dict[k] = apply_function(space, x, func, args)
     else:
-        for k, _ in space.items():
-            ordered_dict[k] = _apply_function_dict_helper(ordered_dict, space, x, k, func, args)
+        ordered_dict[k] = OrderedDict()
+        for m in space:
+            _apply_function_dict_helper(ordered_dict[k], space, x, m, func, args)
 
     return ordered_dict
-        

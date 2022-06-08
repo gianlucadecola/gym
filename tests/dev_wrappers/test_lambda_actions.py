@@ -152,7 +152,7 @@ def test_clip_actions_v0(env_name, args, action_unclipped_env, action_clipped_en
         (
             TestingEnv(
                 action_space=Dict(
-                    left_arm=Discrete(4), 
+                    left_arm=Discrete(4),
                     right_arm=Box(0, 5, (1,))
                 )
             ),
@@ -165,7 +165,7 @@ def test_clip_actions_v0_dict_testing_env(env, args, action):
     """Checks Dict action spaces clipping.
 
     Check wether dictionaries action spaces are
-    correctly clipped.    
+    correctly clipped.
     """
     wrapped_env = clip_actions_v0(env, args)
     _, _, _, info = wrapped_env.step(action)
