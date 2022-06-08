@@ -42,22 +42,45 @@ ENVS = (
 
 SEED = 1
 
+DISCRETE_VALUE = 1
+
+BOX_LOW, BOX_HIGH, BOX_DIM = -5, 5, 1
+CLIP_BOX_LOW, CLIP_BOX_HIGH = 0, 2
+
+NESTED_BOX_LOW, NESTED_BOX_HIGH = 0, 10
+CLIP_NESTED_BOX_LOW, CLIP_NESTED_BOX_HIGH = 0, 5
+
+
+TESTING_BOX_ACTION_SPACE = Box(BOX_LOW, BOX_HIGH, (BOX_DIM,))
+
+TESTING_DICT_ACTION_SPACE = Dict(
+    discrete=Discrete(DISCRETE_VALUE),
+    box=Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
+)
+
+TESTING_NESTED_DICT_ACTION_SPACE = Dict(
+    discrete=Discrete(DISCRETE_VALUE),
+    box=Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
+    dict=Dict(nested=Box(NESTED_BOX_LOW, NESTED_BOX_HIGH, (BOX_DIM,))),
+)
+
+
 @pytest.mark.parametrize(
     ("env", "fn", "action"),
     [
         (
-            TestingEnv(action_space=Box(-1,1,(1,))),
+            TestingEnv(action_space=TESTING_BOX_ACTION_SPACE),
             lambda action, _: action.astype(np.int32),
             np.float64(10),
         ),
-    ]
+    ],
 )
 def test_lambda_action_v0(env, fn, action):
     wrapped_env = lambda_action_v0(env, fn, None)
     _, _, _, info = wrapped_env.step(action)
     executed_action = info["action"]
 
-    assert type(executed_action) == type(fn(action, None))
+    assert isinstance(executed_action, type((fn(action, None))))
 
 
 @pytest.mark.parametrize(
@@ -108,7 +131,7 @@ def test_clip_actions_v0_wrapped_action_space(env, args):
             np.array([0.5]),
             np.array([1]),
         ],
-                [
+        [
             "BipedalWalker-v3",
             (
                 -0.5,
@@ -147,54 +170,87 @@ def test_clip_actions_v0(env_name, args, action_unclipped_env, action_clipped_en
 
 
 @pytest.mark.parametrize(
-    ('env', 'args', "action"),
+    ("env", "args", "action"),
     [
         (
             TestingEnv(
-                action_space=Dict(
-                    left_arm=Discrete(4),
-                    right_arm=Box(0, 5, (1,))
-                )
+                action_space=TESTING_DICT_ACTION_SPACE
             ),
-            {"right_arm": (0, 2)},
-            {"right_arm": 10, "left_arm": 5}
+            {"box": (CLIP_BOX_LOW, CLIP_BOX_HIGH)},
+            {"box": CLIP_BOX_HIGH + 1},
         )
-    ]
+    ],
 )
 def test_clip_actions_v0_dict_testing_env(env, args, action):
     """Checks Dict action spaces clipping.
 
-    Check wether dictionaries action spaces are
+    Check whether dictionaries action spaces are
     correctly clipped.
     """
     wrapped_env = clip_actions_v0(env, args)
     _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
-    for k in executed_actions:
-        if k in args:
-            assert executed_actions[k] == args[k][1]
-        else:
-            assert executed_actions[k] == action[k]
+    assert executed_actions["box"] == CLIP_BOX_HIGH
 
 
 @pytest.mark.parametrize(
-    ('env', 'args', "action", "rescaled_action"),
+    ("env", "args", "action"),
     [
         (
-            gym.make("BipedalWalker-v3"),
-            (-0.5, 0.5),
-            (np.array([1,1,1,1])),
-            (np.array([0.5,0.5,0.5,0.5]))
+            TestingEnv(action_space=TESTING_NESTED_DICT_ACTION_SPACE),
+            {
+                "box": (CLIP_BOX_LOW, CLIP_BOX_HIGH),
+                "dict": {"nested": (CLIP_NESTED_BOX_LOW, CLIP_NESTED_BOX_HIGH)},
+            },
+            {
+                "box": CLIP_BOX_HIGH + 1,
+                "discrete": 0,
+                "dict": {"nested": CLIP_NESTED_BOX_HIGH + 1},
+            },
         )
-    ]
+    ],
 )
-def test_scale_actions_v0_box(env, args, action, rescaled_action):
-    env.reset(seed=SEED)
-    obs, _, _, _ = env.step(action)
+def test_clip_actions_v0_nested_dict(env, args, action):
+    """Checks Nested Dict action spaces clipping.
 
+    Check whether nested dictionaries action spaces are
+    correctly clipped.
+    """
+    wrapped_env = clip_actions_v0(env, args)
+    _, _, _, info = wrapped_env.step(action)
+    executed_actions = info["action"]
+
+    assert executed_actions["box"] == CLIP_BOX_HIGH
+    assert executed_actions["dict"]["nested"] == CLIP_NESTED_BOX_HIGH
+
+
+def test_scale_actions_v0_box():
+    """Test action rescaling.
+
+    Scale action wrapper allow to rescale action
+    to a new range. 
+    Supposed the old action space is of type
+    `Box(-1, 1, (1,))` and we rescale to
+    `Box(-0.5, 0.5, (1,))`, an action on the wrapped
+    environment with value `0.5` will be seen by the
+    environment as `1.0`.  TODO: maybe explain this better.
+    """
+
+    ENV_ID = "BipedalWalker-v3"
+    SCALE_LOW, SCALE_HIGH = -0.5, 0.5
+    ARGS = (SCALE_LOW, SCALE_HIGH)
+    
+    ACTION = np.array([1, 1, 1, 1])
+    RESCALED_ACTION = np.array([SCALE_HIGH, SCALE_HIGH, SCALE_HIGH, SCALE_HIGH])
+
+    env = gym.make(ENV_ID)
     env.reset(seed=SEED)
-    wrapped_env = scale_actions_v0(env, args)
-    obs_scaled, _, _, _ = wrapped_env.step(rescaled_action)
+    obs, _, _, _ = env.step(ACTION)
+
+    env = gym.make(ENV_ID)
+    wrapped_env = scale_actions_v0(env, ARGS)
+    wrapped_env.reset(seed=SEED)
+    obs_scaled, _, _, _ = wrapped_env.step(RESCALED_ACTION)
 
     assert np.alltrue(obs == obs_scaled)
