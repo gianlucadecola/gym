@@ -180,56 +180,59 @@ class scale_actions_v0(lambda_action_v0):
         if type(env.action_space) == Box:
             action_space = Box(*args, shape=env.action_space.shape)
             args = (*args, env.action_space.low, env.action_space.high)
+
         elif type(env.action_space) == Dict:
             assert isinstance(args, dict)
             action_space = self._transform_dict_space(env, args)
-            # TODO: recursive function to add low and high to args
-            """
-            args before: {"body":{"left_arm": (-0.5,0.5)}, ...}
-            args after: {"body":{"left_arm": (-0.5,0.5,-1,1)}, ...}
-            where -1, 1 was the old action space bound.
-            """
-            new_args = {}
-            for k in args:
-                transform_args(env.action_space, new_args, args, k)
-            args = new_args
+            extended_args = {}
+            for arg in args:
+                extend_args(env.action_space, extended_args, args, arg)
+            args = extended_args
+
         else:
             action_space = env.action_space
 
         def func(action, args):
-            action_space_low = args[0]
-            action_space_high = args[1]
-            low = args[2]
-            high = args[3]
+            new_low, new_high = args[0], args[1]
+            old_low, old_high = args[2], args[3]
 
             return jp.clip(
-                low
-                + (high - low)
-                * (
-                    (action - action_space_low) / (action_space_high - action_space_low)
-                ),
-                low,
-                high,
+                old_low
+                + (old_high - old_low) * ((action - new_low) / (new_high - new_low)),
+                old_low,
+                old_high,
             )
 
         super().__init__(env, func, args, action_space)
 
 
-def transform_args(action_space, new_args, args, space_key):
+def extend_args(action_space: Space, extended_args: dict, args: dict, space_key: str):
+    """Extend args for rescaling actions.
+
+    Action space args needs to be extended in order
+    to correctly rescale the actions.
+    i.e. args before: {"body":{"left_arm": (-0.5,0.5)}, ...}
+    args after: {"body":{"left_arm": (-0.5,0.5,-1,1)}, ...}
+    where -1, 1 was the old action space bound.
+    old action space is needed to rescale actions.
+    """
     if space_key not in args:
-        return new_args
+        return extended_args
 
     args = args[space_key]
 
     if isinstance(args, dict):
-        new_args[space_key] = {}
-        for m in args:
-            transform_args(action_space[space_key], new_args[space_key], args, m)
+        extended_args[space_key] = {}
+        for arg in args:
+            extend_args(action_space[space_key], extended_args[space_key], args, arg)
     else:
-        new_args[space_key] = (
+        assert len(args) == len(action_space[space_key].low) + len(
+            action_space[space_key].high
+        )
+        extended_args[space_key] = (
             *args,
             *list(action_space[space_key].low),
-            *list(action_space[space_key].high)
-            )
+            *list(action_space[space_key].high),
+        )
 
-    return new_args
+    return extended_args
