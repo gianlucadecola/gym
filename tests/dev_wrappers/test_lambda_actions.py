@@ -45,10 +45,10 @@ SEED = 1
 DISCRETE_VALUE = 1
 
 BOX_LOW, BOX_HIGH, BOX_DIM = -5, 5, 1
-CLIP_BOX_LOW, CLIP_BOX_HIGH = 0, 2
+NEW_BOX_LOW, NEW_BOX_HIGH = 0, 2
 
 NESTED_BOX_LOW, NESTED_BOX_HIGH = 0, 10
-CLIP_NESTED_BOX_LOW, CLIP_NESTED_BOX_HIGH = 0, 5
+NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH = 0, 5
 
 
 TESTING_BOX_ACTION_SPACE = Box(BOX_LOW, BOX_HIGH, (BOX_DIM,))
@@ -174,8 +174,8 @@ def test_clip_actions_v0(env_name, args, action_unclipped_env, action_clipped_en
     [
         (
             TestingEnv(action_space=TESTING_DICT_ACTION_SPACE),
-            {"box": (CLIP_BOX_LOW, CLIP_BOX_HIGH)},
-            {"box": CLIP_BOX_HIGH + 1},
+            {"box": (NEW_BOX_LOW, NEW_BOX_HIGH)},
+            {"box": NEW_BOX_HIGH + 1},
         )
     ],
 )
@@ -189,7 +189,7 @@ def test_clip_actions_v0_dict_testing_env(env, args, action):
     _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
-    assert executed_actions["box"] == CLIP_BOX_HIGH
+    assert executed_actions["box"] == NEW_BOX_HIGH
 
 
 @pytest.mark.parametrize(
@@ -198,13 +198,13 @@ def test_clip_actions_v0_dict_testing_env(env, args, action):
         (
             TestingEnv(action_space=TESTING_NESTED_DICT_ACTION_SPACE),
             {
-                "box": (CLIP_BOX_LOW, CLIP_BOX_HIGH),
-                "dict": {"nested": (CLIP_NESTED_BOX_LOW, CLIP_NESTED_BOX_HIGH)},
+                "box": (NEW_BOX_LOW, NEW_BOX_HIGH),
+                "dict": {"nested": (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)},
             },
             {
-                "box": CLIP_BOX_HIGH + 1,
+                "box": NEW_BOX_HIGH + 1,
                 "discrete": 0,
-                "dict": {"nested": CLIP_NESTED_BOX_HIGH + 1},
+                "dict": {"nested": NEW_NESTED_BOX_HIGH + 1},
             },
         )
     ],
@@ -219,8 +219,8 @@ def test_clip_actions_v0_nested_dict(env, args, action):
     _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
-    assert executed_actions["box"] == CLIP_BOX_HIGH
-    assert executed_actions["dict"]["nested"] == CLIP_NESTED_BOX_HIGH
+    assert executed_actions["box"] == NEW_BOX_HIGH
+    assert executed_actions["dict"]["nested"] == NEW_NESTED_BOX_HIGH
 
 
 def test_scale_actions_v0_box():
@@ -260,13 +260,13 @@ def test_scale_actions_v0_box():
         (
             TestingEnv(action_space=TESTING_NESTED_DICT_ACTION_SPACE),
             {
-                "box": (CLIP_BOX_LOW, CLIP_BOX_HIGH),
-                "dict": {"nested": (CLIP_NESTED_BOX_LOW, CLIP_NESTED_BOX_HIGH)},
+                "box": (NEW_BOX_LOW, NEW_BOX_HIGH),
+                "dict": {"nested": (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)},
             },
             {
-                "box": CLIP_BOX_HIGH,
+                "box": NEW_BOX_HIGH,
                 "discrete": 0,
-                "dict": {"nested": CLIP_NESTED_BOX_HIGH},
+                "dict": {"nested": NEW_NESTED_BOX_HIGH},
             },
         )
     ],
