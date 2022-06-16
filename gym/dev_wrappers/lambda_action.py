@@ -1,6 +1,6 @@
 """Lambda action wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
 
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 from typing import Tuple as TypingTuple
 
 import jumpy as jp
@@ -8,6 +8,7 @@ import jumpy as jp
 import gym
 from gym import Space
 from gym.dev_wrappers import FuncArgType
+from gym.dev_wrappers.utils import extend_args, transform_space
 from gym.spaces import Box, Dict, Tuple, apply_function
 
 
@@ -63,42 +64,13 @@ class lambda_action_v0(gym.ActionWrapper):
     def action(self, action):
         """Apply function to action."""
         return apply_function(self.action_space, action, self.func, self.func_args)
+ 
 
-    def _transform_dict_space(
+    def _transform_space(
         self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]
     ):
         """Process the `Dict` space and apply the transformation."""
-        action_space = Dict()
-
-        for k in env.action_space.keys():
-            self._transform_dict_space_helper(env.action_space, action_space, k, args)
-        return action_space
-
-    def _transform_dict_space_helper(
-        self,
-        env_space: gym.Space,
-        space: gym.Space,
-        space_key: str,
-        args: FuncArgType[TypingTuple[int, int]],
-    ):
-        """Recursive function to process possibly nested `Dict` spaces."""
-        if space_key not in args:
-            space[space_key] = env_space[space_key]
-            return space
-
-        args = args[space_key]
-        env_space = env_space[space_key]
-
-        if isinstance(env_space, Box):
-            space[space_key] = Box(*args, shape=env_space.shape)
-
-        elif isinstance(env_space, Dict):
-            space[space_key] = Dict()
-            for m in env_space.keys():
-                space[space_key] = self._transform_dict_space_helper(
-                    env_space, space[space_key], m, args
-                )
-        return space
+        return transform_space(env.action_space, env, args)
 
 
 class clip_actions_v0(lambda_action_v0):
@@ -138,11 +110,15 @@ class clip_actions_v0(lambda_action_v0):
             env: The environment to wrap
             args: The arguments for clipping the action space
         """
-        if type(env.action_space) == Box:
-            action_space = Box(*args, shape=env.action_space.shape)
-        elif type(env.action_space) == Dict:
+        if isinstance(env.action_space, Box):
+            action_space = self._transform_space(env, args)
+        elif isinstance(env.action_space, Dict):
             assert isinstance(args, dict)
-            action_space = self._transform_dict_space(env, args)
+            action_space = self._transform_space(env, args)
+        elif isinstance(env.action_space, Tuple):
+            assert isinstance(args, Iterable)
+            assert len(env.action_space) == len(args)
+            action_space = self._transform_space(env, args)
         else:
             action_space = None
 
@@ -178,12 +154,12 @@ class scale_actions_v0(lambda_action_v0):
             args: The arguments for scaling the actions
         """
         if type(env.action_space) == Box:
-            action_space = Box(*args, shape=env.action_space.shape)
+            action_space = self._transform_space(env, args)
             args = (*args, env.action_space.low, env.action_space.high)
 
         elif type(env.action_space) == Dict:
             assert isinstance(args, dict)
-            action_space = self._transform_dict_space(env, args)
+            action_space = self._transform_space(env, args)
             extended_args = {}
             for arg in args:
                 extend_args(env.action_space, extended_args, args, arg)
@@ -204,35 +180,3 @@ class scale_actions_v0(lambda_action_v0):
             )
 
         super().__init__(env, func, args, action_space)
-
-
-def extend_args(action_space: Space, extended_args: dict, args: dict, space_key: str):
-    """Extend args for rescaling actions.
-
-    Action space args needs to be extended in order
-    to correctly rescale the actions.
-    i.e. args before: {"body":{"left_arm": (-0.5,0.5)}, ...}
-    args after: {"body":{"left_arm": (-0.5,0.5,-1,1)}, ...}
-    where -1, 1 was the old action space bound.
-    old action space is needed to rescale actions.
-    """
-    if space_key not in args:
-        return extended_args
-
-    args = args[space_key]
-
-    if isinstance(args, dict):
-        extended_args[space_key] = {}
-        for arg in args:
-            extend_args(action_space[space_key], extended_args[space_key], args, arg)
-    else:
-        assert len(args) == len(action_space[space_key].low) + len(
-            action_space[space_key].high
-        )
-        extended_args[space_key] = (
-            *args,
-            *list(action_space[space_key].low),
-            *list(action_space[space_key].high),
-        )
-
-    return extended_args
