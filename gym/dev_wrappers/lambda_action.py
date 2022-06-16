@@ -110,17 +110,7 @@ class clip_actions_v0(lambda_action_v0):
             env: The environment to wrap
             args: The arguments for clipping the action space
         """
-        if isinstance(env.action_space, Box):
-            action_space = self._transform_space(env, args)
-        elif isinstance(env.action_space, Dict):
-            assert isinstance(args, dict)
-            action_space = self._transform_space(env, args)
-        elif isinstance(env.action_space, Tuple):
-            assert isinstance(args, Iterable)
-            assert len(env.action_space) == len(args)
-            action_space = self._transform_space(env, args)
-        else:
-            action_space = None
+        action_space = self._transform_space(env, args)
 
         super().__init__(
             env, lambda action, args: jp.clip(action, *args), args, action_space
@@ -153,20 +143,16 @@ class scale_actions_v0(lambda_action_v0):
             env: The environment to wrap
             args: The arguments for scaling the actions
         """
+        action_space = self._transform_space(env, args)
+
         if type(env.action_space) == Box:
-            action_space = self._transform_space(env, args)
             args = (*args, env.action_space.low, env.action_space.high)
 
         elif type(env.action_space) == Dict:
-            assert isinstance(args, dict)
-            action_space = self._transform_space(env, args)
             extended_args = {}
             for arg in args:
                 extend_args(env.action_space, extended_args, args, arg)
             args = extended_args
-
-        else:
-            action_space = env.action_space
 
         def func(action, args):
             new_low, new_high = args[0], args[1]

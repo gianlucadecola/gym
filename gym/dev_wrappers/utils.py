@@ -1,8 +1,11 @@
 """A set of utility functions for lambda wrappers."""
+import enum
+
+from cv2 import transform
 import gym
 from gym import Space
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Sequence
 from typing import Tuple as TypingTuple
 
 from gym.dev_wrappers import FuncArgType
@@ -48,18 +51,31 @@ def transform_space(space: Space, env: gym.Env, args: FuncArgType[TypingTuple[in
 
 
 @transform_space.register(Box)
-def _transform_space_Box(_, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
-    return Box(*args, shape=env.action_space.shape)
+def _transform_space_box(space, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    return Box(*args, shape=space.shape)
 
 
 @transform_space.register(Tuple)
-def _transform_space_Tuple(space: Tuple, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
-    action_space = Tuple([])
-    return action_space
+def _transform_space_tuple(space: Tuple, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    assert isinstance(args, Sequence)
+    assert len(space) == len(args)
+    
+    action_space = []
+    
+    for i, arg in enumerate(args):
+        if arg is not None:
+            transformed_space = transform_space(env.action_space[i], env, arg)
+            action_space.append(transformed_space)
+        else:
+            action_space.append(env.action_space[i])       
+
+    return Tuple(action_space)
 
 
 @transform_space.register(Dict)
 def _transform_space_dict(space: Dict, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    assert isinstance(args, dict)
+
     def _transform_dict_space_helper(
         env_space: gym.Space,
         space: gym.Space,
