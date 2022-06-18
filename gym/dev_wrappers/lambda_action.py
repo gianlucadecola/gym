@@ -1,6 +1,6 @@
 """Lambda action wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
 
-from typing import Any, Callable, Iterable
+from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
 import jumpy as jp
@@ -64,11 +64,8 @@ class lambda_action_v0(gym.ActionWrapper):
     def action(self, action):
         """Apply function to action."""
         return apply_function(self.action_space, action, self.func, self.func_args)
- 
 
-    def _transform_space(
-        self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]
-    ):
+    def _transform_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
         """Process the `Dict` space and apply the transformation."""
         return transform_space(env.action_space, env, args)
 

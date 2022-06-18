@@ -6,7 +6,7 @@ import gym
 from gym.dev_wrappers.lambda_action import scale_actions_v0
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
 from gym.wrappers import clip_actions_v0, lambda_action_v0  # scale_actions_v0
-from tests.dev_wrappers.utils import TestingEnv, contains_space
+from tests.dev_wrappers.utils import TestingEnv
 
 ENVS = (
     gym.make("CartPole-v1", disable_env_checker=True),  # action_shape=Discrete(2)
@@ -65,22 +65,19 @@ TESTING_NESTED_DICT_ACTION_SPACE = Dict(
 )
 
 TESTING_TUPLE_ACTION_SPACE = Tuple(
-    [
-        Discrete(DISCRETE_VALUE),
-        Box(BOX_LOW, BOX_HIGH, (BOX_DIM,))
-    ]
+    [Discrete(DISCRETE_VALUE), Box(BOX_LOW, BOX_HIGH, (BOX_DIM,))]
 )
 
 TESTING_NESTED_TUPLE_ACTION_SPACE = Tuple(
     [
-       Discrete(DISCRETE_VALUE),
-       Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
-       Tuple(
-        [
-            Discrete(DISCRETE_VALUE),
-            Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
-        ]
-       )
+        Discrete(DISCRETE_VALUE),
+        Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
+        Tuple(
+            [
+                Discrete(DISCRETE_VALUE),
+                Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
+            ]
+        ),
     ]
 )
 
@@ -249,7 +246,7 @@ def test_clip_actions_v0_nested_dict(env, args, action):
         (
             TestingEnv(action_space=TESTING_TUPLE_ACTION_SPACE),
             [None, (NEW_BOX_LOW, NEW_BOX_HIGH)],
-            [0, NEW_BOX_HIGH+1],
+            [0, NEW_BOX_HIGH + 1],
         )
     ],
 )
