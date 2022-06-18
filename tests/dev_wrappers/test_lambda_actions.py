@@ -71,6 +71,19 @@ TESTING_TUPLE_ACTION_SPACE = Tuple(
     ]
 )
 
+TESTING_NESTED_TUPLE_ACTION_SPACE = Tuple(
+    [
+       Discrete(DISCRETE_VALUE),
+       Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
+       Tuple(
+        [
+            Discrete(DISCRETE_VALUE),
+            Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
+        ]
+       )
+    ]
+)
+
 
 @pytest.mark.parametrize(
     ("env", "fn", "action"),

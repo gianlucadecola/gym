@@ -1,6 +1,6 @@
 """A set of utility functions for lambda wrappers."""
 import enum
-from operator import is_
+from copy import deepcopy
 
 from cv2 import transform
 import gym
@@ -78,8 +78,9 @@ def _transform_space_tuple(space: Tuple, env: gym.Env, args: FuncArgType[TypingT
     
     for i, arg in enumerate(args):
         if is_nestable(space[i]):
-            transform_nestable_space(space[i], updated_space, i, args, env)
-            updated_space[i] = Tuple(updated_space[i])
+            transform_nestable_space(space[i], updated_space, i, args[i], env)
+            if isinstance(updated_space[i], list):
+                updated_space[i] = Tuple(updated_space[i])
         else:
             updated_space[i] = transform_space(env.action_space[i], env, arg)        
 
@@ -89,11 +90,11 @@ def _transform_space_tuple(space: Tuple, env: gym.Env, args: FuncArgType[TypingT
 @transform_space.register(Dict)
 def _transform_space_dict(space: Dict, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
     assert isinstance(args, dict)   
-    updated_space = Dict()
+    updated_space = deepcopy(env.action_space)
 
-    for k in env.action_space.keys():
+    for k in args:
         if is_nestable(space[k]):
-            transform_nestable_space(space[k], updated_space, k, args, env)
+            transform_nestable_space(space[k], updated_space, k, args[k], env)
         else:
             updated_space[k] = transform_space(space[k], env, args.get(k))
     return updated_space
@@ -119,26 +120,20 @@ def _transform_nestable_dict_space(
         env
     ):
     """Recursive function to process possibly nested `Dict` spaces."""
-    updated_space[key_to_update] = Dict()
     
-    if key_to_update not in args:
-        updated_space[key_to_update] = original_space[key_to_update]
-        return
-
-    args = args[key_to_update]
     updated_space = updated_space[key_to_update]
 
-    for original_key in original_space.keys():
-        if is_nestable(original_space[original_key]):
+    for k in args:
+        if is_nestable(original_space[k]):
             transform_nestable_space(
-                original_space[original_key], 
+                original_space[k], 
                 updated_space,
-                original_key, 
-                args,
+                k, 
+                args[k],
                 env
             )
         else:
-            updated_space[original_key] = transform_space(original_space[original_key], env, args.get(original_key))
+            updated_space[k] = transform_space(original_space[k], env, args.get(k))
 
 
 @transform_nestable_space.register(Tuple)
@@ -150,30 +145,14 @@ def _transform_nestable_tuple_space(
         env
     ):
     """Recursive function to process possibly nested `Tuple` spaces."""    
-    updated_space[idx_to_update] = [s for s in original_space[idx_to_update]]
+    updated_space[idx_to_update] = [s for s in original_space]
     updated_space = updated_space[idx_to_update]
 
-    if args[idx_to_update] is None:
+    if args is None:
         return
-
-    args = args[idx_to_update]
-    original_space = original_space[idx_to_update]
 
     for i, arg in enumerate(args):
         if is_nestable(original_space[i]):
-            transform_nestable_space(original_space, updated_space, i, args, env)
+            transform_nestable_space(original_space[i], updated_space, i, args[i], env)
         else:
             updated_space[i] = transform_space(original_space[i], env, arg) 
-
-
-
-if __name__ == '__main__':
-    import gym
-    from gym.dev_wrappers.lambda_action import clip_actions_v0
-    from gym.spaces import Box, Discrete, Tuple
-    from tests.dev_wrappers.utils import TestingEnv
-
-    env = TestingEnv(action_space=Tuple([Discrete(4), Box(0.0, 5.0, (1,)), Dict(head=Box(0,10,(1,)))]))
-    env = clip_actions_v0(env, [None, (0, 2), {"head": (0,2)}])
-    print(env.action_space)
-
