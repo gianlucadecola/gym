@@ -15,6 +15,8 @@ from tests.dev_wrappers.test_lambda_actions import (
     TESTING_TUPLE_ACTION_SPACE,
     TESTING_NESTED_TUPLE_ACTION_SPACE,
     TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE,
+    TESTING_TUPLE_WITHIN_DICT_ACTION_SPACE,
+    TESTING_DICT_WITHIN_TUPLE_ACTION_SPACE,
 )
 
 from tests.dev_wrappers.utils import TestingEnv
@@ -214,6 +216,53 @@ def test_clip_actions_v0_nested_tuple_action(env, args, action):
     
     assert executed_actions[0] == NEW_BOX_HIGH
     assert nested_action == NEW_NESTED_BOX_HIGH
+
+
+@pytest.mark.parametrize(
+    ("env", "args", "action"),
+    [
+        (
+            TestingEnv(action_space=TESTING_DICT_WITHIN_TUPLE_ACTION_SPACE),
+            [None, {"dict": (NEW_BOX_LOW, NEW_BOX_HIGH)}],
+            [0, {"dict": NEW_BOX_HIGH + 1}],
+        )
+    ],
+)
+def test_clip_actions_v0_dict_within_tuple(env, args, action):
+    """Checks Dict within Tuple action spaces clipping.
+
+    Check whether a dict action space within a tuple action
+    space is correctly clipped.
+    """
+    wrapped_env = clip_actions_v0(env, args)
+    _, _, _, info = wrapped_env.step(action)
+    executed_actions = info["action"]
+
+    assert executed_actions[1]["dict"] == NEW_BOX_HIGH
+
+
+
+@pytest.mark.parametrize(
+    ("env", "args", "action"),
+    [
+        (
+            TestingEnv(action_space=TESTING_TUPLE_WITHIN_DICT_ACTION_SPACE),
+            {"tuple": [(NEW_BOX_LOW, NEW_BOX_HIGH)]},
+            {"discrete": 0, "tuple": [NEW_BOX_HIGH + 1]},
+        )
+    ],
+)
+def test_clip_actions_v0_tuple_within_dict(env, args, action):
+    """Checks Tuple within Dict action spaces clipping.
+
+    Check whether a Tuple action space within a Dict action
+    space is correctly clipped.
+    """
+    wrapped_env = clip_actions_v0(env, args)
+    _, _, _, info = wrapped_env.step(action)
+    executed_actions = info["action"]
+
+    assert executed_actions["tuple"][0] == NEW_BOX_HIGH
 
 
 
