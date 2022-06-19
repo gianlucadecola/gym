@@ -1,3 +1,4 @@
+from typing import Iterable, Sequence
 import pytest
 import gym
 import numpy as np
@@ -174,6 +175,27 @@ def test_clip_actions_v0_tuple_action(env, args, action):
                 ]
             ],   
         ),
+        (
+            TestingEnv(action_space=TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE),
+            [
+                (NEW_BOX_LOW, NEW_BOX_HIGH),
+                [
+                    None,
+                    [
+                        (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)
+                    ]
+                ]                
+            ],
+            [
+                NEW_BOX_HIGH + 1,
+                [
+                    0,
+                    [
+                        NEW_NESTED_BOX_HIGH + 1
+                    ]
+                ]
+            ],   
+        ),
     ],
 )
 def test_clip_actions_v0_nested_tuple_action(env, args, action):
@@ -187,11 +209,11 @@ def test_clip_actions_v0_nested_tuple_action(env, args, action):
     executed_actions = info["action"]
 
     nested_action = executed_actions[-1]
-    while isinstance(nested_action, list):
+    while isinstance(nested_action, tuple):
         nested_action = nested_action[-1]
     
     assert executed_actions[0] == NEW_BOX_HIGH
-    assert nested_action[-1] == NEW_NESTED_BOX_HIGH
+    assert nested_action == NEW_NESTED_BOX_HIGH
 
 
 

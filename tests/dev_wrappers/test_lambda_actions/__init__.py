@@ -53,19 +53,32 @@ TESTING_NESTED_TUPLE_ACTION_SPACE = Tuple(
 
 TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE = Tuple(
     [
-        Discrete(DISCRETE_VALUE),
         Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
         Tuple(
             [
                 Discrete(DISCRETE_VALUE),
-                Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
                 Tuple(
                     [
-                        Discrete(DISCRETE_VALUE),
                         Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
                     ]
                 )
             ]
         ),
+    ]
+)
+
+TESTING_TUPLE_WITHIN_DICT_ACTION_SPACE = Dict(
+    discrete=Discrete(DISCRETE_VALUE),
+    tuple=Tuple(
+        Box(BOX_LOW, BOX_HIGH, (BOX_DIM,))
+    )
+)
+
+TESTING_DICT_WITHIN_TUPLE_ACTION_SPACE = Tuple(
+    [
+        Discrete(DISCRETE_VALUE),
+        Dict(
+            dict=Box(BOX_LOW, BOX_HIGH, (BOX_DIM,))
+        )
     ]
 )

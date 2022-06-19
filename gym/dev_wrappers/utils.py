@@ -144,7 +144,9 @@ def _transform_nestable_tuple_space(
 ):
     """Recursive function to process possibly nested `Tuple` spaces."""
     updated_space[idx_to_update] = [s for s in original_space]
+    reference = updated_space
     updated_space = updated_space[idx_to_update]
+    
 
     if args is None:
         return
@@ -154,3 +156,37 @@ def _transform_nestable_tuple_space(
             transform_nestable_space(original_space[i], updated_space, i, args[i], env)
         else:
             updated_space[i] = transform_space(original_space[i], env, arg)
+
+    if isinstance(reference[idx_to_update], list):
+        reference[idx_to_update] = Tuple(reference[idx_to_update])
+            
+
+if __name__ == '__main__':
+    import gym
+
+    from gym.spaces import Box, Discrete, Dict, Tuple
+    from gym.dev_wrappers.lambda_action import clip_actions_v0
+    from tests.dev_wrappers.utils import TestingEnv
+    
+    env = TestingEnv(
+    action_space=Tuple([
+            Tuple([
+                Box(-6,6,(1,)),
+                Tuple([
+                    Box(-6,6,(1,)),    
+                ])
+            ])
+        ])
+    )
+    wrapped_env = clip_actions_v0(
+    env,
+        [
+            [
+                None,
+                [
+                    (-3,3)
+                ]
+            ]
+        ]
+    )
+    print(wrapped_env.action_space)
