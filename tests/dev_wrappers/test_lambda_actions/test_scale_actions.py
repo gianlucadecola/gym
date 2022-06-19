@@ -1,20 +1,21 @@
-import pytest
-import gym
+"""Test suite for scale_actions_v0."""
 import numpy as np
+import pytest
 
-from tests.dev_wrappers.test_lambda_actions import (
-    SEED,
-    BOX_HIGH,
-    NEW_BOX_LOW, 
-    NEW_BOX_HIGH,
-    TESTING_NESTED_DICT_ACTION_SPACE,
-    NEW_NESTED_BOX_LOW, 
-    NEW_NESTED_BOX_HIGH,
-    NESTED_BOX_HIGH,
-)
-
-from tests.dev_wrappers.utils import TestingEnv
+import gym
 from gym.dev_wrappers.lambda_action import scale_actions_v0
+from tests.dev_wrappers.test_lambda_actions import (
+    BOX_HIGH,
+    NESTED_BOX_HIGH,
+    NEW_BOX_HIGH,
+    NEW_BOX_LOW,
+    NEW_NESTED_BOX_HIGH,
+    NEW_NESTED_BOX_LOW,
+    SEED,
+    TESTING_NESTED_DICT_ACTION_SPACE,
+)
+from tests.dev_wrappers.utils import TestingEnv
+
 
 def test_scale_actions_v0_box():
     """Test action rescaling.
