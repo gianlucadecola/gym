@@ -66,7 +66,7 @@ class lambda_action_v0(gym.ActionWrapper):
         return apply_function(self.action_space, action, self.func, self.func_args)
 
     def _transform_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
-        """Process the `Dict` space and apply the transformation."""
+        """Process the space and apply the transformation."""
         return transform_space(env.action_space, env, args)
 
 
