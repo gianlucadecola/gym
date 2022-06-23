@@ -53,6 +53,7 @@ COMPOSITE_ENVS = [env for env in ENVS if isinstance(env.observation_space, (Dict
     ],
 )
 def test_reshape_observations_box_v0(env, args):
+    """Test correct reshaping of box observation spaces."""
     wrapped_env = reshape_observations_v0(env, args)
     wrapped_env.reset(seed=SEED)
 
@@ -65,6 +66,11 @@ def test_reshape_observations_box_v0(env, args):
 
 
 def test_reshape_observations_box_impossible_v0():
+    """Test wrong new shape raises ValueError.
+
+    A wrong new shape is a shape that can not be 
+    obtained from the original shape.    
+    """
     env = TestingEnv(observation_space=TESTING_BOX_OBSERVATION_SPACE)
     
     with pytest.raises(ValueError):
