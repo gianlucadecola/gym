@@ -1,4 +1,6 @@
 from faulthandler import disable
+
+import py
 import gym
 import pytest
 
@@ -8,6 +10,13 @@ from gym.wrappers import (
 
 )
 from tests.dev_wrappers.utils import contains_space, TestingEnv
+from tests.dev_wrappers.test_lambda_observations.mock_data import (
+    SEED,
+    NUM_STEPS,
+    NEW_BOX_DIM,
+    NEW_BOX_DIM_IMPOSSIBLE,
+    TESTING_BOX_OBSERVATION_SPACE
+)
 
 NUM_ENVS = 3
 ENVS = [
@@ -29,16 +38,18 @@ ENVS = [
 IMAGE_ENVS = [env for env in ENVS if contains_space(env.observation_space, Box)]
 COMPOSITE_ENVS = [env for env in ENVS if isinstance(env.observation_space, (Dict, Tuple))]
 
-SEED = 1
-NUM_STEPS = 5
-
 
 @pytest.mark.parametrize(
     ("env", "args",),
     [
-        (gym.make("CarRacing-v1"), (96, 36, 8)),
-        (gym.make("CartPole-v1"), (2, 2)),
-        
+        (
+            TestingEnv(observation_space=TESTING_BOX_OBSERVATION_SPACE),
+            NEW_BOX_DIM,     
+        ),
+        (
+            gym.make('CarRacing-v1'), # Box(0, 255, (96, 96, 3), uint8)
+            (96, 48, 6)
+        )      
     ],
 )
 def test_reshape_observations_box_v0(env, args):
@@ -51,6 +62,15 @@ def test_reshape_observations_box_v0(env, args):
         action = wrapped_env.action_space.sample()
         obs, *res = wrapped_env.step(action)
         assert obs in wrapped_env.observation_space
+
+
+def test_reshape_observations_box_impossible_v0():
+    env = TestingEnv(observation_space=TESTING_BOX_OBSERVATION_SPACE)
+    
+    with pytest.raises(ValueError):
+        reshape_observations_v0(
+            env, 
+            NEW_BOX_DIM_IMPOSSIBLE)
 
 
 @pytest.mark.parametrize(
