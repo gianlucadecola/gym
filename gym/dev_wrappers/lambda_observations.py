@@ -11,7 +11,8 @@ from gym.core import ObsType
 from gym.dev_wrappers import ArgType, FuncArgType
 from gym import spaces
 from gym.spaces.utils import apply_function, flatten, flatten_space
-from gym.dev_wrappers.utils import extend_args, transform_space
+from gym.dev_wrappers.utils.utils import extend_args
+from gym.dev_wrappers.utils.reshape_spaces import reshape_space
 
 
 class lambda_observations_v0(gym.ObservationWrapper):
@@ -58,9 +59,9 @@ class lambda_observations_v0(gym.ObservationWrapper):
     def observation(self, observation: ObsType):
         return apply_function(self.observation_space, observation, self.func, self.args)
 
-    def _transform_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def _reshape_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
         """Process the space and apply the transformation."""
-        return transform_space(env.observation_space, env, args)
+        return reshape_space(env.observation_space, env, args)
 
 
 class filter_observations_v0(lambda_observations_v0):
@@ -300,8 +301,8 @@ class reshape_observations_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The arguments to reshape the observation
         """
-        observation_space =  self._transform_space(env, args)
-        
+        observation_space =  self._reshape_space(env, args)
+
         super().__init__(
             env,
             lambda obs, arg: obs if arg is None else jp.reshape(obs, arg),

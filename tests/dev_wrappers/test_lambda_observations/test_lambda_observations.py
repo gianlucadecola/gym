@@ -62,11 +62,11 @@ def test_reshape_observations_box_v0(env, args):
         ),
         (
             TestingEnv(observation_space=Dict(obs=Box(0, 1, (96, 96, 3)), obs2=Box(0, 1, (96, 96, 3)))),
-            {"obs1": (96, 36, 8)}
+            {"obs": (96, 36, 8)}
         ),
         (
             TestingEnv(observation_space=Dict(obs=Box(0, 1, (96, 96, 3)), obs2=Box(0, 1, (96, 96, 3)))),
-            {"obs1": (96, 36, 8), "obs2": (36, 96, 8)}
+            {"obs": (96, 36, 8), "obs2": (36, 96, 8)}
         ),
 
     ],
