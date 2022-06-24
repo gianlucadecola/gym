@@ -1,5 +1,14 @@
 """A set of utility functions for lambda wrappers."""
-from gym.spaces import Dict, Space, Tuple
+from copy import deepcopy
+from functools import singledispatch
+from typing import Any, Sequence
+from typing import Tuple as TypingTuple
+
+import numpy as np
+
+import gym
+from gym.dev_wrappers import FuncArgType
+from gym.spaces import Box, Dict, Discrete, Space, Tuple
 
 
 def extend_args(action_space: Space, extended_args: dict, args: dict, space_key: str):
@@ -37,3 +46,64 @@ def extend_args(action_space: Space, extended_args: dict, args: dict, space_key:
 def is_nestable(space: Space):
     """Returns whether the input space can contains other spaces."""
     return isinstance(space, Tuple) or isinstance(space, Dict)
+
+
+@singledispatch
+def transform_nestable_space(
+    original_space: gym.Space,
+    space: gym.Space,
+    space_key: str,
+    args: FuncArgType[TypingTuple[int, int]],
+    fn
+):
+    """Transform nestable space with the provided args."""
+
+
+@transform_nestable_space.register(Dict)
+def _transform_nestable_dict_space(
+    original_space: gym.Space,
+    updated_space: gym.Space,
+    arg: str,
+    args: FuncArgType[TypingTuple[int, int]],
+    fn,
+):
+    """Recursive function to process possibly nested `Dict` spaces."""
+    updated_space = updated_space[arg]
+
+    for arg in args:
+        if is_nestable(original_space[arg]):
+            transform_nestable_space(
+                original_space[arg], updated_space, arg, args[arg], fn
+            )
+        else:
+            updated_space[arg] = fn(
+                original_space[arg], args.get(arg), fn
+            )
+
+
+@transform_nestable_space.register(Tuple)
+def _transform_nestable_tuple_space(
+    original_space: gym.Space,
+    updated_space: gym.Space,
+    idx_to_update: int,
+    args: FuncArgType[TypingTuple[int, int]],
+    fn,
+):
+    """Recursive function to process possibly nested `Tuple` spaces."""
+    updated_space[idx_to_update] = [s for s in original_space]
+
+    if args is None:
+        return
+
+    for i, arg in enumerate(args):
+        if is_nestable(original_space[i]):
+            transform_nestable_space(
+                original_space[i], updated_space[idx_to_update], i, args[i], fn
+            )
+        else:
+            updated_space[idx_to_update][i] = fn(
+                original_space[i], arg, fn
+            )
+
+    if isinstance(updated_space[idx_to_update], list):
+        updated_space[idx_to_update] = Tuple(updated_space[idx_to_update])

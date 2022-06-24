@@ -9,7 +9,7 @@ import gym
 from gym import Space
 from gym.dev_wrappers import FuncArgType
 from gym.dev_wrappers.utils.utils import extend_args
-from gym.dev_wrappers.utils.update_space_bounds import transform_space
+from gym.dev_wrappers.utils.transform_spaces import reshape_space, transform_space_bounds
 from gym.spaces import Box, Dict, Tuple, apply_function
 
 
@@ -68,7 +68,7 @@ class lambda_action_v0(gym.ActionWrapper):
 
     def _transform_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
         """Process the space and apply the transformation."""
-        return transform_space(env.action_space, env, args)
+        return transform_space_bounds(env.action_space, args, transform_space_bounds)
 
 
 class clip_actions_v0(lambda_action_v0):
