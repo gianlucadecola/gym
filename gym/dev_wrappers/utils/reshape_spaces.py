@@ -52,7 +52,7 @@ def _reshape_space_tuple(space, env: gym.Env, args: FuncArgType[TypingTuple[int,
             if isinstance(updated_space[i], list):
                 updated_space[i] = Tuple(updated_space[i])
         else:
-            updated_space[i] = reshape_space(env.action_space[i], env, arg)
+            updated_space[i] = reshape_space(env.observation_space[i], env, arg)
 
     return Tuple(updated_space)
 

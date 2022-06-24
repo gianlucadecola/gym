@@ -163,6 +163,6 @@ def test_reshape_observations_tuple_v0():
         if arg:
             assert wrapped_env.observation_space[i].shape == arg
         else:
-            assert wrapped_env.observation_space[i].shape == env.observation_space[i]
+            assert wrapped_env.observation_space[i].shape == env.observation_space[i].shape
 
     

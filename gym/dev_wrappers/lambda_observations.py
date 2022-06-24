@@ -212,7 +212,7 @@ class grayscale_observations_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The arguments for what to convert colour to grayscale in the observation
         """
-        observation_space = None  # todo update observation space
+        observation_space = self._reshape_space(env, args)
         super().__init__(
             env,
             lambda obs, arg: obs if arg is False else jp.dot(obs[..., :3], jp.array([0.2989, 0.5870, 0.1140])),  # todo, bug in that jp.dot will always return jax.array
@@ -256,7 +256,7 @@ class resize_observations_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The arguments to resize the observation
         """
-        observation_space = None  # todo, update observation space
+        observation_space = self._reshape_space(env, args)
 
         super().__init__(
             env,
