@@ -11,8 +11,9 @@ from gym.core import ObsType
 from gym.dev_wrappers import ArgType, FuncArgType
 from gym import spaces
 from gym.spaces.utils import apply_function, flatten, flatten_space
-from gym.dev_wrappers.utils.utils import extend_args
 from gym.dev_wrappers.utils.reshape_space import reshape_space
+from gym.dev_wrappers.utils.filter_space import filter_space
+
 
 
 class lambda_observations_v0(gym.ObservationWrapper):
@@ -56,7 +57,7 @@ class lambda_observations_v0(gym.ObservationWrapper):
         env: gym.Env,
         func: Callable[[ObsType, ArgType], ObsType],
         args: FuncArgType[Any],
-        observation_space: spaces.Space,
+        observation_space: Optional[spaces.Space] = None,
     ):
         """Constructor for the lambda observation wrapper
 
@@ -69,7 +70,10 @@ class lambda_observations_v0(gym.ObservationWrapper):
         super().__init__(env)
         self.func = func
         self.args = args
-        self.observation_space = observation_space
+        if observation_space is None:
+            self.observation_space = env.observation_space
+        else:
+            self.observation_space = observation_space
 
     def observation(self, observation: ObsType):
         return apply_function(self.observation_space, observation, self.func, self.args)
@@ -135,11 +139,19 @@ class filter_observations_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The filter arguments
         """
-        # todo modify the func args if list of strings or integers are passed in to bool type
-        observation_space = None  # todo update observation space
+        # TODO: _filter_space is actually filtering space AND processing args
+        # might need refactor
+        observation_space, args = self._filter_space(env.observation_space, args)
+        
         super().__init__(
-            env, lambda obs, arg: obs, args, observation_space  # todo update function
+            env, lambda obs, arg: obs, args, observation_space
         )
+
+    def _filter_space(
+        self, space: spaces.Space, args: FuncArgType[Union[str, int, bool]]
+    ):
+        """Filter space with the provided args."""
+        return filter_space(space, args, filter_space)
 
 
 class flatten_observations_v0(lambda_observations_v0):
