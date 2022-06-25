@@ -1,14 +1,17 @@
 """A set of utility functions for lambda wrappers."""
 from copy import deepcopy
 from functools import singledispatch
-from typing import Any, Sequence
+from typing import Callable, Sequence
 from typing import Tuple as TypingTuple
 
 import numpy as np
 
 import gym
 from gym.dev_wrappers import FuncArgType
-from gym.spaces import Box, Dict, Discrete, Space, Tuple
+from gym.spaces import Dict, Space, Tuple
+
+from gym.dev_wrappers.utils.reshape_space import reshape_space
+from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
 
 
 def extend_args(action_space: Space, extended_args: dict, args: dict, space_key: str):
@@ -54,7 +57,7 @@ def transform_nestable_space(
     space: gym.Space,
     space_key: str,
     args: FuncArgType[TypingTuple[int, int]],
-    fn
+    fn: Callable
 ):
     """Transform nestable space with the provided args."""
 
@@ -65,9 +68,9 @@ def _transform_nestable_dict_space(
     updated_space: gym.Space,
     arg: str,
     args: FuncArgType[TypingTuple[int, int]],
-    fn,
+    fn: Callable,
 ):
-    """Recursive function to process possibly nested `Dict` spaces."""
+    """Recursive function to process nested `Dict` spaces."""
     updated_space = updated_space[arg]
 
     for arg in args:
@@ -87,9 +90,9 @@ def _transform_nestable_tuple_space(
     updated_space: gym.Space,
     idx_to_update: int,
     args: FuncArgType[TypingTuple[int, int]],
-    fn,
+    fn: Callable,
 ):
-    """Recursive function to process possibly nested `Tuple` spaces."""
+    """Recursive function to process nested `Tuple` spaces."""
     updated_space[idx_to_update] = [s for s in original_space]
 
     if args is None:
@@ -107,3 +110,40 @@ def _transform_nestable_tuple_space(
 
     if isinstance(updated_space[idx_to_update], list):
         updated_space[idx_to_update] = Tuple(updated_space[idx_to_update])
+
+
+@reshape_space.register(Tuple)
+@transform_space_bounds.register(Tuple)
+def _process_space_tuple(
+    space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+):
+    assert isinstance(args, Sequence)
+    assert len(space) == len(args)
+
+    updated_space = [s for s in space]
+
+    for i, arg in enumerate(args):
+        if is_nestable(space[i]):
+            transform_nestable_space(space[i], updated_space, i, args[i], fn)
+            if isinstance(updated_space[i], list):
+                updated_space[i] = Tuple(updated_space[i])
+        else:
+            updated_space[i] = fn(space[i], arg, fn)
+
+    return Tuple(updated_space)
+
+
+@reshape_space.register(Dict)
+@transform_space_bounds.register(Dict)
+def _process_space_dict(
+    space: Dict, args: FuncArgType[TypingTuple[int, int]], fn
+):
+    assert isinstance(args, dict)
+    updated_space = deepcopy(space)
+
+    for arg in args:
+        if is_nestable(space[arg]):
+            transform_nestable_space(space[arg], updated_space, arg, args[arg], fn)
+        else:
+            updated_space[arg] = fn(space[arg], args.get(arg), fn)
+    return updated_space

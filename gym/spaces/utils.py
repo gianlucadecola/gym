@@ -298,7 +298,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
     if args is None:
         return OrderedDict(
             [
-                (space_key, apply_function(subspace, x[space_key], func, None))
+                (space_key, apply_function(subspace, x, func, None))
                 for space_key, subspace in space.spaces.items()
             ]
         )

@@ -12,7 +12,7 @@ from gym.dev_wrappers import ArgType, FuncArgType
 from gym import spaces
 from gym.spaces.utils import apply_function, flatten, flatten_space
 from gym.dev_wrappers.utils.utils import extend_args
-from gym.dev_wrappers.utils.transform_spaces import reshape_space
+from gym.dev_wrappers.utils.reshape_space import reshape_space
 
 
 class lambda_observations_v0(gym.ObservationWrapper):
@@ -23,17 +23,32 @@ class lambda_observations_v0(gym.ObservationWrapper):
         >>> from gym.spaces import Dict, Discrete
         >>> env = gym.make("CartPole-v1")
         >>> env.observation_space
-        TODO
-        >>> env = lambda_observations_v0(env, lambda obs, arg: {"obs": obs, "time": 1}, None,
-        ...                              Dict(obs=env.action_space, time=Discrete(1)))
+        Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), float32)
+        >>> env = lambda_observations_v0(
+        ...     env, 
+        ...     lambda obs, arg: {"obs": obs, "time": 1}, 
+        ...     None,
+        ...     Dict(obs=env.action_space, time=Discrete(1))
+        ... )
         >>> env.observation_space
-        TODO
+        Dict(obs: Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), float32), time: Discrete(1))
 
     Composite observation space:
-        >>> env = ExampleEnv(observation_space=Dict())
-        >>> env = lambda_observations_v0(env, lambda obs, arg: False, {}, None)  # todo update func and args
-        >>> env.observation_space
-        TODO
+        >>> env = ExampleEnv(
+        ...     observation_space=Dict(
+        ...         left_arm=Box(-5, 5, (1,)),
+        ...         right_arm=Box(-5, 5, (1,))
+        ...     )
+        ... )
+        >>> env = lambda_observations_v0(
+        ...     env,
+        ...     lambda obs, arg: obs * arg,
+        ...     {"left_arm": 0, "right_arm": float('inf')},
+        ...     env.observation_space
+        ... )
+        >>> obs, _, _, _ = env.step({"left_arm": 1, "right_arm": 1}))
+        >>> obs
+        OrderedDict([('left_arm', array([0.], dtype=float32)), ('right_arm', array([-inf], dtype=float32))])
     """
 
     def __init__(

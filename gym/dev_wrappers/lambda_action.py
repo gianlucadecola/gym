@@ -9,7 +9,7 @@ import gym
 from gym import Space
 from gym.dev_wrappers import FuncArgType
 from gym.dev_wrappers.utils.utils import extend_args
-from gym.dev_wrappers.utils.transform_spaces import reshape_space, transform_space_bounds
+from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
 from gym.spaces import Box, Dict, Tuple, apply_function
 
 
@@ -143,14 +143,18 @@ class scale_actions_v0(lambda_action_v0):
         """
         action_space = self._transform_space(env, args)
 
-        if type(env.action_space) == Box:
+        if isinstance(env.action_space, Box):
             args = (*args, env.action_space.low, env.action_space.high)
 
-        elif type(env.action_space) == Dict:
+        elif isinstance(env.action_space, Dict):
             extended_args = {}
             for arg in args:
                 extend_args(env.action_space, extended_args, args, arg)
             args = extended_args
+        
+        elif isinstance(env.action_space, Tuple):
+            # TODO
+            ...
 
         def func(action, args):
             new_low, new_high = args[0], args[1]
