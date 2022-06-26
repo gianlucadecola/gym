@@ -4,7 +4,7 @@ from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
 from gym.dev_wrappers import FuncArgType
-from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
+from gym.spaces import Dict, Space, Tuple
 
 
 @singledispatch
@@ -28,7 +28,7 @@ def _filter_space_dict(
 
 
 @filter_space.register(Tuple)
-def _filter_space_dict(
+def _filter_space_tuple(
     space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ):
     """Filter `Tuple` observation space by args."""

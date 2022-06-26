@@ -1,13 +1,13 @@
 """Module of wrapper classes."""
-from gym.dev_wrappers.lambda_reward import (
-    lambda_reward_v0,
-    clip_rewards_v0
-)
-from gym.dev_wrappers.lambda_action import (
-    lambda_action_v0,
-    clip_actions_v0,
-)
 from gym import error
+from gym.dev_wrappers.lambda_action import clip_actions_v0, lambda_action_v0
+from gym.dev_wrappers.lambda_observations import (
+    filter_observations_v0,
+    flatten_observations_v0,
+    reshape_observations_v0,
+    resize_observations_v0,
+)
+from gym.dev_wrappers.lambda_reward import clip_rewards_v0, lambda_reward_v0
 from gym.wrappers.atari_preprocessing import AtariPreprocessing
 from gym.wrappers.autoreset import AutoResetWrapper
 from gym.wrappers.clip_action import ClipAction

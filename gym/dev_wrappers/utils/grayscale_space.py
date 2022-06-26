@@ -1,15 +1,13 @@
 """A set of utility functions for lambda wrappers."""
-import tinyscaler
+import warnings
 from functools import singledispatch
 from typing import Any, Callable
 from typing import Tuple as TypingTuple
-import warnings
 
 import numpy as np
 
-import gym
 from gym.dev_wrappers import FuncArgType
-from gym.spaces import Box, Space, Discrete, MultiBinary, MultiDiscrete
+from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 
 @singledispatch
@@ -28,22 +26,19 @@ def _grayscale_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Ca
     if not isinstance(space.dtype, np.uint8):
         warnings.warn(
             f"Found bbservation space of dtype {space.dtype} while expected dtype for grayscale conversion is of type `np.uint8`."
-        )    
-    w, h = space.shape[0], space.shape[1]   
-    return Box(
-        0,
-        255,
-        shape=(w, h),
-        dtype=np.uint8
-    )
+        )
+    w, h = space.shape[0], space.shape[1]
+    return Box(0, 255, shape=(w, h), dtype=np.uint8)
 
 
 @grayscale_space.register(Discrete)
 @grayscale_space.register(MultiBinary)
 @grayscale_space.register(MultiDiscrete)
-def _grayscale_space_not_reshapable(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+def _grayscale_space_not_reshapable(
+    space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+):
     """Return original space shape for not reshable space.
-    
+
     Trying to reshape `Discrete`, `Multibinary` and `MultiDiscrete`
     spaces has no effect.
     """

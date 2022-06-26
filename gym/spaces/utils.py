@@ -318,7 +318,7 @@ def _apply_function_tuple(space: Tuple, x: Any, func: Callable, args: Optional[A
             for subspace, val in zip(space.spaces, x)
         )
     elif isinstance(args, Sequence):
-        assert len(args) == len(space)  
+        assert len(args) == len(space)
         return tuple(
             apply_function(subspace, val, func, arg) if arg is not None else val
             for subspace, val, arg in zip(space.spaces, x, args)
