@@ -155,8 +155,8 @@ class scale_actions_v0(lambda_action_v0):
             ...
 
         def func(action, args):
-            new_low, new_high = args[0], args[1]
-            old_low, old_high = args[2], args[3]
+            new_low, new_high = args[:2]
+            old_low, old_high = args[2:]
 
             return jp.clip(
                 old_low
