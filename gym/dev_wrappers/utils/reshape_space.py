@@ -24,7 +24,8 @@ def _reshape_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Call
     return Box(
         np.reshape(space.low, args),
         np.reshape(space.high, args),
-        shape=args)
+        shape=args,
+        dtype=space.dtype)
 
 
 @reshape_space.register(Discrete)

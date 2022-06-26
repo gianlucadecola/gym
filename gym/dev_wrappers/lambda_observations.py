@@ -301,10 +301,10 @@ class reshape_observations_v0(lambda_observations_v0):
         >>> from gym.spaces import Dict, Box, Discrete
         >>> env = gym.make("CarRacing-v1")
         >>> env.observation_space
-        TODO
+        Box(0, 255, (96, 96, 3), uint8)
         >>> env = reshape_observations_v0(env, (96, 36, 8))
         >>> env.observation_space
-        TODO
+        Box(0.0, 255.0, (96, 36, 8), uint8)
 
     Composite Example with Multiple Box observation space:
         >>> env = gym.vector.make("CarRacing-v1", num_envs=3)
