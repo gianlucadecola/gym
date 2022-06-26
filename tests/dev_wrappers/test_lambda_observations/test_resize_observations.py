@@ -72,3 +72,33 @@ def test_resize_observations_tuple_v0(env, args):
         else:
             assert wrapped_env.observation_space[i].shape == arg
             assert obs[i].shape == arg
+
+
+@pytest.mark.parametrize(
+    ("env", "args",),
+    [
+        (
+            TestingEnv(observation_space=TESTING_DICT_OBSERVATION_SPACE),
+            {"key_1": (5,5)}
+        ),
+        (
+            TestingEnv(observation_space=TESTING_DICT_OBSERVATION_SPACE),
+            {"key_1": (5,5), "key_2": (2,2)}
+        )
+    ],
+)
+def test_resize_observations_dict_v0(env, args):
+    """Test correct resizing of `Dict` observations."""
+    wrapped_env = resize_observations_v0(env, args)
+    wrapped_env.reset(seed=SEED)
+
+    action = wrapped_env.action_space.sample()
+    obs, *res = wrapped_env.step(action)
+
+    for k in obs:
+        if k in args:
+            assert wrapped_env.observation_space[k].shape == args[k]
+            assert obs[k].shape == args[k]          
+        else:
+            assert wrapped_env.observation_space[k].shape == env.observation_space[k].shape
+            assert obs[k].shape == env.observation_space[k].shape
