@@ -11,9 +11,10 @@ from gym.core import ObsType
 from gym.dev_wrappers import ArgType, FuncArgType
 from gym import spaces
 from gym.spaces.utils import apply_function, flatten, flatten_space
+
 from gym.dev_wrappers.utils.reshape_space import reshape_space
 from gym.dev_wrappers.utils.filter_space import filter_space
-
+from gym.dev_wrappers.utils.resize_spaces import resize_space
 
 
 class lambda_observations_v0(gym.ObservationWrapper):
@@ -81,6 +82,10 @@ class lambda_observations_v0(gym.ObservationWrapper):
     def _reshape_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
         """Process the space and apply the transformation."""
         return reshape_space(env.observation_space, args, reshape_space)
+
+    def _resize_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+        """Resize space to args dimension"""
+        return resize_space(env.observation_space, args, resize_space)
 
 
 class filter_observations_v0(lambda_observations_v0):
@@ -283,11 +288,11 @@ class resize_observations_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The arguments to resize the observation
         """
-        observation_space = self._reshape_space(env, args)
+        observation_space = self._resize_space(env, args)
 
         super().__init__(
             env,
-            lambda obs, arg: obs if arg is None else tinyscaler.scale(obs, *arg),
+            lambda obs, arg: obs if arg is None else tinyscaler.scale(obs, arg),
             args,
             observation_space,
         )
@@ -309,16 +314,18 @@ class reshape_observations_v0(lambda_observations_v0):
     Composite Example with Multiple Box observation space:
         >>> env = gym.vector.make("CarRacing-v1", num_envs=3)
         >>> env.observation_space
-        TODO
+        Box(0, 255, (96, 96, 3), uint8)
         >>> env = reshape_observations_v0(env, [(96, 36, 8), (96, 288), (1, 96, 96, 3)])
         >>> env.observation_space
         TODO
 
     Composite Example with Partial Box observation space:
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(0, 1, (96, 96, 3)), time=Discrete(10)))
-        >>> env = reshape_observations_v0(env, {"obs": (96, 36, 8), "time": None})
         >>> env.observation_space
-        TODO
+        Dict(obs: Box(0.0, 1.0, (96, 96, 3), float32), time: Discrete(10))
+        >>> env = reshape_observations_v0(env, {"obs": (96, 36, 8)})
+        >>> env.observation_space
+        Dict(obs: Box(0.0, 1.0, (96, 36, 8), float32), time: Discrete(10))
     """
 
     def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[int, ...]]):
