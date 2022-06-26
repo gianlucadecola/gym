@@ -15,6 +15,7 @@ from gym.spaces.utils import apply_function, flatten, flatten_space
 from gym.dev_wrappers.utils.reshape_space import reshape_space
 from gym.dev_wrappers.utils.filter_space import filter_space
 from gym.dev_wrappers.utils.resize_spaces import resize_space
+from gym.dev_wrappers.utils.grayscale_space import grayscale_space
 
 
 class lambda_observations_v0(gym.ObservationWrapper):
@@ -82,10 +83,6 @@ class lambda_observations_v0(gym.ObservationWrapper):
     def _reshape_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
         """Process the space and apply the transformation."""
         return reshape_space(env.observation_space, args, reshape_space)
-
-    def _resize_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
-        """Resize space to args dimension"""
-        return resize_space(env.observation_space, args, resize_space)
 
 
 class filter_observations_v0(lambda_observations_v0):
@@ -244,13 +241,17 @@ class grayscale_observations_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The arguments for what to convert colour to grayscale in the observation
         """
-        observation_space = self._reshape_space(env, args)
+        observation_space = self._grayscale_space(env, args)
         super().__init__(
             env,
             lambda obs, arg: obs if arg is False else jp.dot(obs[..., :3], jp.array([0.2989, 0.5870, 0.1140])),  # todo, bug in that jp.dot will always return jax.array
             args,
             observation_space,
         )
+
+    def _grayscale_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+        """Process the space and apply the grayscale transformation."""
+        return grayscale_space(env.observation_space, args, grayscale_space)
 
 
 class resize_observations_v0(lambda_observations_v0):
@@ -261,10 +262,10 @@ class resize_observations_v0(lambda_observations_v0):
         >>> from gym.spaces import Dict, Box, Discrete
         >>> env = gym.make("CarRacing-v1")
         >>> env.observation_space
-        TODO
-        >>> env = resize_observations_v0(env, (64, 64))
+        Box(0, 255, (96, 96, 3), uint8)
+        >>> env = resize_observations_v0(env, (64, 64, 3))
         >>> env.observation_space
-        TODO
+        Box(0, 255, (64, 64, 3), uint8)
 
     Composite Example with Multiple Box observation space:
         >>> env = gym.vector.make("CarRacing-v1", num_envs=3)
@@ -276,9 +277,11 @@ class resize_observations_v0(lambda_observations_v0):
 
     Composite Example with Partial Box observation space:
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(0, 1, (96, 96, 3)), time=Discrete(10)))
-        >>> env = resize_observations_v0(env, {"obs": (64, 64), "time": None})
         >>> env.observation_space
-        TODO
+        Dict(obs=Box(0, 1, (96, 96, 3)), time=Discrete(10))
+        >>> env = resize_observations_v0(env, {"obs": (64, 64, 3)})
+        >>> env.observation_space
+       Dict(obs=Box(0, 1, (64, 64, 3)), time=Discrete(10))
     """
 
     def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
@@ -296,6 +299,10 @@ class resize_observations_v0(lambda_observations_v0):
             args,
             observation_space,
         )
+
+    def _resize_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+        """Resize space to args dimension"""
+        return resize_space(env.observation_space, args, resize_space)
 
 
 class reshape_observations_v0(lambda_observations_v0):
