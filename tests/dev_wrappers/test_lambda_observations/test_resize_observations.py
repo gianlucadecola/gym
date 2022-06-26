@@ -28,8 +28,8 @@ from tests.dev_wrappers.test_lambda_observations.mock_data_observation import (
         )      
     ],
 )
-def test_ressize_observations_box_v0(env, args):
-    """Test correct reshaping of box observation spaces."""
+def test_resize_observations_box_v0(env, args):
+    """Test correct resizing of box observations."""
     wrapped_env = resize_observations_v0(env, args)
     wrapped_env.reset(seed=SEED)
 
@@ -38,5 +38,3 @@ def test_ressize_observations_box_v0(env, args):
     action = wrapped_env.action_space.sample()
     obs, *res = wrapped_env.step(action)
     assert obs.shape == args
-
-
