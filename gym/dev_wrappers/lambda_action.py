@@ -82,12 +82,12 @@ class clip_actions_v0(lambda_action_v0):
         Box(-0.5, 0.5, (4,), float32)
 
     Clip with only a lower or upper bound:
-        >>> env = gym.make(TODO)
+        >>> env = gym.make('CarRacing-v1')
         >>> env.action_space
-        TODO
-        >>> env = clip_actions_v0(env, TODO)
+        Box([-1.  0.  0.], 1.0, (3,), float32)
+        >>> env = clip_actions_v0(env, (None, 0.5))
         >>> env.action_space
-        TODO
+        Box([-1.  0.  0.], 0.5, (3,), float32)
 
     Composite action space example:
         >>> env = ExampleEnv()
