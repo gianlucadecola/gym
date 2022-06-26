@@ -1,14 +1,12 @@
 """A set of utility functions for lambda wrappers."""
-import tinyscaler
 from functools import singledispatch
 from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
-import numpy as np
+import tinyscaler
 
-import gym
 from gym.dev_wrappers import FuncArgType
-from gym.spaces import Box, Space, Discrete, MultiBinary, MultiDiscrete
+from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 
 @singledispatch
@@ -25,7 +23,7 @@ def _resize_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Calla
             tinyscaler.scale(space.low, args),
             tinyscaler.scale(space.high, args),
             shape=args,
-            dtype=space.dtype
+            dtype=space.dtype,
         )
     return space
 
@@ -33,9 +31,11 @@ def _resize_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Calla
 @resize_space.register(Discrete)
 @resize_space.register(MultiBinary)
 @resize_space.register(MultiDiscrete)
-def _reshape_space_not_reshapable(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+def _reshape_space_not_reshapable(
+    space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+):
     """Return original space shape for not reshable space.
-    
+
     Trying to reshape `Discrete`, `Multibinary` and `MultiDiscrete`
     spaces has no effect.
     """
