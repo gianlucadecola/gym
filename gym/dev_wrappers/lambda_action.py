@@ -8,7 +8,7 @@ import jumpy as jp
 import gym
 from gym import Space
 from gym.dev_wrappers import FuncArgType
-from gym.dev_wrappers.utils.utils import extend_args
+from gym.dev_wrappers.utils.commons import extend_args
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
 from gym.spaces import Box, Dict, Tuple, apply_function
 

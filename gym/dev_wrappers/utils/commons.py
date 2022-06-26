@@ -12,6 +12,7 @@ from gym.spaces import Dict, Space, Tuple
 
 from gym.dev_wrappers.utils.reshape_space import reshape_space
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
+from gym.dev_wrappers.utils.resize_spaces import resize_space
 
 
 def extend_args(action_space: Space, extended_args: dict, args: dict, space_key: str):
@@ -112,6 +113,7 @@ def _transform_nestable_tuple_space(
         updated_space[idx_to_update] = Tuple(updated_space[idx_to_update])
 
 
+@resize_space.register(Tuple)
 @reshape_space.register(Tuple)
 @transform_space_bounds.register(Tuple)
 def _process_space_tuple(
@@ -133,6 +135,7 @@ def _process_space_tuple(
     return Tuple(updated_space)
 
 
+@resize_space.register(Dict)
 @reshape_space.register(Dict)
 @transform_space_bounds.register(Dict)
 def _process_space_dict(

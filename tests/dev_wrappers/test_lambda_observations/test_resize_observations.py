@@ -38,3 +38,37 @@ def test_resize_observations_box_v0(env, args):
     action = wrapped_env.action_space.sample()
     obs, *res = wrapped_env.step(action)
     assert obs.shape == args
+
+
+@pytest.mark.parametrize(
+    ("env", "args",),
+    [
+        (
+            TestingEnv(observation_space=TESTING_TUPLE_OBSERVATION_SPACE),
+            [(5,5), (2,2)]
+        ),
+        (
+            TestingEnv(observation_space=TESTING_TUPLE_OBSERVATION_SPACE),
+            [(5,5), None]
+        ),
+        (
+            TestingEnv(observation_space=TESTING_TUPLE_OBSERVATION_SPACE),
+            [None, (5,5)]
+        )
+    ],
+)
+def test_resize_observations_tuple_v0(env, args):
+    """Test correct resizing of `Tuple` observations."""
+    wrapped_env = resize_observations_v0(env, args)
+    wrapped_env.reset(seed=SEED)
+
+    action = wrapped_env.action_space.sample()
+    obs, *res = wrapped_env.step(action)
+
+    for i, arg in enumerate(args):
+        if not arg:
+            assert wrapped_env.observation_space[i].shape == env.observation_space[i].shape
+            assert obs[i].shape == env.observation_space[i].shape
+        else:
+            assert wrapped_env.observation_space[i].shape == arg
+            assert obs[i].shape == arg

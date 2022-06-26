@@ -8,7 +8,7 @@ import numpy as np
 
 import gym
 from gym.dev_wrappers import FuncArgType
-from gym.spaces import Box, Space
+from gym.spaces import Box, Space, Discrete, MultiBinary, MultiDiscrete
 
 
 @singledispatch
@@ -20,9 +20,26 @@ def resize_space(
 
 @resize_space.register(Box)
 def _resize_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
-    return Box(
-        tinyscaler.scale(space.low, args),
-        tinyscaler.scale(space.high, args),
-        shape=args,
-        dtype=space.dtype
-    )
+    if args is not None:
+        return Box(
+            tinyscaler.scale(space.low, args),
+            tinyscaler.scale(space.high, args),
+            shape=args,
+            dtype=space.dtype
+        )
+    return space
+
+
+@resize_space.register(Discrete)
+@resize_space.register(MultiBinary)
+@resize_space.register(MultiDiscrete)
+def _reshape_space_not_reshapable(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+    """Return original space shape for not reshable space.
+    
+    Trying to reshape `Discrete`, `Multibinary` and `MultiDiscrete`
+    spaces has no effect.
+    """
+    if args:
+        # TODO: raise warning that args has no effect here
+        ...
+    return space
