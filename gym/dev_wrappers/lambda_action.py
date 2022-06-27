@@ -151,9 +151,13 @@ class scale_actions_v0(lambda_action_v0):
             args = extended_args
 
         elif isinstance(env.action_space, Tuple):
-            # TODO
-            ...
-
+            extended_args = []
+            for i, arg in enumerate(args):
+                extend_args(env.action_space, extended_args, args, i)
+            args = extended_args
+            print("TUPLE NEW ARGS")
+            print(args)
+            
         def func(action, args):
             new_low, new_high = args[:2]
             old_low, old_high = args[2:]

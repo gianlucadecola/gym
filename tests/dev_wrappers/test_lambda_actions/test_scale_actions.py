@@ -13,6 +13,8 @@ from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
     NEW_NESTED_BOX_LOW,
     SEED,
     TESTING_NESTED_DICT_ACTION_SPACE,
+    TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE,
+    TESTING_TUPLE_ACTION_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -62,15 +64,47 @@ def test_scale_actions_v0_box():
                 "discrete": 0,
                 "nested": {"nested": NEW_NESTED_BOX_HIGH},
             },
+        ),
+                (
+            TestingEnv(action_space=TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE),
+            {
+                "box": (NEW_BOX_LOW, NEW_BOX_HIGH),
+                "nested": {"nested": {"nested": (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)}},
+            },
+            {
+                "box": NEW_BOX_HIGH,
+                "discrete": 0,
+                "nested": {"nested": {"nested": NEW_NESTED_BOX_HIGH}},
+            },
         )
     ],
 )
 def test_scale_actions_v0_nested_dict(env, args, action):
-    """Test action rescaling for nested dict action spaces."""
+    """Test action rescaling for nested `Dict` action spaces."""
 
     wrapped_env = scale_actions_v0(env, args)
     _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
 
     assert executed_actions["box"] == BOX_HIGH
-    assert executed_actions["nested"]["nested"] == NESTED_BOX_HIGH
+    
+    nested_action = executed_actions["nested"]
+    while isinstance(nested_action, dict):
+        nested_action = nested_action["nested"]
+    assert nested_action == NESTED_BOX_HIGH
+
+
+
+def test_scale_actions_v0_tuple():
+    """Test action rescaling for `Tuple` action spaces."""  
+    env = TestingEnv(action_space=TESTING_TUPLE_ACTION_SPACE)
+    args = [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]
+    action = [0, NEW_BOX_HIGH]
+
+    wrapped_env = scale_actions_v0(env, args)
+    _, _, _, info = wrapped_env.step(action)
+    executed_actions = info["action"]
+
+    assert executed_actions[0] == action[0]
+    assert executed_actions[1] == BOX_HIGH
+    

@@ -13,7 +13,41 @@ from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
 from gym.spaces import Dict, Space, Tuple
 
 
-def extend_args(action_space: Space, extended_args: dict, args: dict, space_key: str):
+def is_nestable(space: Space):
+    """Returns whether the input space can contains other spaces."""
+    return isinstance(space, Tuple) or isinstance(space, Dict)
+
+
+@singledispatch
+def extend_args(space: Space, extended_args: dict, args: dict, space_key: str):
+    ...
+
+
+@extend_args.register(Tuple)
+def _extend_args_tuple(space: Space, extended_args: list, args: Sequence, space_idx: int):  
+    if args[space_idx] is None:
+        extended_args.append(None)
+        return
+
+    args = args[space_idx]
+
+    if isinstance(args, list):
+        extended_args[space_idx] = []
+        for i, arg in enumerate(args):
+            extend_args(space[i], extended_args[i], args, arg)
+
+    elif isinstance(args, tuple):
+        extended_args.append(
+            (
+                *args, 
+                space[space_idx].low, 
+                space[space_idx].high
+            )
+        )
+
+
+@extend_args.register(Dict)
+def _extend_args_dict(space: Space, extended_args: dict, args: dict, space_key: str):
     """Extend args for rescaling actions.
 
     Action space args needs to be extended in order
@@ -31,23 +65,18 @@ def extend_args(action_space: Space, extended_args: dict, args: dict, space_key:
     if isinstance(args, dict):
         extended_args[space_key] = {}
         for arg in args:
-            extend_args(action_space[space_key], extended_args[space_key], args, arg)
+            extend_args(space[space_key], extended_args[space_key], args, arg)
     else:
-        assert len(args) == len(action_space[space_key].low) + len(
-            action_space[space_key].high
+        assert len(args) == len(space[space_key].low) + len(
+            space[space_key].high
         )
         extended_args[space_key] = (
             *args,
-            *list(action_space[space_key].low),
-            *list(action_space[space_key].high),
+            *list(space[space_key].low),
+            *list(space[space_key].high),
         )
 
     return extended_args
-
-
-def is_nestable(space: Space):
-    """Returns whether the input space can contains other spaces."""
-    return isinstance(space, Tuple) or isinstance(space, Dict)
 
 
 @singledispatch
