@@ -155,6 +155,9 @@ class scale_actions_v0(lambda_action_v0):
             for i, arg in enumerate(args):
                 extend_args(env.action_space, extended_args, args, i)
             args = extended_args
+        print("ARGS")
+        print(args)
+
             
         def func(action, args):
             new_low, new_high = args[:2]
