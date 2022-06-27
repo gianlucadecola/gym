@@ -32,9 +32,13 @@ def _extend_args_tuple(space: Space, extended_args: list, args: Sequence, space_
     args = args[space_idx]
 
     if isinstance(args, list):
-        extended_args[space_idx] = []
+        if len(extended_args) == space_idx:
+            extended_args.append([])
+        else:
+            extended_args[space_idx] = []
+        
         for i, arg in enumerate(args):
-            extend_args(space[i], extended_args[i], args, arg)
+            extend_args(space[i], extended_args[i], args, i)
 
     elif isinstance(args, tuple):
         extended_args.append(

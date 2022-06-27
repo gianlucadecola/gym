@@ -5,6 +5,7 @@ import pytest
 import gym
 from gym.dev_wrappers.lambda_action import scale_actions_v0
 from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
+    DISCRETE_ACTION,
     BOX_HIGH,
     NESTED_BOX_HIGH,
     NEW_BOX_HIGH,
@@ -15,6 +16,7 @@ from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
     TESTING_NESTED_DICT_ACTION_SPACE,
     TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE,
     TESTING_TUPLE_ACTION_SPACE,
+    TESTING_NESTED_TUPLE_ACTION_SPACE
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -61,7 +63,7 @@ def test_scale_actions_v0_box():
             },
             {
                 "box": NEW_BOX_HIGH,
-                "discrete": 0,
+                "discrete": DISCRETE_ACTION,
                 "nested": {"nested": NEW_NESTED_BOX_HIGH},
             },
         ),
@@ -73,7 +75,7 @@ def test_scale_actions_v0_box():
             },
             {
                 "box": NEW_BOX_HIGH,
-                "discrete": 0,
+                "discrete": DISCRETE_ACTION,
                 "nested": {"nested": {"nested": NEW_NESTED_BOX_HIGH}},
             },
         )
@@ -99,7 +101,7 @@ def test_scale_actions_v0_tuple():
     """Test action rescaling for `Tuple` action spaces."""  
     env = TestingEnv(action_space=TESTING_TUPLE_ACTION_SPACE)
     args = [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]
-    action = [0, NEW_BOX_HIGH]
+    action = [DISCRETE_ACTION, NEW_BOX_HIGH]
 
     wrapped_env = scale_actions_v0(env, args)
     _, _, _, info = wrapped_env.step(action)
@@ -108,3 +110,18 @@ def test_scale_actions_v0_tuple():
     assert executed_actions[0] == action[0]
     assert executed_actions[1] == BOX_HIGH
     
+
+@pytest.mark.parametrize(
+    ("env", "args", "action"),
+    [
+        (
+            TestingEnv(action_space=TESTING_NESTED_TUPLE_ACTION_SPACE),
+            [None, [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]],
+            [DISCRETE_ACTION, [DISCRETE_ACTION, NEW_BOX_HIGH]]
+        )
+    ],
+)
+def test_scale_actions_v0_nested_tuple(env, args, action):
+    """Test action rescaling for nested `Tuple` action spaces."""
+
+    wrapped_env = scale_actions_v0(env, args)

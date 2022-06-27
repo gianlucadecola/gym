@@ -3,6 +3,7 @@ from gym.spaces import Box, Dict, Discrete, Tuple
 SEED = 1
 
 DISCRETE_VALUE = 1
+DISCRETE_ACTION = 0
 
 BOX_LOW, BOX_HIGH, BOX_DIM = -5, 5, 1
 NEW_BOX_LOW, NEW_BOX_HIGH = 0, 2
