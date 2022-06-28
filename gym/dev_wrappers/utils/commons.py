@@ -24,30 +24,18 @@ def extend_args(space: Space, extended_args: dict, args: dict, space_key: str):
 
 
 @extend_args.register(Tuple)
-def _extend_args_tuple(space: Space, extended_args: list, args: Sequence, space_idx: int):  
-    if args[space_idx] is None:
-        extended_args.append(None)
+def _extend_args_tuple(space: Space, extended_args: list, args: Sequence, space_idx: int):
+    if args is None:
         return
 
-    args = args[space_idx]
-
     if isinstance(args, list):
-        if len(extended_args) == space_idx:
-            extended_args.append([])
-        else:
-            extended_args[space_idx] = []
+        extended_args[space_idx] = [None for _ in space]
         
-        for i, arg in enumerate(args):
-            extend_args(space[i], extended_args[i], args, i)
+        for i in range(len(args)):
+            extend_args(space[space_idx], extended_args[i], args, i)
 
-    elif isinstance(args, tuple):
-        extended_args.append(
-            (
-                *args, 
-                space[space_idx].low, 
-                space[space_idx].high
-            )
-        )
+    else:
+        extended_args[space_idx] = (*args, space.low, space.high)
 
 
 @extend_args.register(Dict)
@@ -179,3 +167,24 @@ def _process_space_dict(
         else:
             updated_space[arg] = fn(space[arg], args.get(arg), fn)
     return updated_space
+
+
+if __name__ == '__main__':
+    import gym
+    import numpy as np
+    import jumpy as jp
+
+    from gym.dev_wrappers.lambda_action import scale_actions_v0
+    from gym.spaces import Box, Discrete, Dict, Tuple
+    from tests.dev_wrappers.utils import TestingEnv
+    from collections import OrderedDict
+    from gym.wrappers import RescaleAction
+    
+    env = TestingEnv(
+        action_space=Tuple([
+            Box(-1, 2, (1,)),
+            Tuple([Box(-1, 2, (1,)), Box(-1, 2, (1,)), Box(-1, 2, (1,))])    
+        ])
+    )
+    env = scale_actions_v0(env, [(-0.5, 0.5), [(-0.5, 0.5), None, None]])
+    env.step([0.5, [0.5, 1]])

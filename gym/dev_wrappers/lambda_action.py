@@ -151,8 +151,8 @@ class scale_actions_v0(lambda_action_v0):
             args = extended_args
 
         elif isinstance(env.action_space, Tuple):
-            extended_args = []
-            for i, arg in enumerate(args):
+            extended_args = [None for _ in env.action_space]
+            for i in range(len(args)):
                 extend_args(env.action_space, extended_args, args, i)
             args = extended_args
         print("ARGS")
