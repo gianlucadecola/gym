@@ -1,7 +1,7 @@
 """A set of utility functions for lambda wrappers."""
 from copy import deepcopy
 from functools import singledispatch
-from typing import Callable, Sequence
+from typing import Callable, Sequence, Iterable, Union
 from typing import Tuple as TypingTuple
 
 import gym
@@ -10,12 +10,15 @@ from gym.dev_wrappers.utils.grayscale_space import grayscale_space
 from gym.dev_wrappers.utils.reshape_space import reshape_space
 from gym.dev_wrappers.utils.resize_spaces import resize_space
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
-from gym.spaces import Dict, Space, Tuple
+from gym.spaces import Dict, Space, Tuple, Box
 
 
 def is_nestable(space: Space):
     """Returns whether the input space can contains other spaces."""
     return isinstance(space, Tuple) or isinstance(space, Dict)
+
+def is_iterable_args(args: Union[list, dict, tuple]):
+    return isinstance(args, list) or isinstance(args, dict)
 
 
 @singledispatch
@@ -31,12 +34,10 @@ def _extend_args_tuple(space: Space, extended_args: list, args: Sequence, space_
     args = args[space_idx]
     space = space[space_idx]
 
-    if isinstance(args, list):
+    if is_iterable_args(args):
         extended_args[space_idx] = [None for _ in space]
-
         for i in range(len(args)):
             extend_args(space, extended_args[space_idx], args, i)
-
     else:
         extended_args[space_idx] = (*args, space.low, space.high)
 
@@ -57,7 +58,7 @@ def _extend_args_dict(space: Space, extended_args: dict, args: dict, space_key: 
 
     args = args[space_key]
 
-    if isinstance(args, dict):
+    if is_iterable_args(args):
         extended_args[space_key] = {}
         for arg in args:
             extend_args(space[space_key], extended_args[space_key], args, arg)
@@ -70,7 +71,6 @@ def _extend_args_dict(space: Space, extended_args: dict, args: dict, space_key: 
             *list(space[space_key].low),
             *list(space[space_key].high),
         )
-
     return extended_args
 
 
