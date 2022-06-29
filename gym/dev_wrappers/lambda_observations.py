@@ -224,10 +224,12 @@ class grayscale_observations_v0(lambda_observations_v0):
         Box(0, 255, (3, 96), uint8)
 
     Composite Example with Partial Box observation space:
-        >>> env = ExampleEnv(observation_space=Dict(obs=Box(0, 1, (96, 96, 3)), time=Discrete(10)))
+        >>> env = ExampleEnv(observation_space=Dict(obs=Box(0, 255, (96, 96, 3), np.uint8), time=Discrete(10)))
+        >>> env.observation_space
+        Dict(obs: Box(0, 255, (96, 96, 3), uint8), time: Discrete(10))
         >>> env = grayscale_observations_v0(env, {"obs": True, "time": False})
         >>> env.observation_space
-        TODO
+        Dict(obs: Box(0, 255, (96, 96), uint8), time: Discrete(10))
     """
 
     def __init__(self, env: gym.Env, args: FuncArgType[bool] = True):
