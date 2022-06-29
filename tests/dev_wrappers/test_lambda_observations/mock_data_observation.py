@@ -3,6 +3,7 @@ from gym.spaces import Box, Dict, Tuple
 SEED = 1
 NUM_STEPS = 5
 TESTING_ENV_SAMPLE_ACTION = 0
+NUM_ENVS = 3
 
 DISCRETE_VALUE = 1
 
