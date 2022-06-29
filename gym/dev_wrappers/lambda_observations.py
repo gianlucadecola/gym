@@ -94,12 +94,12 @@ class filter_observations_v0(lambda_observations_v0):
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, ()), time=Discrete(3)))
         >>> env = filter_observations_v0(env, ['obs'])
         >>> env.observation_space
-        TODO
+        Dict(obs: Box(-1.0, 1.0, (), float32))
 
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, ()), time=Discrete(3)))
         >>> env = filter_observations_v0(env, {'obs': True, 'time': False})
         >>> env.observation_space
-        TODO
+        Dict(obs: Box(-1.0, 1.0, (), float32))
 
     Example with Tuple observation:
         >>> env = ExampleEnv(observation_space=Tuple([Box(-1, 1, ()), Box(-2, 2, ()), Discrete(3)]))
