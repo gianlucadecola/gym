@@ -25,14 +25,17 @@ def extend_args(space: Space, extended_args: dict, args: dict, space_key: str):
 
 @extend_args.register(Tuple)
 def _extend_args_tuple(space: Space, extended_args: list, args: Sequence, space_idx: int):
-    if args is None:
+    if args[space_idx] is None:
         return
+
+    args = args[space_idx]
+    space = space[space_idx]
 
     if isinstance(args, list):
         extended_args[space_idx] = [None for _ in space]
-        
+
         for i in range(len(args)):
-            extend_args(space[space_idx], extended_args[i], args, i)
+            extend_args(space, extended_args[space_idx], args, i)
 
     else:
         extended_args[space_idx] = (*args, space.low, space.high)
@@ -179,12 +182,14 @@ if __name__ == '__main__':
     from tests.dev_wrappers.utils import TestingEnv
     from collections import OrderedDict
     from gym.wrappers import RescaleAction
-    
+
     env = TestingEnv(
         action_space=Tuple([
             Box(-1, 2, (1,)),
-            Tuple([Box(-1, 2, (1,)), Box(-1, 2, (1,)), Box(-1, 2, (1,))])    
+            Tuple([Box(-1, 30, (1,)), Box(-1, 2, (1,)), Box(-1, 2, (1,))])
         ])
     )
     env = scale_actions_v0(env, [(-0.5, 0.5), [(-0.5, 0.5), None, None]])
-    env.step([0.5, [0.5, 1]])
+    _, _, _, info = env.step([0.5, [30, 1, 1]])
+    print('====================')
+    print(info)
