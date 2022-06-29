@@ -185,11 +185,14 @@ if __name__ == '__main__':
 
     env = TestingEnv(
         action_space=Tuple([
-            Box(-1, 2, (1,)),
-            Tuple([Box(-1, 30, (1,)), Box(-1, 2, (1,)), Box(-1, 2, (1,))])
+            Box(-1, 10, (1,)),
+            Tuple([
+                Box(-1, 10, (1,)),
+                Tuple([Box(-1, 10, (1,))])
+            ])
         ])
     )
-    env = scale_actions_v0(env, [(-0.5, 0.5), [(-0.5, 0.5), None, None]])
-    _, _, _, info = env.step([0.5, [30, 1, 1]])
+    env = scale_actions_v0(env, [(-0.5, 1), [(-0.5, 1), [(-0.5, 1)]]])
+    _, _, _, info = env.step([1, [1, [0.5]]])
     print('====================')
     print(info)

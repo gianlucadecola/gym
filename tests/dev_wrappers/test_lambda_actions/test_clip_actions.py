@@ -181,9 +181,9 @@ def test_clip_actions_v0_tuple_action(env, args, action):
             TestingEnv(action_space=TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE),
             [
                 (NEW_BOX_LOW, NEW_BOX_HIGH),
-                [None, [(NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)]],
+                [None, [None, (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)]],
             ],
-            [NEW_BOX_HIGH + 1, [0, [NEW_NESTED_BOX_HIGH + 1]]],
+            [NEW_BOX_HIGH + 1, [0, [0, (NEW_NESTED_BOX_HIGH + 1)]]],
         ),
     ],
 )

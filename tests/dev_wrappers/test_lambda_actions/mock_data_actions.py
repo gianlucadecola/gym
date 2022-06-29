@@ -57,7 +57,8 @@ TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE = Tuple(
                 Discrete(DISCRETE_VALUE),
                 Tuple(
                     [
-                        Box(BOX_LOW, BOX_HIGH, (BOX_DIM,)),
+                        Discrete(DISCRETE_VALUE),
+                        Box(NESTED_BOX_LOW, NESTED_BOX_HIGH, (BOX_DIM,)),
                     ]
                 ),
             ]

@@ -1,4 +1,5 @@
 """Test suite for scale_actions_v0."""
+from typing import Sequence
 import numpy as np
 import pytest
 
@@ -16,7 +17,8 @@ from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
     TESTING_NESTED_DICT_ACTION_SPACE,
     TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE,
     TESTING_TUPLE_ACTION_SPACE,
-    TESTING_NESTED_TUPLE_ACTION_SPACE
+    TESTING_NESTED_TUPLE_ACTION_SPACE,
+    TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -89,7 +91,7 @@ def test_scale_actions_v0_nested_dict(env, args, action):
     executed_actions = info["action"]
 
     assert executed_actions["box"] == BOX_HIGH
-    
+
     nested_action = executed_actions["nested"]
     while isinstance(nested_action, dict):
         nested_action = nested_action["nested"]
@@ -98,7 +100,7 @@ def test_scale_actions_v0_nested_dict(env, args, action):
 
 
 def test_scale_actions_v0_tuple():
-    """Test action rescaling for `Tuple` action spaces."""  
+    """Test action rescaling for `Tuple` action spaces."""
     env = TestingEnv(action_space=TESTING_TUPLE_ACTION_SPACE)
     args = [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]
     action = [DISCRETE_ACTION, NEW_BOX_HIGH]
@@ -109,7 +111,7 @@ def test_scale_actions_v0_tuple():
 
     assert executed_actions[0] == action[0]
     assert executed_actions[1] == BOX_HIGH
-    
+
 
 @pytest.mark.parametrize(
     ("env", "args", "action"),
@@ -117,7 +119,12 @@ def test_scale_actions_v0_tuple():
         (
             TestingEnv(action_space=TESTING_NESTED_TUPLE_ACTION_SPACE),
             [None, [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]],
-            [DISCRETE_ACTION, [DISCRETE_ACTION, NEW_BOX_HIGH]]
+            [BOX_HIGH, [DISCRETE_ACTION, NEW_BOX_HIGH]]
+        ),
+        (
+            TestingEnv(action_space=TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE),
+            [None, [None, [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]]],
+            [BOX_HIGH, [DISCRETE_ACTION, [DISCRETE_ACTION, NEW_BOX_HIGH]]]
         )
     ],
 )
@@ -125,3 +132,12 @@ def test_scale_actions_v0_nested_tuple(env, args, action):
     """Test action rescaling for nested `Tuple` action spaces."""
 
     wrapped_env = scale_actions_v0(env, args)
+    _, _, _, info = wrapped_env.step(action)
+    executed_actions = info["action"]
+
+    nested_action = executed_actions[-1]
+    while isinstance(nested_action, Sequence):
+        nested_action = nested_action[-1]
+
+    assert executed_actions[0] == BOX_HIGH
+    assert nested_action[-1] == NESTED_BOX_HIGH
