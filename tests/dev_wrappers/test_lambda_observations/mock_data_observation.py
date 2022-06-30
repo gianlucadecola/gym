@@ -18,6 +18,8 @@ TESTING_DICT_OBSERVATION_SPACE = Dict(
     key_1=Box(BOX_LOW, BOX_HIGH, BOX_DIM),
     key_2=Box(BOX_LOW, BOX_HIGH, BOX_DIM),
 )
+FLATTENEND_DICT_SIZE = 2 * (BOX_DIM[0] * BOX_DIM[1]) # key_1 flattened + key_2 flattened
+
 
 TESTING_NESTED_DICT_ACTION_SPACE = Dict(
     nested=Dict(nested=Box(BOX_LOW, BOX_HIGH, BOX_DIM))

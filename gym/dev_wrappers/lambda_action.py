@@ -8,7 +8,7 @@ import jumpy as jp
 import gym
 from gym import Space
 from gym.dev_wrappers import FuncArgType
-from gym.dev_wrappers.utils.commons import extend_args
+from gym.dev_wrappers.utils.extend_arguments import extend_args
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
 from gym.spaces import Box, Dict, Tuple, apply_function
 
@@ -140,22 +140,7 @@ class scale_actions_v0(lambda_action_v0):
             args: The arguments for scaling the actions
         """
         action_space = self._transform_space(env, args)
-
-        if isinstance(env.action_space, Box):
-            args = (*args, env.action_space.low, env.action_space.high)
-
-        elif isinstance(env.action_space, Dict):
-            extended_args = {}
-            for arg in args:
-                extend_args(env.action_space, extended_args, args, arg)
-            args = extended_args
-
-        elif isinstance(env.action_space, Tuple):
-            extended_args = [None for _ in env.action_space]
-            for i in range(len(args)):
-                extend_args(env.action_space, extended_args, args, i)
-            args = extended_args
-
+        args = self._extend_args(env, args)
 
         def func(action, args):
             new_low, new_high = args[:2]
@@ -169,3 +154,7 @@ class scale_actions_v0(lambda_action_v0):
             )
 
         super().__init__(env, func, args, action_space)
+
+
+    def _extend_args(self, env, args):
+        return extend_args(env.action_space, args, extend_args)

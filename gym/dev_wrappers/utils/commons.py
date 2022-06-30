@@ -1,7 +1,7 @@
 """A set of utility functions for lambda wrappers."""
 from copy import deepcopy
 from functools import singledispatch
-from typing import Callable, Sequence, Iterable, Union
+from typing import Callable, Sequence
 from typing import Tuple as TypingTuple
 
 import gym
@@ -16,62 +16,6 @@ from gym.spaces import Dict, Space, Tuple, Box
 def is_nestable(space: Space):
     """Returns whether the input space can contains other spaces."""
     return isinstance(space, Tuple) or isinstance(space, Dict)
-
-def is_iterable_args(args: Union[list, dict, tuple]):
-    return isinstance(args, list) or isinstance(args, dict)
-
-
-@singledispatch
-def extend_args(space: Space, extended_args: dict, args: dict, space_key: str):
-    ...
-
-
-@extend_args.register(Tuple)
-def _extend_args_tuple(space: Space, extended_args: list, args: Sequence, space_idx: int):
-    if args[space_idx] is None:
-        return
-
-    args = args[space_idx]
-    space = space[space_idx]
-
-    if is_iterable_args(args):
-        extended_args[space_idx] = [None for _ in space]
-        for i in range(len(args)):
-            extend_args(space, extended_args[space_idx], args, i)
-    else:
-        extended_args[space_idx] = (*args, space.low, space.high)
-
-
-@extend_args.register(Dict)
-def _extend_args_dict(space: Space, extended_args: dict, args: dict, space_key: str):
-    """Extend args for rescaling actions.
-
-    Action space args needs to be extended in order
-    to correctly rescale the actions.
-    i.e. args before: {"body":{"left_arm": (-0.5,0.5)}, ...}
-    args after: {"body":{"left_arm": (-0.5,0.5,-1,1)}, ...}
-    where -1, 1 was the old action space bound.
-    old action space is needed to rescale actions.
-    """
-    if space_key not in args:
-        return extended_args
-
-    args = args[space_key]
-
-    if is_iterable_args(args):
-        extended_args[space_key] = {}
-        for arg in args:
-            extend_args(space[space_key], extended_args[space_key], args, arg)
-    else:
-        assert len(args) == len(space[space_key].low) + len(
-            space[space_key].high
-        )
-        extended_args[space_key] = (
-            *args,
-            *list(space[space_key].low),
-            *list(space[space_key].high),
-        )
-    return extended_args
 
 
 @singledispatch
@@ -170,29 +114,3 @@ def _process_space_dict(
         else:
             updated_space[arg] = fn(space[arg], args.get(arg), fn)
     return updated_space
-
-
-if __name__ == '__main__':
-    import gym
-    import numpy as np
-    import jumpy as jp
-
-    from gym.dev_wrappers.lambda_action import scale_actions_v0
-    from gym.spaces import Box, Discrete, Dict, Tuple
-    from tests.dev_wrappers.utils import TestingEnv
-    from collections import OrderedDict
-    from gym.wrappers import RescaleAction
-
-    env = TestingEnv(
-        action_space=Tuple([
-            Box(-1, 10, (1,)),
-            Tuple([
-                Box(-1, 10, (1,)),
-                Tuple([Box(-1, 10, (1,))])
-            ])
-        ])
-    )
-    env = scale_actions_v0(env, [(-0.5, 1), [(-0.5, 1), [(-0.5, 1)]]])
-    _, _, _, info = env.step([1, [1, [0.5]]])
-    print('====================')
-    print(info)

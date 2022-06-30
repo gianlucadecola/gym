@@ -158,12 +158,15 @@ class flatten_observations_v0(lambda_observations_v0):
     Basic Example, fully flattens the environment observation:
         >>> import gym
         >>> from gym.spaces import Dict, Box
-        >>> env = gym.make("CarRacing-v1")
+        >>> env = gym.make("CarRacingDiscrete-v1")
         >>> env.observation_space
-        TODO
+        Box(0, 255, (96, 96, 3), uint8)
         >>> env = flatten_observations_v0(env)
         >>> env.observation_space
-        TODO
+        Box(0, 255, (27648,), uint8)
+        >>> obs, _, _, _  = env.step(1)
+        >>> obs.shape
+        (27648,)
 
         >>> env = ExampleEnv(observation_space=Dict(left_eye=Box(0, 1, (10, 10, 3)), right_eye=Box(0, 1, (20, 20, 3))))
         >>> env = flatten_observations_v0(env)
@@ -186,6 +189,7 @@ class flatten_observations_v0(lambda_observations_v0):
         """
         if args is None:
             flatten_obs_space = flatten_space(env.observation_space)
+            args = env.observation_space
         else:
             flatten_obs_space = apply_function(
                 env.observation_space,
@@ -240,7 +244,7 @@ class grayscale_observations_v0(lambda_observations_v0):
             args: The arguments for what to convert colour to grayscale in the observation
         """
         observation_space = self._grayscale_space(env, args)
-        
+
         super().__init__(
             env,
             lambda obs, arg: obs
