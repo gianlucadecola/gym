@@ -177,7 +177,7 @@ class flatten_observations_v0(lambda_observations_v0):
         >>> env = ExampleEnv(observation_space=Dict(left_arm=Box(-1, 1, (3, 3)), right_arm=Box(-1, 1, (3, 3))))
         >>> env = flatten_observations_v0(env, {"left_arm": True, "right_arm": False})
         >>> env.observation_space
-        OrderedDict([('left_arm', Box(-1.0, 1.0, (9,), float32)), ('right_arm', Box(-1.0, 1.0, (3, 3), float32))])
+        Dict(left_arm: Box(-1.0, 1.0, (9,), float32)), right_arm: Box(-1.0, 1.0, (3, 3), float32))
     """
 
     def __init__(self, env: gym.Env, args: Optional[FuncArgType[bool]] = None):
@@ -189,6 +189,7 @@ class flatten_observations_v0(lambda_observations_v0):
         """
         if args is None:
             flatten_obs_space = flatten_space(env.observation_space)
+            new_args = env.observation_space
         else:
             flatten_obs_space = apply_function(
                 env.observation_space,
@@ -197,10 +198,10 @@ class flatten_observations_v0(lambda_observations_v0):
                 args,
             )
 
-        new_args = {}
-        for arg, space in zip(args.keys(), flatten_obs_space.values()):
-            if args.get(arg, False):
-                new_args[arg] = space
+            new_args = {}
+            for arg, space in zip(args.keys(), flatten_obs_space.values()):
+                if args.get(arg, False):
+                    new_args[arg] = space
 
         super().__init__(
             env,
