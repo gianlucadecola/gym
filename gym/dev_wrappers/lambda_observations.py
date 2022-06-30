@@ -171,13 +171,13 @@ class flatten_observations_v0(lambda_observations_v0):
         >>> env = ExampleEnv(observation_space=Dict(left_eye=Box(0, 1, (10, 10, 3)), right_eye=Box(0, 1, (20, 20, 3))))
         >>> env = flatten_observations_v0(env)
         >>> env.observation_space
-        TODO
+        Box(0.0, 1.0, (1500,), float32)
 
     Partially flatten example with composite observation spaces:
         >>> env = ExampleEnv(observation_space=Dict(left_arm=Box(-1, 1, (3, 3)), right_arm=Box(-1, 1, (3, 3))))
         >>> env = flatten_observations_v0(env, {"left_arm": True, "right_arm": False})
         >>> env.observation_space
-        TODO
+        OrderedDict([('left_arm', Box(-1.0, 1.0, (9,), float32)), ('right_arm', Box(-1.0, 1.0, (3, 3), float32))])
     """
 
     def __init__(self, env: gym.Env, args: Optional[FuncArgType[bool]] = None):
