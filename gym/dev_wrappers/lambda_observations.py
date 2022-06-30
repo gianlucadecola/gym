@@ -189,7 +189,6 @@ class flatten_observations_v0(lambda_observations_v0):
         """
         if args is None:
             flatten_obs_space = flatten_space(env.observation_space)
-            args = env.observation_space
         else:
             flatten_obs_space = apply_function(
                 env.observation_space,
@@ -198,10 +197,15 @@ class flatten_observations_v0(lambda_observations_v0):
                 args,
             )
 
+        new_args = {}
+        for arg, space in zip(args.keys(), flatten_obs_space.values()):
+            if args.get(arg, False):
+                new_args[arg] = space
+
         super().__init__(
             env,
             lambda obs, space: obs if space is None else flatten(space, obs),
-            args,
+            new_args,
             flatten_obs_space,
         )
 
