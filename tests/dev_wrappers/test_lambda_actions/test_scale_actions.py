@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 import gym
+from gym.spaces import Dict
 from gym.dev_wrappers.lambda_action import scale_actions_v0
 from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
     DISCRETE_ACTION,
@@ -93,7 +94,7 @@ def test_scale_actions_v0_nested_dict(env, args, action):
     assert executed_actions["box"] == BOX_HIGH
 
     nested_action = executed_actions["nested"]
-    while isinstance(nested_action, dict):
+    while isinstance(nested_action, Dict):
         nested_action = nested_action["nested"]
     assert nested_action == NESTED_BOX_HIGH
 
@@ -139,5 +140,6 @@ def test_scale_actions_v0_nested_tuple(env, args, action):
     while isinstance(nested_action, Sequence):
         nested_action = nested_action[-1]
 
+
     assert executed_actions[0] == BOX_HIGH
-    assert nested_action[-1] == NESTED_BOX_HIGH
+    assert nested_action == NESTED_BOX_HIGH
