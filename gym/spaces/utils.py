@@ -7,7 +7,7 @@ from __future__ import annotations
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
-from typing import Any, Callable, Optional, Sequence, TypeVar, Union, cast
+from typing import Any, Callable, Optional, Sequence, TypeVar, Union, cast, List
 
 import numpy as np
 
@@ -265,10 +265,17 @@ def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> A
 
 @apply_function.register(Box)
 @apply_function.register(Discrete)
-@apply_function.register(MultiDiscrete)
-@apply_function.register(MultiBinary)
 def _apply_function_fundamental(_, x: Any, func: Callable, *args: Optional[Any]):
     return func(x, *args)
+
+
+@apply_function.register(MultiBinary)
+@apply_function.register(MultiDiscrete)
+def _apply_function_multidiscrete(space: List, x: Any, func: Callable, *args: Optional[Any]):
+    return [
+        apply_function(subspace, val, func, arg) 
+        for subspace, val, arg in zip(space, x, *args)
+    ]
 
 
 @apply_function.register(Dict)

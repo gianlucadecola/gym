@@ -1,6 +1,7 @@
 from gym.spaces import Box, Dict, Discrete, Tuple
 
 SEED = 1
+NUM_ENVS = 3
 
 DISCRETE_VALUE = 1
 DISCRETE_ACTION = 0

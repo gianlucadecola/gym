@@ -10,7 +10,8 @@ from gym import Space
 from gym.dev_wrappers import FuncArgType
 from gym.dev_wrappers.utils.extend_arguments import extend_args
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
-from gym.spaces import Box, Dict, Tuple, apply_function
+from gym.spaces import Box, Dict, Tuple
+from gym.spaces.utils import apply_function
 
 
 class lambda_action_v0(gym.ActionWrapper):
