@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 
 import gym
+from gym.error import InvalidBound
 from gym.wrappers import clip_rewards_v0, lambda_reward_v0
 
 ENV_ID = "CartPole-v1"
@@ -106,5 +107,5 @@ def test_clip_reward_incorrect_params(lower_bound, upper_bound):
     """
     env = gym.make(ENV_ID)
     
-    with pytest.raises(Exception):
+    with pytest.raises(InvalidBound):
         env = clip_rewards_v0(env, lower_bound, upper_bound)
