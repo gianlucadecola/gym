@@ -4,6 +4,7 @@ from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
 import jumpy as jp
+import numpy as np
 
 import gym
 from gym import Space
@@ -42,6 +43,13 @@ class lambda_action_v0(gym.ActionWrapper):
         >>> obs, rew, done, info = env.step({"left_arm": 1, "right_arm": 1})
         >>> info["action"] # the executed action whitin the environment
         {'action': OrderedDict([('left_arm', 1), ('right_arm', 11)])})
+
+    Vectorized environment:
+        >>> env = gym.vector.make('CarRacingDiscrete-v1', num_envs=2)
+        >>> env = lambda_action_v0(
+        ...     env, lambda action, _: action.astype(np.int32), [None for _ in range(2)]
+        ... )
+        >>> obs, rew, done, info = env.step([np.float64(1.2), np.float64(1.2)])
     """
 
     def __init__(
@@ -51,7 +59,14 @@ class lambda_action_v0(gym.ActionWrapper):
         args: FuncArgType[Any],
         action_space: Space = None,
     ):
-        """Initialize lambda_action."""
+        """Initialize lambda_action.
+        
+        Args:
+            env (Env): The gym environment
+            func (Callable): function to apply to action
+            args: function arcuments
+            action_space: wrapped environment action space
+        """
         super().__init__(env)
 
         self.func = func
