@@ -137,9 +137,9 @@ class scale_actions_v0(lambda_action_v0):
         >>> env = gym.make('BipedalWalker-v3')
         >>> env.action_space
         Box(-1.0, 1.0, (4,), float32)
-        >>> env = scale_actions_v0(env, TODO, TODO)
+        >>> env = scale_actions_v0(env, (-0.5, 0.5))
         >>> env.action_space
-        TODO
+        Box(-0.5, 0.5, (4,), float32)
 
     Composite action space example:
         >>> env = ExampleEnv()
