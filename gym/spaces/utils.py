@@ -6,7 +6,7 @@ These functions mostly take care of flattening and unflattening elements of spac
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
-from typing import Any, Callable, Optional, Sequence, TypeVar, Union, cast
+from typing import Any, Callable, Optional, Sequence, TypeVar, Union, cast, List
 
 import numpy as np
 
@@ -369,10 +369,17 @@ def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> A
 
 @apply_function.register(Box)
 @apply_function.register(Discrete)
-@apply_function.register(MultiDiscrete)
-@apply_function.register(MultiBinary)
 def _apply_function_fundamental(_, x: Any, func: Callable, *args: Optional[Any]):
     return func(x, *args)
+
+
+@apply_function.register(MultiBinary)
+@apply_function.register(MultiDiscrete)
+def _apply_function_multidiscrete(space: List, x: Any, func: Callable, *args: Optional[Any]):
+    return [
+        apply_function(subspace, val, func, arg) 
+        for subspace, val, arg in zip(space, x, *args)
+    ]
 
 
 @apply_function.register(Dict)
@@ -389,7 +396,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
         if not isinstance(space, Dict):
             updated_x[space_key] = apply_function(space, x, func, args)
         else:
-            updated_x[space_key] = OrderedDict()
+            updated_x[space_key] = Dict()
             for nested_space_key in space:
                 _apply_function_dict_helper(
                     updated_x[space_key], space, x, nested_space_key, func, args
@@ -397,7 +404,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
         return updated_x
 
     if args is None:
-        return OrderedDict(
+        return Dict(
             [
                 (space_key, apply_function(subspace, x, func, None))
                 for space_key, subspace in space.spaces.items()
@@ -405,7 +412,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
         )
 
     elif isinstance(args, dict):
-        updated_x = OrderedDict()
+        updated_x = Dict()
         for k in space:
             updated_x = _apply_function_dict_helper(updated_x, space, x, k, func, args)
         return updated_x
@@ -422,7 +429,7 @@ def _apply_function_tuple(space: Tuple, x: Any, func: Callable, args: Optional[A
             for subspace, val in zip(space.spaces, x)
         )
     elif isinstance(args, Sequence):
-        assert len(args) == len(space)  
+        assert len(args) == len(space)
         return tuple(
             apply_function(subspace, val, func, arg) if arg is not None else val
             for subspace, val, arg in zip(space.spaces, x, args)
