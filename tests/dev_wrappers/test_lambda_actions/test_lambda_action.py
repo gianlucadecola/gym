@@ -1,8 +1,8 @@
 """Test suite for lambda_action_v0."""
 import gym
-from gym.error import InvalidAction
 import numpy as np
 import pytest
+from gym.error import InvalidAction
 
 from gym.dev_wrappers.lambda_action import lambda_action_v0
 from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
@@ -24,7 +24,7 @@ from tests.dev_wrappers.utils import TestingEnv
 )
 def test_lambda_action_v0(env, fn, action):
     """Tests lambda action.
-    
+
     Tests if function is correctly applied to environment's action.
     """
     wrapped_env = lambda_action_v0(env, fn, None)
@@ -46,13 +46,13 @@ def test_lambda_action_v0(env, fn, action):
 )
 def test_lambda_action_v0_within_vector(env, fn, action):
     """Tests lambda action in vectorized environments.
-    
+
     Tests if function is correctly applied to environment's action
     in vectorized environment.
     """
     wrapped_env = lambda_action_v0(env, fn, [None for _ in range(NUM_ENVS)])
     wrapped_env.reset()
-   
+
     wrapped_env.step(action)
 
     # unwrapped env should raise exception because it does not

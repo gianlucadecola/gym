@@ -1,5 +1,4 @@
 """Lambda reward wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
-
 from typing import Callable, Optional, Union
 from gym.error import InvalidBound
 
@@ -31,7 +30,7 @@ class lambda_reward_v0(gym.RewardWrapper):
 
         Args:
             env (Env): The environment to apply the wrapper
-            fn: (Callable): The function to apply to reward        
+            fn: (Callable): The function to apply to reward
         """
         super().__init__(env)
 
@@ -41,7 +40,7 @@ class lambda_reward_v0(gym.RewardWrapper):
         """Apply function to reward.
 
         Args:
-            reward (Union[float, int, np.ndarray]): environment's reward        
+            reward (Union[float, int, np.ndarray]): environment's reward
         """
         return self.fn(reward)
 
@@ -70,7 +69,7 @@ class clip_rewards_v0(lambda_reward_v0):
         Args:
             env (Env): The environment to apply the wrapper
             min_reward (Union[float, jp.ndarray]): lower bound to apply
-            max_reward (Union[float, jp.ndarray]): higher bound to apply     
+            max_reward (Union[float, jp.ndarray]): higher bound to apply
         """
         if min_reward is None and max_reward is None:
             raise InvalidBound(
@@ -78,7 +77,7 @@ class clip_rewards_v0(lambda_reward_v0):
             )
         elif max_reward and min_reward and max_reward < min_reward:
             raise InvalidBound(
-                f"Min reward ({min_reward}) must be less than max reward ({max_reward})"  # TODO update exception
+                f"Min reward ({min_reward}) must be less than max reward ({max_reward})"
             )
         else:
             super().__init__(
