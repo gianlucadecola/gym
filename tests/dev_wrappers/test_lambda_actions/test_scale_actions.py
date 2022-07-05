@@ -1,5 +1,6 @@
 """Test suite for scale_actions_v0."""
 from typing import Sequence
+from collections import OrderedDict
 import numpy as np
 import pytest
 
@@ -122,7 +123,7 @@ def test_scale_actions_v0_nested_dict(env, args, action):
     assert executed_actions["box"] == BOX_HIGH
 
     nested_action = executed_actions["nested"]
-    while isinstance(nested_action, Dict):
+    while isinstance(nested_action, OrderedDict):
         nested_action = nested_action["nested"]
     assert nested_action == NESTED_BOX_HIGH
 

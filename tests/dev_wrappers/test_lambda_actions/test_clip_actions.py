@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 
 import gym
+from collections import OrderedDict
 from gym.spaces import Dict
 from gym.dev_wrappers.lambda_action import clip_actions_v0
 from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
@@ -170,7 +171,7 @@ def test_clip_actions_v0_nested_dict_action(env, args, action):
     executed_actions = info["action"]
 
     nested_action = executed_actions["nested"]
-    while isinstance(nested_action, Dict):
+    while isinstance(nested_action, OrderedDict):
         nested_action = nested_action["nested"]
 
     assert executed_actions["box"] == NEW_BOX_HIGH

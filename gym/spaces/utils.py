@@ -396,7 +396,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
         if not isinstance(space, Dict):
             updated_x[space_key] = apply_function(space, x, func, args)
         else:
-            updated_x[space_key] = Dict()
+            updated_x[space_key] = OrderedDict()
             for nested_space_key in space:
                 _apply_function_dict_helper(
                     updated_x[space_key], space, x, nested_space_key, func, args
@@ -404,7 +404,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
         return updated_x
 
     if args is None:
-        return Dict(
+        return OrderedDict(
             [
                 (space_key, apply_function(subspace, x, func, None))
                 for space_key, subspace in space.spaces.items()
@@ -412,7 +412,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
         )
 
     elif isinstance(args, dict):
-        updated_x = Dict()
+        updated_x = OrderedDict()
         for k in space:
             updated_x = _apply_function_dict_helper(updated_x, space, x, k, func, args)
         return updated_x
