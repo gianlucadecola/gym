@@ -7,7 +7,7 @@ from typing import Tuple as TypingTuple
 import numpy as np
 
 from gym.dev_wrappers import FuncArgType
-from gym.error import InvalidRGBImage
+from gym.error import InvalidRGBShape
 from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 
@@ -22,7 +22,7 @@ def grayscale_space(
 def _grayscale_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
     if len(space.shape) != 3 and space.shape[-1] != 3:
         """raise if we are not dealing with an image-like space"""
-        raise InvalidRGBImage(
+        raise InvalidRGBShape(
             f"Grayscale transformation is supported for RGB spaces (m, n, 3). "
             f"Current space has shape {space.shape}"
         )
