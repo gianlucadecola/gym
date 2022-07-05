@@ -110,15 +110,18 @@ class filter_observations_v0(lambda_observations_v0):
 
     Example with three-order observation space:
         >>> env = ExampleEnv(observation_space=Tuple([Tuple([Discrete(3), Box(-1, 1, (1,))]),
-        ...                                           Dict(obs=Box(-1, 1, (1,)), time=Discrete(3))]))
+        ...                                           Dict(obs=Box(-1, 1, (1,)), time=Discrete(3))])
+        ... )
         >>> env = filter_observations_v0(env, [[True, False], {"obs": True, "time": False}])
         >>> env.observation_space
         Tuple(Tuple(Discrete(3)), Dict(obs: Box(-1.0, 1.0, (1,), float32)))
 
-        >>> env = ExampleEnv(observation_space=Dict(x=Tuple([Discrete(), Box()]), y=Dict()))
-        >>> env = filter_observations_v0(env, {'x': [True, False], 'y': {}})
+        >>> env = ExampleEnv(observation_space=Dict(
+        ...     observation_space=Dict(x=Tuple([Discrete(2), Box(-1,1,(1,))]), y=Dict(box=Box(-1,1,(1,))))
+        ... )
+        >>> env = filter_observations_v0(env, {'x': [True, False], 'y': {'box': True}})
         >>> env.observation_space
-        TODO
+        Dict(x:Tuple(Discrete(2)), y:Dict(box:Box(-1.0, 1.0, (1,), float32)))
     """
 
     def __init__(self, env: gym.Env, args: FuncArgType[Union[str, int, bool]]):
@@ -144,7 +147,7 @@ class filter_observations_v0(lambda_observations_v0):
 
         elif isinstance(observation, dict):
             return OrderedDict([
-                    (key, self._observation(value, arg))
+                    (key, self._observation(value, arg_value))
                     for (key, value), (arg, arg_value) in zip(observation.items(), args.items()) if arg_value
                 ])
         else:

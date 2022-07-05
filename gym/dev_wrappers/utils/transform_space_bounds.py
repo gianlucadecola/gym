@@ -20,9 +20,9 @@ def _transform_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Ca
     if not args:
         return space
     low, high = args
-    
+
     return Box(
-        low if low is not None else space.low, 
+        low if low is not None else space.low,
         high if high is not None else space.high,
         shape=space.shape,
         dtype=space.dtype
@@ -35,6 +35,4 @@ def _transform_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Ca
 def _transform_space_discrete(
     space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ):
-    if not args:
-        return space
     return space
