@@ -1,5 +1,5 @@
 """Lambda observation wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, OrderedDict
 from typing import Tuple as TypingTuple
 from typing import Union
 
@@ -8,6 +8,7 @@ import tinyscaler
 
 import gym
 from gym import spaces
+from gym.spaces import Dict, Tuple
 from gym.core import ObsType
 from gym.dev_wrappers import ArgType, FuncArgType
 from gym.dev_wrappers.utils.filter_space import filter_space
@@ -105,12 +106,12 @@ class filter_observations_v0(lambda_observations_v0):
         >>> env = ExampleEnv(observation_space=Tuple([Box(-1, 1, ()), Box(-2, 2, ()), Discrete(3)]))
         >>> env = filter_observations_v0(env, [0, 2])
         >>> env.observation_space
-        TODO
+        Tuple(Box(-1.0, 1.0, (), float32), Discrete(3))
 
-        >>> env = ExampleEnv(observation_space=Tuple([Box(-1, 1, ()), Box(-1, 1, ()), Box(-1, 1, ()), Box(-1, 1, ())]))
-        >>> env = filter_observations_v0(env, [True, False, False, True])
+        >>> env = ExampleEnv(observation_space=Tuple([Box(-1, 1, ()), Box(-2, 2, ()), Discrete(3)]))
+        >>> env = filter_observations_v0(env, [True, False, True])
         >>> env.observation_space
-        TODO
+        Tuple(Box(-1.0, 1.0, (), float32), Discrete(3))
 
     Example with three-order observation space:
         >>> env = ExampleEnv(observation_space=Tuple([Tuple([Discrete(3), Box(-1, 1, ())]),
@@ -139,17 +140,34 @@ class filter_observations_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The filter arguments
         """
-        # TODO: _filter_space is actually filtering space AND processing args
-        # might need refactor
-        observation_space, args = self._filter_space(env.observation_space, args)
+        observation_space = self._filter_space(env.observation_space, args)
 
         super().__init__(env, lambda obs, arg: obs, args, observation_space)
+
+
+    def observation(self, observation: ObsType, args=None):
+        """Filter the observation."""
+        return self._observation(observation, self.args)
+
+
+    def _observation(self, observation, args):
+        if isinstance(observation, tuple):
+            return tuple([self._observation(obs, arg) for obs, arg in zip(observation, args) if arg])
+
+        elif isinstance(observation, dict):
+            return OrderedDict([
+                    (key, self._observation(value, arg))
+                    for (key, value), (arg, arg_value) in zip(observation.items(), args.items()) if arg_value
+                ])
+        else:
+            return observation
 
     def _filter_space(
         self, space: spaces.Space, args: FuncArgType[Union[str, int, bool]]
     ):
         """Filter space with the provided args."""
-        return filter_space(space, args, filter_space)
+        return filter_space(space, args)
+
 
 
 class flatten_observations_v0(lambda_observations_v0):

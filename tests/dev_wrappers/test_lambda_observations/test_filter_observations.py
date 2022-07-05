@@ -24,11 +24,7 @@ from tests.dev_wrappers.utils import TestingEnv
     ("env", "args"),
     [
         (
-            TestingEnv(observation_space=Dict(obs=Box(-1, 1, ()), time=Discrete(3))), 
-            ['obs']
-        ),
-                (
-            TestingEnv(observation_space=Dict(obs=Box(-1, 1, ()), time=Discrete(3))), 
+            TestingEnv(observation_space=Dict(obs=Box(-1, 1, ()), time=Discrete(3))),
             {"obs": True, "time": False}
         ),
     ]
@@ -44,3 +40,27 @@ def test_dict_filter_observation_v0(env, args):
 
     assert obs.get('obs', False)
     assert not obs.get('time', False)
+
+
+@pytest.mark.parametrize(
+    ("env", "args", "filtered_space_size"),
+    [
+        (
+            TestingEnv(observation_space=Tuple([Box(-1, 1, ()), Box(-2, 2, ()), Discrete(3)])),
+            [True, False, True],
+            2
+        ),
+    ]
+    )
+def test_tuple_filter_observation_v0(env, args, filtered_space_size):
+    """Test correct filtering of `Tuple` observation space."""
+    wrapped_env = filter_observations_v0(env, args)
+
+    assert len(wrapped_env.observation_space) == filtered_space_size
+
+    obs, _, _, _ = wrapped_env.step(DISCRETE_VALUE)
+
+    assert len(obs) == filtered_space_size
+
+    assert isinstance(obs[0], np.ndarray)
+    assert isinstance(obs[1], int)

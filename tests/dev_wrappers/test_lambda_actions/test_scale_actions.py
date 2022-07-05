@@ -52,7 +52,7 @@ def test_scale_actions_v0_box(env, args, action, scaled_action):
 
     env.reset(seed=SEED)
     wrapped_env = scale_actions_v0(env, args)
-    
+
     obs_scaled, _, _, _ = wrapped_env.step(scaled_action)
 
     assert np.alltrue(obs == obs_scaled)
@@ -71,7 +71,7 @@ def test_scale_actions_v0_box(env, args, action, scaled_action):
 )
 def test_scale_action_v0_within_vector(env, args, action, scaled_action):
     """Tests scale action in vectorized environments.
-    
+
     Tests if action is correctly rescaled in vectorized environment.
     """
     env.reset(seed=SEED)
@@ -115,7 +115,6 @@ def test_scale_action_v0_within_vector(env, args, action, scaled_action):
 )
 def test_scale_actions_v0_nested_dict(env, args, action):
     """Test action rescaling for nested `Dict` action spaces."""
-
     wrapped_env = scale_actions_v0(env, args)
     _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]
@@ -160,7 +159,6 @@ def test_scale_actions_v0_tuple():
 )
 def test_scale_actions_v0_nested_tuple(env, args, action):
     """Test action rescaling for nested `Tuple` action spaces."""
-
     wrapped_env = scale_actions_v0(env, args)
     _, _, _, info = wrapped_env.step(action)
     executed_actions = info["action"]

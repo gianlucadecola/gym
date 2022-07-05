@@ -4,14 +4,12 @@ from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
 import jumpy as jp
-import numpy as np
 
 import gym
 from gym import Space
 from gym.dev_wrappers import FuncArgType
 from gym.dev_wrappers.utils.extend_arguments import extend_args
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
-from gym.spaces import Box, Dict, Tuple
 from gym.spaces.utils import apply_function
 
 
@@ -60,7 +58,7 @@ class lambda_action_v0(gym.ActionWrapper):
         action_space: Space = None,
     ):
         """Initialize lambda_action.
-        
+
         Args:
             env (Env): The gym environment
             func (Callable): function to apply to action
@@ -142,10 +140,12 @@ class scale_actions_v0(lambda_action_v0):
         Box(-0.5, 0.5, (4,), float32)
 
     Composite action space example:
-        >>> env = ExampleEnv()
-        >>> env = scale_actions_v0(env, TODO, TODO)
+        >>> env = ExampleEnv(
+        ...    action_space=Dict(left_arm=Box(-2, 2, (1,)), right_arm=Box(-2, 2, (1,))
+        ... )
+        >>> env = scale_actions_v0(env, {"left_arm": (-1,1), "right_arm": (-1,1)})
         >>> env.action_space
-        TODO
+        Dict(left_arm: Box(-1, 1, (1,), float32), right_arm: Box(-1, 1, (1,), float32))
     """
 
     def __init__(self, env: gym.Env, args: FuncArgType[float]):
@@ -172,5 +172,5 @@ class scale_actions_v0(lambda_action_v0):
         super().__init__(env, func, args, action_space)
 
 
-    def _extend_args(self, env, args):
+    def _extend_args(self, env: gym.Env, args: FuncArgType):
         return extend_args(env.action_space, args, extend_args)
