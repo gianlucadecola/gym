@@ -1,4 +1,5 @@
 """A set of utility functions for lambda wrappers."""
+import warnings
 from functools import singledispatch
 from typing import Any, Callable
 from typing import Tuple as TypingTuple
@@ -40,6 +41,8 @@ def _reshape_space_not_reshapable(
     spaces has no effect.
     """
     if args:
-        # TODO: raise warning that args has no effect here
-        ...
+        warnings.warn(
+            f"You are trying to reshape a space of type {type(space)}. "
+            "This is not supported and will have no effect on the updated space."
+        )
     return space
