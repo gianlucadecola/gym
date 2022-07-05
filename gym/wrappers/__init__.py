@@ -2,6 +2,7 @@
 from gym import error
 from gym.dev_wrappers.lambda_action import clip_actions_v0, lambda_action_v0
 from gym.dev_wrappers.lambda_observations import (
+    lambda_observations_v0,
     filter_observations_v0,
     flatten_observations_v0,
     reshape_observations_v0,

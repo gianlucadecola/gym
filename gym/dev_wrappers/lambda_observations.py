@@ -92,40 +92,28 @@ class filter_observations_v0(lambda_observations_v0):
     Example with Dict observation:
         >>> import gym
         >>> from gym.spaces import Tuple, Dict, Discrete, Box
-        >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, ()), time=Discrete(3)))
+        >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, (1,)), time=Discrete(3)))
         >>> env = filter_observations_v0(env, ['obs'])
         >>> env.observation_space
-        Dict(obs: Box(-1.0, 1.0, (), float32))
+        Dict(obs: Box(-1.0, 1.0, (1,), float32))
 
-        >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, ()), time=Discrete(3)))
+        >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, (1,)), time=Discrete(3)))
         >>> env = filter_observations_v0(env, {'obs': True, 'time': False})
         >>> env.observation_space
-        Dict(obs: Box(-1.0, 1.0, (), float32))
+        Dict(obs: Box(-1.0, 1.0, (1,), float32))
 
     Example with Tuple observation:
-        >>> env = ExampleEnv(observation_space=Tuple([Box(-1, 1, ()), Box(-2, 2, ()), Discrete(3)]))
-        >>> env = filter_observations_v0(env, [0, 2])
-        >>> env.observation_space
-        Tuple(Box(-1.0, 1.0, (), float32), Discrete(3))
-
-        >>> env = ExampleEnv(observation_space=Tuple([Box(-1, 1, ()), Box(-2, 2, ()), Discrete(3)]))
+        >>> env = ExampleEnv(observation_space=Tuple([Box(-1, 1, (1,)), Box(-2, 2, (1,)), Discrete(3)]))
         >>> env = filter_observations_v0(env, [True, False, True])
         >>> env.observation_space
-        Tuple(Box(-1.0, 1.0, (), float32), Discrete(3))
+        Tuple(Box(-1.0, 1.0, (1,), float32), Discrete(3))
 
     Example with three-order observation space:
-        >>> env = ExampleEnv(observation_space=Tuple([Tuple([Discrete(3), Box(-1, 1, ())]),
-        ...                                           Dict(obs=Box(-1, 1, ()), time=Discrete(3))]))
-        >>> env = filter_observations_v0(env, [[True, False], ["obs"]])
-        >>> env.observation_space
-        TODO
-
-        >>> env = ExampleEnv(observation_space=Tuple([Tuple([Discrete(3), Box(-1, 1, ())]),
-        ...                                           Dict(obs=Box(-1, 1, ()), time=Discrete(3))]))
+        >>> env = ExampleEnv(observation_space=Tuple([Tuple([Discrete(3), Box(-1, 1, (1,))]),
+        ...                                           Dict(obs=Box(-1, 1, (1,)), time=Discrete(3))]))
         >>> env = filter_observations_v0(env, [[True, False], {"obs": True, "time": False}])
         >>> env.observation_space
-        TODO
-
+        Tuple(Tuple(Discrete(3)), Dict(obs: Box(-1.0, 1.0, (1,), float32)))
 
         >>> env = ExampleEnv(observation_space=Dict(x=Tuple([Discrete(), Box()]), y=Dict()))
         >>> env = filter_observations_v0(env, {'x': [True, False], 'y': {}})
