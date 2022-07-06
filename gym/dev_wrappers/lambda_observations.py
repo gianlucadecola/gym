@@ -2,6 +2,7 @@
 from typing import Any, Callable, Optional, OrderedDict
 from typing import Tuple as TypingTuple
 from typing import Union
+from attr import has
 
 import jumpy as jp
 import tinyscaler
@@ -373,46 +374,48 @@ class reshape_observations_v0(lambda_observations_v0):
         )
 
 
-# class observations_dtype_v0(lambda_observations_v0):
-#     """A wrapper that converts the observation dtype returned by :meth:`step` and :meth:`reset` to a new shape.
+class observations_dtype_v0(lambda_observations_v0):
+    """A wrapper that converts the observation dtype returned by :meth:`step` and :meth:`reset` to a new shape.
 
-#     Basic Example:
-#         >>> import gym
-#         >>> from gym.spaces import Dict, Box, Discrete
-#         >>> env = gym.make("CartPole-v1")
-#         >>> env.observation_space
-#         TODO
-#         >>> env = observations_dtype_v0(env, jp.float64)
-#         >>> env.observation_space
-#         TODO
+    Basic Example:
+        >>> import gym
+        >>> from gym.spaces import Dict, Box, Discrete
+        >>> env = gym.make("CartPole-v1")
+        >>> env.observation_space
+        TODO
+        >>> env = observations_dtype_v0(env, jp.float32)
+        >>> env.observation_space
+        TODO
 
-#     Composite Example:
-#         >>> env = ExampleEnv(observation_space=Dict())
-#         >>> env = observations_dtype_v0(env, TODO)
-#         >>> env.observation_space
-#         TODO
+    Composite Example:
+        >>> env = ExampleEnv(observation_space=Dict())
+        >>> env = observations_dtype_v0(env, TODO)
+        >>> env.observation_space
+        TODO
 
-#         >>> env = ExampleEnv(observation_space=Tuple())
-#         >>> env = observations_dtype_v0(env, TODO)
-#         >>> env.observation_space
-#         TODO
+        >>> env = ExampleEnv(observation_space=Tuple())
+        >>> env = observations_dtype_v0(env, TODO)
+        >>> env.observation_space
+        TODO
 
-#         >>> env = ExampleEnv(observation_space=Dict(Tuple()))
-#         >>> env = observations_dtype_v0(env, TODO)
-#         >>> env.observation_space
-#         TODO
-#     """
+        >>> env = ExampleEnv(observation_space=Dict(Tuple()))
+        >>> env = observations_dtype_v0(env, TODO)
+        >>> env.observation_space
+        TODO
+    """
 
-#     def __init__(
-#         self, env: gym.Env, args: FuncArgType[Union[jp.dtype, str]]
-#     ):
-#         """Constructor for observation dtype wrapper.
+    def __init__(
+        # self, env: gym.Env, args: FuncArgType[Union[jp.dtype, str]]
+        self, env: gym.Env, args
+    ):
+        """Constructor for observation dtype wrapper.
 
-#         Args:
-#             env: The environment to wrap
-#             args: The arguments for the dtype changes
-#         """
-#         observation_space = apply_function(env.observation_space, env.observation_space,
-#                                            lambda x, arg: setattr(x, 'dtype', arg), args)
+        Args:
+            env: The environment to wrap
+            args: The arguments for the dtype changes
+        """
+        # TODO: bound of space should be casted to the new dtype
+        observation_space = apply_function(env.observation_space, env.observation_space,
+                                           lambda x, arg: setattr(x, 'dtype', arg), args)
 
-#         super().__init__(env, lambda obs, arg: jp.astype(obs, arg), args, observation_space)
+        super().__init__(env, lambda obs, arg: obs.astype(arg), args, observation_space)
