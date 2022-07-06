@@ -6,6 +6,7 @@ from typing import Tuple as TypingTuple
 
 import numpy as np
 
+import jumpy as jp
 from gym.dev_wrappers import FuncArgType
 from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
@@ -23,8 +24,8 @@ def _reshape_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Call
     if not args:
         return space
     return Box(
-        np.reshape(space.low, args),
-        np.reshape(space.high, args),
+        jp.reshape(space.low, args),
+        jp.reshape(space.high, args),
         shape=args,
         dtype=space.dtype,
     )
