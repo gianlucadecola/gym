@@ -6,16 +6,6 @@ from gym.spaces import Box, Discrete, Dict, Tuple
 from gym.wrappers import filter_observations_v0
 from tests.dev_wrappers.test_lambda_observations.mock_data_observation import (
     DISCRETE_VALUE,
-    NUM_ENVS,
-    NEW_BOX_DIM,
-    NEW_BOX_DIM_IMPOSSIBLE,
-    NUM_STEPS,
-    SEED,
-    TESTING_BOX_OBSERVATION_SPACE,
-    TESTING_DICT_OBSERVATION_SPACE,
-    TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE,
-    TESTING_NESTED_DICT_ACTION_SPACE,
-    TESTING_TUPLE_OBSERVATION_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -64,3 +54,27 @@ def test_tuple_filter_observation_v0(env, args, filtered_space_size):
 
     assert isinstance(obs[0], np.ndarray)
     assert isinstance(obs[1], int)
+
+
+
+@pytest.mark.parametrize(
+    ("env", "args"),
+    [
+        (
+            TestingEnv(observation_space=Dict(
+                x=Tuple([Discrete(2), Box(-1,1,(1,))]),
+                y=Dict(box=Box(-1,1,(1,)), box2=Box(1,1,(1,)))
+                )
+            ),
+            {'x': [True, False], 'y': {'box': True, 'box2': False}},
+        ),
+    ]
+    )
+def test_nested_filter_observation_v0(env, args):
+    """Test correct filtering of `Tuple` observation space."""
+    wrapped_env = filter_observations_v0(env, args)
+    obs, _, _, _ = wrapped_env.step(DISCRETE_VALUE)
+
+    assert len(obs['x']) == 1
+    assert 'box' in obs['y']
+    assert 'box2' not in obs['y']
