@@ -73,6 +73,9 @@ class InvalidRGBShape(Error):
     """Raised when trying to apply functions intended for RGB shapes to not-RGB shapes."""
 
 
+class InvalidSpaceOperation(Error):
+    """Raised when passing argument to perform not supported operation on `space` objects."""
+
 # API errors
 
 

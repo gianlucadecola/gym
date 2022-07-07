@@ -8,6 +8,7 @@ import numpy as np
 
 import jumpy as jp
 from gym.dev_wrappers import FuncArgType
+from gym.error import InvalidSpaceOperation
 from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 
@@ -16,20 +17,6 @@ def reshape_space(
     space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ) -> Any:
     """Reshape space with the provided args."""
-
-
-@reshape_space.register(Box)
-def _reshape_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
-    """Reshape `Box` space."""
-    if not args:
-        return space
-    return Box(
-        jp.reshape(space.low, args),
-        jp.reshape(space.high, args),
-        shape=args,
-        dtype=space.dtype,
-    )
-
 
 @reshape_space.register(Discrete)
 @reshape_space.register(MultiBinary)
@@ -43,8 +30,20 @@ def _reshape_space_not_reshapable(
     spaces has no effect.
     """
     if args:
-        warnings.warn(
-            f"You are trying to reshape a space of type {type(space)}. "
-            "This is not supported and will have no effect on the updated space."
+        raise InvalidSpaceOperation(
+            f"Cannot reshape a space of type {type(space)}."
         )
     return space
+
+
+@reshape_space.register(Box)
+def _reshape_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+    """Reshape `Box` space."""
+    if not args:
+        return space
+    return Box(
+        jp.reshape(space.low, args),
+        jp.reshape(space.high, args),
+        shape=args,
+        dtype=space.dtype,
+    )
