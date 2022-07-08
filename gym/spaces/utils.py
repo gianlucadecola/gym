@@ -377,46 +377,27 @@ def _apply_function_fundamental(_, x: Any, func: Callable, *args: Optional[Any])
 @apply_function.register(MultiDiscrete)
 def _apply_function_multidiscrete(space: List, x: Any, func: Callable, *args: Optional[Any]):
     return [
-        apply_function(subspace, val, func, arg) 
+        apply_function(subspace, val, func, arg)
         for subspace, val, arg in zip(space, x, *args)
     ]
 
 
 @apply_function.register(Dict)
 def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any]):
-    def _apply_function_dict_helper(
-        updated_x: Any, space: Space, x: Any, space_key: str, func: Callable, args: Dict
-    ):
-        if space_key not in args:
-            updated_x[space_key] = x.get(space_key)
-            return updated_x
-
-        space, args, x = space[space_key], args[space_key], x[space_key]
-
-        if not isinstance(space, Dict):
-            updated_x[space_key] = apply_function(space, x, func, args)
-        else:
-            updated_x[space_key] = OrderedDict()
-            for nested_space_key in space:
-                _apply_function_dict_helper(
-                    updated_x[space_key], space, x, nested_space_key, func, args
-                )
-        return updated_x
-
-    if args is None:
+    if not args:
         return OrderedDict(
             [
-                (space_key, apply_function(subspace, x, func, None))
-                for space_key, subspace in space.spaces.items()
+                (space_key, apply_function(subspace, val, func, None))
+                for (space_key, subspace), val in zip(space.spaces.items(), x.values())
             ]
         )
-
     elif isinstance(args, dict):
-        updated_x = OrderedDict()
-        for k in space:
-            updated_x = _apply_function_dict_helper(updated_x, space, x, k, func, args)
-        return updated_x
-
+        return OrderedDict(
+            [
+                (k, apply_function(subspace, val, func, args.get(k))) if args.get(k) is not None else (k, val)
+                for (k, subspace), val in zip(space.spaces.items(), x.values())
+            ]
+        )
     else:
         raise Exception  # TODO, maybe unsure
 

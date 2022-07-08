@@ -21,17 +21,6 @@ def resize_space(
 @resize_space.register(Box)
 def _resize_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
     if args is not None:
-        if len(space.shape) == 4: # dealing with a vectorized env (num_envs, h, w, ch)
-            return Box(
-                np.tile(
-                    tinyscaler.scale(space.low[-1,:], args, mode='bilinear'), (space.low.shape[0], 1)
-                ),
-                np.tile(
-                    tinyscaler.scale(space.high[-1,:], args, mode='bilinear'), (space.high.shape[0], 1)
-                ),
-                dtype=space.dtype,
-            )
-        
         return Box(
             tinyscaler.scale(space.low, args, mode='bilinear'),
             tinyscaler.scale(space.high, args, mode='bilinear'),

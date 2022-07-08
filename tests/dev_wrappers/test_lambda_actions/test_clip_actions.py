@@ -92,7 +92,7 @@ def test_clip_actions_v0(env_name, args, action_unclipped_env, action_clipped_en
 def test_clip_actions_v0_vector_env(env_name, args, action_unclipped_env, action_clipped_env):
     """Tests clipped actions in vectorized environment.
 
-    Tests whether out of bound actions 
+    Tests whether out of bound actions
     are correctly clipped in vectorized environment.
     """
     env = gym.vector.make(env_name, num_envs=NUM_ENVS)
@@ -113,7 +113,7 @@ def test_clip_actions_v0_vector_env(env_name, args, action_unclipped_env, action
         (
             TestingEnv(action_space=TESTING_DICT_ACTION_SPACE),
             {"box": (NEW_BOX_LOW, NEW_BOX_HIGH)},
-            {"box": NEW_BOX_HIGH + 1},
+            {"box": NEW_BOX_HIGH + 1, "discrete": 0},
         )
     ],
 )
@@ -155,6 +155,7 @@ def test_clip_actions_v0_dict_action(env, args, action):
             },
             {
                 "box": NEW_BOX_HIGH + 1,
+                "discrete": 0,
                 "nested": {"nested": {"nested": NEW_NESTED_BOX_HIGH + 1}},
             },
         ),
