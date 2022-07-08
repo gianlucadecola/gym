@@ -1,12 +1,13 @@
 """A set of utility functions for lambda wrappers."""
-import gym
 from copy import deepcopy
 from functools import singledispatch
-from typing import Callable, Sequence, Union
+from typing import Callable, Sequence
 from typing import Tuple as TypingTuple
-from gym.dev_wrappers import FuncArgType
+from typing import Union
 
-from gym.spaces import Dict, Space, Tuple, Box
+import gym
+from gym.dev_wrappers import FuncArgType
+from gym.spaces import Box, Dict, Space, Tuple
 
 
 def is_iterable_args(args: Union[list, dict, tuple]):
@@ -49,7 +50,9 @@ def _extend_args_tuple(
 
 
 @extend_args.register(Dict)
-def _extend_args_dict(space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+def _extend_args_dict(
+    space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+):
     """Extend args for rescaling actions.
 
     Action space args needs to be extended in order
@@ -60,7 +63,7 @@ def _extend_args_dict(space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn
     old action space is needed to rescale actions.
     """
     extended_args = deepcopy(args)
-  
+
     for arg in args:
         if is_iterable_args(args[arg]):
             extend_nestable_args(space[arg], extended_args, arg, args[arg], fn)
@@ -72,16 +75,18 @@ def _extend_args_dict(space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn
 @extend_nestable_args.register(Dict)
 def _extend_nestable_dict_args(space: Space, extended_args: dict, arg: str, args, fn):
     extended_args = extended_args[arg]
-    
+
     for arg in args:
         if is_iterable_args(args[arg]):
-            extend_nestable_args(space[arg], extended_args, arg, args[arg], fn)   
+            extend_nestable_args(space[arg], extended_args, arg, args[arg], fn)
         else:
             extended_args[arg] = fn(space[arg], args[arg], fn)
 
 
 @extend_nestable_args.register(Tuple)
-def _extend_nestable_tuple_args(space: Space, extended_args: dict, space_idx: int, args, fn):  
+def _extend_nestable_tuple_args(
+    space: Space, extended_args: dict, space_idx: int, args, fn
+):
     extended_args = extended_args[space_idx]
 
     if args is None:

@@ -2,14 +2,12 @@
 from typing import Any, Callable, Optional, OrderedDict
 from typing import Tuple as TypingTuple
 from typing import Union
-from attr import has
 
 import jumpy as jp
 import tinyscaler
 
 import gym
 from gym import spaces
-from gym.spaces import Dict, Tuple
 from gym.core import ObsType
 from gym.dev_wrappers import ArgType, FuncArgType
 from gym.dev_wrappers.utils.filter_space import filter_space
@@ -136,21 +134,28 @@ class filter_observations_v0(lambda_observations_v0):
 
         super().__init__(env, lambda obs, arg: obs, args, observation_space)
 
-
     def observation(self, observation: ObsType, args=None):
         """Filter the observation."""
         return self._observation(observation, self.args)
 
-
     def _observation(self, observation, args):
         if isinstance(observation, tuple):
-            return tuple([self._observation(obs, arg) for obs, arg in zip(observation, args) if arg])
+            return tuple(
+                self._observation(obs, arg)
+                for obs, arg in zip(observation, args)
+                if arg
+            )
 
         elif isinstance(observation, dict):
-            return OrderedDict([
+            return OrderedDict(
+                [
                     (key, self._observation(value, arg_value))
-                    for (key, value), (arg, arg_value) in zip(observation.items(), args.items()) if arg_value
-                ])
+                    for (key, value), (arg, arg_value) in zip(
+                        observation.items(), args.items()
+                    )
+                    if arg_value
+                ]
+            )
         else:
             return observation
 
@@ -159,7 +164,6 @@ class filter_observations_v0(lambda_observations_v0):
     ):
         """Filter space with the provided args."""
         return filter_space(space, args)
-
 
 
 class flatten_observations_v0(lambda_observations_v0):
@@ -264,9 +268,7 @@ class grayscale_observations_v0(lambda_observations_v0):
             env,
             lambda obs, arg: obs
             if arg is False
-            else jp.dot(
-                obs[..., :3], jp.array([0.2989, 0.5870, 0.1140])
-            ),
+            else jp.dot(obs[..., :3], jp.array([0.2989, 0.5870, 0.1140])),
             args,
             observation_space,
         )
@@ -406,7 +408,9 @@ class observations_dtype_v0(lambda_observations_v0):
 
     def __init__(
         # self, env: gym.Env, args: FuncArgType[Union[jp.dtype, str]]
-        self, env: gym.Env, args
+        self,
+        env: gym.Env,
+        args,
     ):
         """Constructor for observation dtype wrapper.
 
@@ -415,7 +419,11 @@ class observations_dtype_v0(lambda_observations_v0):
             args: The arguments for the dtype changes
         """
         # TODO: bound of space should be casted to the new dtype
-        observation_space = apply_function(env.observation_space, env.observation_space,
-                                           lambda x, arg: setattr(x, 'dtype', arg), args)
+        observation_space = apply_function(
+            env.observation_space,
+            env.observation_space,
+            lambda x, arg: setattr(x, "dtype", arg),
+            args,
+        )
 
         super().__init__(env, lambda obs, arg: obs.astype(arg), args, observation_space)

@@ -1,11 +1,11 @@
 """Lambda reward wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
 from typing import Callable, Optional, Union
-from gym.error import InvalidBound
 
 import jumpy as jp
 import numpy as np
 
 import gym
+from gym.error import InvalidBound
 
 
 class lambda_reward_v0(gym.RewardWrapper):
@@ -72,9 +72,7 @@ class clip_rewards_v0(lambda_reward_v0):
             max_reward (Union[float, jp.ndarray]): higher bound to apply
         """
         if min_reward is None and max_reward is None:
-            raise InvalidBound(
-                "Both `min_reward` and `max_reward` cannot be None"
-            )
+            raise InvalidBound("Both `min_reward` and `max_reward` cannot be None")
         elif max_reward and min_reward and max_reward < min_reward:
             raise InvalidBound(
                 f"Min reward ({min_reward}) must be less than max reward ({max_reward})"

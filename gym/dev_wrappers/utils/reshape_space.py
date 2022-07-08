@@ -1,12 +1,10 @@
 """A set of utility functions for lambda wrappers."""
-import warnings
 from functools import singledispatch
 from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
-import numpy as np
-
 import jumpy as jp
+
 from gym.dev_wrappers import FuncArgType
 from gym.error import InvalidSpaceOperation
 from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
@@ -17,6 +15,7 @@ def reshape_space(
     space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ) -> Any:
     """Reshape space with the provided args."""
+
 
 @reshape_space.register(Discrete)
 @reshape_space.register(MultiBinary)
@@ -30,9 +29,7 @@ def _reshape_space_not_reshapable(
     spaces has no effect.
     """
     if args:
-        raise InvalidSpaceOperation(
-            f"Cannot reshape a space of type {type(space)}."
-        )
+        raise InvalidSpaceOperation(f"Cannot reshape a space of type {type(space)}.")
     return space
 
 

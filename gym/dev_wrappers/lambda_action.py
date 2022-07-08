@@ -171,6 +171,5 @@ class scale_actions_v0(lambda_action_v0):
 
         super().__init__(env, func, args, action_space)
 
-
     def _extend_args(self, env: gym.Env, args: FuncArgType):
         return extend_args(env.action_space, args, extend_args)

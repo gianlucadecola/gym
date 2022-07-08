@@ -34,5 +34,5 @@ def _transform_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Ca
         low if low is not None else space.low,
         high if high is not None else space.high,
         shape=space.shape,
-        dtype=space.dtype
+        dtype=space.dtype,
     )

@@ -1,10 +1,8 @@
 """A set of utility functions for lambda wrappers."""
-import warnings
 from functools import singledispatch
 from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
-import numpy as np
 import tinyscaler
 
 from gym.dev_wrappers import FuncArgType
@@ -31,9 +29,7 @@ def _resize_space_not_reshapable(
     spaces has no effect.
     """
     if args:
-        raise InvalidSpaceOperation(
-            f"Cannot resize a space of type {type(space)}."
-        )
+        raise InvalidSpaceOperation(f"Cannot resize a space of type {type(space)}.")
     return space
 
 
@@ -41,8 +37,8 @@ def _resize_space_not_reshapable(
 def _resize_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
     if args is not None:
         return Box(
-            tinyscaler.scale(space.low, args, mode='bilinear'),
-            tinyscaler.scale(space.high, args, mode='bilinear'),
+            tinyscaler.scale(space.low, args, mode="bilinear"),
+            tinyscaler.scale(space.high, args, mode="bilinear"),
             shape=args,
             dtype=space.dtype,
         )

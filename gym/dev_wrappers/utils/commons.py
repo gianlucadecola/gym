@@ -10,7 +10,7 @@ from gym.dev_wrappers.utils.grayscale_space import grayscale_space
 from gym.dev_wrappers.utils.reshape_space import reshape_space
 from gym.dev_wrappers.utils.resize_spaces import resize_space
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
-from gym.spaces import Dict, Space, Tuple, Box
+from gym.spaces import Dict, Space, Tuple
 
 
 def is_nestable(space: Space):
