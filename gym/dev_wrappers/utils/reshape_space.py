@@ -50,16 +50,3 @@ def _reshape_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Call
         shape=args,
         dtype=space.dtype,
     )
-
-
-@reshape_space.register(Dict)
-def _reshape_space_dict(
-    space: Dict, args: FuncArgType[TypingTuple[int, int]], fn: Callable
-):
-    assert isinstance(args, dict)
-    updated_space = deepcopy(space)
-
-    for arg in args:
-        updated_space[arg] = reshape_space(space[arg], args[arg], fn)
-
-    return updated_space
