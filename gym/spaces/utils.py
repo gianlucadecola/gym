@@ -411,7 +411,7 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
         )
     else:
         raise InvalidSpaceArguments(
-            f"Your are trying to apply a function on a `Dict` space with arguments of type {type(args)}. "
+            f"You are trying to apply a function on a `Dict` space with arguments of type {type(args)}. "
             "This is not supported; you should instead using args of type `dict` or `None`."
         )
 
@@ -431,6 +431,6 @@ def _apply_function_tuple(space: Tuple, x: Any, func: Callable, args: Optional[A
         )
     else:
         raise InvalidSpaceArguments(
-            f"Your are trying to apply a function on a `Tuple` space with arguments of type {type(args)}. "
+            f"You are trying to apply a function on a `Tuple` space with arguments of type {type(args)}. "
             "This is not supported; you should instead using args of type `Sequence` or `None`."
         )
