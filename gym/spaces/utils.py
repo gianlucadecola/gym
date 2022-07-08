@@ -348,13 +348,23 @@ def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> A
     """Applies a function on ``x`` of shape ``space`` using the ``func`` callable and ``args`` arguments.
 
     Example with fundamental space::
-        TODO
+        >>> box = Box(-1, 1, (1,))
+        >>> apply_function(box, 1, lambda x, arg: x * arg, 10)
+        ... 10
 
     Example with dict (composite) space::
-        TODO
+        >>> space = Dict(left_arm=Box(-1, 1, (1,)), right_arm=Box(-1, 1, (1,)))
+        >>> x = {"left_arm": 1, "right_arm": 1}
+        >>> args = {"left_arm": 10, "right_arm": -10}
+        >>> apply_function(space, x, lambda x, arg: x * arg, args)
+        ... OrderedDict([('left_arm', 10), ('right_arm', -10)])
 
     Example with tuple (composite) space::
-        TODO
+        >>> space = Tuple([Box(-1, 1, (1,)), Box(-1, 1, (1,))])
+        >>> x = [1, 1]
+        >>> args = [10, -10]
+        >>> apply_function(space, x, lambda x, arg: x * arg, args)
+        ... (10, -10)
 
     Args:
         space: The space of ``x``
