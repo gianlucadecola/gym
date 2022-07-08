@@ -22,6 +22,7 @@ from gym.spaces import (
     Tuple,
 )
 from gym.dev_wrappers import FuncArgType
+from gym.error import InvalidSpaceArguments
 
 
 @singledispatch
@@ -409,7 +410,10 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
             ]
         )
     else:
-        raise Exception  # TODO, maybe unsure
+        raise InvalidSpaceArguments(
+            f"Your are trying to apply a function on a `Dict` space with arguments of type {type(args)}. "
+            "This is not supported; you should instead using args of type `dict` or `None`."
+        )
 
 
 @apply_function.register(Tuple)
@@ -426,4 +430,7 @@ def _apply_function_tuple(space: Tuple, x: Any, func: Callable, args: Optional[A
             for subspace, val, arg in zip(space.spaces, x, args)
         )
     else:
-        raise Exception  # TODO
+        raise InvalidSpaceArguments(
+            f"Your are trying to apply a function on a `Tuple` space with arguments of type {type(args)}. "
+            "This is not supported; you should instead using args of type `Sequence` or `None`."
+        )

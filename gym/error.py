@@ -76,6 +76,10 @@ class InvalidRGBShape(Error):
 class InvalidSpaceOperation(Error):
     """Raised when passing argument to perform not supported operation on `space` objects."""
 
+
+class InvalidSpaceArguments(Error):
+    """Raised when using incompatible dtype arguments in lambda_wrappers."""
+
 # API errors
 
 
