@@ -3,20 +3,9 @@ from copy import deepcopy
 from functools import singledispatch
 from typing import Callable, Sequence
 from typing import Tuple as TypingTuple
-from typing import Union
 
-import gym
 from gym.dev_wrappers import FuncArgType
 from gym.spaces import Box, Dict, Space, Tuple
-
-
-def is_iterable_args(args: Union[list, dict, tuple]):
-    return isinstance(args, list) or isinstance(args, dict)
-
-
-@singledispatch
-def extend_nestable_args(space, updated_space, i, args, fn):
-    ...
 
 
 @singledispatch
@@ -28,7 +17,7 @@ def extend_args(space: Space, args: dict, fn: Callable):
 def _extend_args_box(space: Space, args: Sequence, fn: Callable):
     if args is None:
         return (space.low, space.high, space.low, space.high)
-    #  For asymmetrical spaces?
+    #  TODO: For asymmetrical spaces?
     return (*args, space.low.min(), space.high.max())
 
 
@@ -41,11 +30,8 @@ def _extend_args_tuple(
 
     extended_args = [arg for arg in args]
 
-    for i, arg in enumerate(args):
-        if is_iterable_args(arg):
-            extend_nestable_args(space[i], extended_args, i, args[i], fn)
-        else:
-            extended_args[i] = fn(space[i], args[i], fn)
+    for i in range(len(args)):
+        extended_args[i] = fn(space[i], args[i], fn)
     return extended_args
 
 
@@ -65,35 +51,6 @@ def _extend_args_dict(
     extended_args = deepcopy(args)
 
     for arg in args:
-        if is_iterable_args(args[arg]):
-            extend_nestable_args(space[arg], extended_args, arg, args[arg], fn)
-        else:
-            extended_args[arg] = fn(space[arg], args[arg], fn)
+        extended_args[arg] = fn(space[arg], args[arg], fn)
+
     return extended_args
-
-
-@extend_nestable_args.register(Dict)
-def _extend_nestable_dict_args(space: Space, extended_args: dict, arg: str, args, fn):
-    extended_args = extended_args[arg]
-
-    for arg in args:
-        if is_iterable_args(args[arg]):
-            extend_nestable_args(space[arg], extended_args, arg, args[arg], fn)
-        else:
-            extended_args[arg] = fn(space[arg], args[arg], fn)
-
-
-@extend_nestable_args.register(Tuple)
-def _extend_nestable_tuple_args(
-    space: Space, extended_args: dict, space_idx: int, args, fn
-):
-    extended_args = extended_args[space_idx]
-
-    if args is None:
-        return
-
-    for i, arg in enumerate(args):
-        if is_iterable_args(args[i]):
-            extend_nestable_args(space[i], extended_args, i, args[i], fn)
-        else:
-            extended_args[i] = fn(space[i], arg, fn)
