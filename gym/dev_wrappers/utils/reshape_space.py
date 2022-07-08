@@ -2,12 +2,18 @@
 from functools import singledispatch
 from typing import Any, Callable
 from typing import Tuple as TypingTuple
+from copy import deepcopy
 
 import jumpy as jp
 
 from gym.dev_wrappers import FuncArgType
 from gym.error import InvalidSpaceOperation
-from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
+from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space, Dict, Tuple
+
+
+def is_nestable(space: Space):
+    """Returns whether the input space can contains other spaces."""
+    return isinstance(space, Tuple) or isinstance(space, Dict)
 
 
 @singledispatch
@@ -44,3 +50,16 @@ def _reshape_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Call
         shape=args,
         dtype=space.dtype,
     )
+
+
+@reshape_space.register(Dict)
+def _reshape_space_dict(
+    space: Dict, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+):
+    assert isinstance(args, dict)
+    updated_space = deepcopy(space)
+
+    for arg in args:
+        updated_space[arg] = reshape_space(space[arg], args[arg], fn)
+
+    return updated_space
