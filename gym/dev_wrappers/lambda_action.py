@@ -104,8 +104,8 @@ class clip_actions_v0(lambda_action_v0):
         Box([-1.  0.  0.], 0.5, (3,), float32)
 
     Composite action space example:
-        >>> env = ExampleEnv()
-        >>> env.actions_space
+        >>> env = ExampleEnv(action_space=Dict(body=Dict(head=Box(0.0, 10.0, (1,))), left_arm=Discrete(4), right_arm=Box(0.0, 5.0, (1,))))
+        >>> env.action_space
         Dict(body: Dict(head: Box(0.0, 10.0, (1,), float32)), left_arm: Discrete(4), right_arm: Box(0.0, 5.0, (1,), float32))
         >>> args = {"right_arm": (0, 2), "body": {"head": (0, 3)}}
         >>> env = clip_actions_v0(env, args)

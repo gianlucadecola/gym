@@ -30,6 +30,7 @@ from tests.dev_wrappers.utils import TestingEnv
     ("env", "args", "action", "scaled_action"),
     [
         (
+            # BipedalWalker action space: Box(-1.0, 1.0, (4,), float32)
             gym.make('BipedalWalker-v3'),
             (-0.5, 0.5),
             np.array([1, 1, 1, 1]),
