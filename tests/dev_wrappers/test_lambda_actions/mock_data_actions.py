@@ -1,3 +1,4 @@
+"""Reusable mock data for easier lambda actions testing."""
 from gym.spaces import Box, Dict, Discrete, Tuple
 
 SEED = 1

@@ -24,16 +24,10 @@ class lambda_observations_v0(gym.ObservationWrapper):
         >>> import gym
         >>> from gym.spaces import Dict, Discrete
         >>> env = gym.make("CartPole-v1")
-        >>> env.observation_space
-        Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), float32)
-        >>> env = lambda_observations_v0(
-        ...     env,
-        ...     lambda obs, arg: {"obs": obs, "time": 1},
-        ...     None,
-        ...     Dict(obs=env.action_space, time=Discrete(1))
-        ... )
-        >>> env.observation_space
-        Dict(obs: Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), float32), time: Discrete(1))
+        >>> env = lambda_observations_v0(env, lambda obs, arg: obs * arg, 10)
+        >>> obs, rew, done, info = env.step(1)
+        >>> obs
+        array([ 0.09995892, 4.3283587, 0.23945259, -6.1516], dtype=float32)
 
     Composite observation space:
         >>> env = ExampleEnv(
@@ -46,7 +40,6 @@ class lambda_observations_v0(gym.ObservationWrapper):
         ...     env,
         ...     lambda obs, arg: obs * arg,
         ...     {"left_arm": 0, "right_arm": float('inf')},
-        ...     env.observation_space
         ... )
         >>> obs, _, _, _ = env.step({"left_arm": 1, "right_arm": 1}))
         >>> obs
@@ -71,10 +64,12 @@ class lambda_observations_v0(gym.ObservationWrapper):
         super().__init__(env)
         self.func = func
         self.args = args
+        
         if observation_space is None:
             self.observation_space = env.observation_space
         else:
             self.observation_space = observation_space
+
 
     def observation(self, observation: ObsType):
         """Apply function to the observation."""
@@ -91,11 +86,6 @@ class filter_observations_v0(lambda_observations_v0):
     Example with Dict observation:
         >>> import gym
         >>> from gym.spaces import Tuple, Dict, Discrete, Box
-        >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, (1,)), time=Discrete(3)))
-        >>> env = filter_observations_v0(env, ['obs'])
-        >>> env.observation_space
-        Dict(obs: Box(-1.0, 1.0, (1,), float32))
-
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(-1, 1, (1,)), time=Discrete(3)))
         >>> env = filter_observations_v0(env, {'obs': True, 'time': False})
         >>> env.observation_space
@@ -384,33 +374,45 @@ class observations_dtype_v0(lambda_observations_v0):
         >>> from gym.spaces import Dict, Box, Discrete
         >>> env = gym.make("CartPole-v1")
         >>> env.observation_space
-        TODO
-        >>> env = observations_dtype_v0(env, jp.float64)
+        Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), float32)
+        >>> env = observations_dtype_v0(env, np.dtype('int32'))
         >>> env.observation_space
-        TODO
+        Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), int32)
+        >>> env.observation_space.sample()
+        array([1, -2147483648, -1, -2147483648], dtype=int32)
 
     Composite Example:
-        >>> env = ExampleEnv(observation_space=Dict())
-        >>> env = observations_dtype_v0(env, TODO)
-        >>> env.observation_space
-        TODO
+        >>> env = ExampleEnv(
+        ...     observation_space=Dict(
+        ...         left_arm=Box(-10,10,(1,), dtype=int),
+        ...         right_arm=Box(-10,10,(1,), dtype=int)
+        ...     ) 
+        ... )   
+        >>> env = observations_dtype_v0(env, {"left_arm": np.dtype('float64')})
+        >>> env.observation_space.sample()
+        OrderedDict([('left_arm', array([2.43149078])), ('right_arm', array([-5]))])
 
-        >>> env = ExampleEnv(observation_space=Tuple())
-        >>> env = observations_dtype_v0(env, TODO)
+        >>> env = ExampleEnv(observation_space=Tuple([
+        ...     Box(-10,10,(1,), dtype=int),
+        ...     Box(-10,10,(1,), dtype=int),
+        ...     Box(-10,10,(1,), dtype=int),
+        ...     ])
+        ... )
+        >>> env = observations_dtype_v0(env, [np.dtype('float64'), None, np.dtype('float64')])
         >>> env.observation_space
-        TODO
+        Tuple(Box(-10, 10, (1,), float64), Box(-10, 10, (1,), int64), Box(-10, 10, (1,), float64))
+        >>> env.observation_space.sample()
+        (array([5.92455305]), array([2]), array([6.51440713]), array([-3]))
 
         >>> env = ExampleEnv(observation_space=Dict(Tuple()))
         >>> env = observations_dtype_v0(env, TODO)
         >>> env.observation_space
         TODO
     """
+    import numpy as np
 
     def __init__(
-        # self, env: gym.Env, args: FuncArgType[Union[jp.dtype, str]]
-        self,
-        env: gym.Env,
-        args,
+        self, env: gym.Env, args: FuncArgType[np.dtype]
     ):
         """Constructor for observation dtype wrapper.
 
@@ -418,12 +420,11 @@ class observations_dtype_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The arguments for the dtype changes
         """
-        # TODO: bound of space should be casted to the new dtype
-        observation_space = apply_function(
+        apply_function(
             env.observation_space,
             env.observation_space,
             lambda x, arg: setattr(x, "dtype", arg),
             args,
         )
 
-        super().__init__(env, lambda obs, arg: obs.astype(arg), args, observation_space)
+        super().__init__(env, lambda obs, arg: obs.astype(arg), args, env.observation_space)

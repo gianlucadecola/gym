@@ -4,7 +4,7 @@ from typing import Any
 from typing import Tuple as TypingTuple
 
 from gym.dev_wrappers import FuncArgType
-from gym.spaces import Box, Dict, Discrete, Space, Tuple
+from gym.spaces import Box, Dict, Discrete, Space, Tuple, MultiBinary, MultiDiscrete
 
 
 @singledispatch
@@ -14,6 +14,8 @@ def filter_space(space: Space, args: FuncArgType[TypingTuple[int, int]]) -> Any:
 
 @filter_space.register(Box)
 @filter_space.register(Discrete)
+@filter_space.register(MultiBinary)
+@filter_space.register(MultiDiscrete)
 def _filter_space_box(space: Space, args: FuncArgType[TypingTuple[int, int]]):
     return space
 

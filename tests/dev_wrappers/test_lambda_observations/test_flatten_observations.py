@@ -8,17 +8,8 @@ from gym.spaces import Box, Discrete, Dict, Tuple
 from gym.wrappers import flatten_observations_v0
 from tests.dev_wrappers.test_lambda_observations.mock_data_observation import (
     DISCRETE_VALUE,
-    NUM_ENVS,
-    NEW_BOX_DIM,
-    NEW_BOX_DIM_IMPOSSIBLE,
     FLATTENEND_DICT_SIZE,
-    NUM_STEPS,
-    SEED,
-    TESTING_BOX_OBSERVATION_SPACE,
     TESTING_DICT_OBSERVATION_SPACE,
-    TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE,
-    TESTING_NESTED_DICT_ACTION_SPACE,
-    TESTING_TUPLE_OBSERVATION_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
 

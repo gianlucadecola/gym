@@ -16,24 +16,6 @@ from tests.dev_wrappers.test_lambda_observations.mock_data_observation import (
 from tests.dev_wrappers.utils import TestingEnv
 
 NUM_ENVS = 3
-# ENVS = [
-#     gym.make('CartPole-v1'),    # Box(np.zeros(4), np.ones(4), (4,), float32)
-#     gym.make('CarRacing-v1'),   # Box(0, 255, (96, 96, 3), uint8)
-#     gym.make('FrozenLake-v1'),  # Discrete(16)
-#     gym.make('Blackjack-v1'),   # Tuple(Discrete(32), Discrete(11), Discrete(2))
-#     gym.vector.make('CartPole-v1', num_envs=NUM_ENVS),
-#     gym.vector.make('CarRacing-v1', num_envs=NUM_ENVS),
-#     gym.vector.make('FrozenLake-v1', num_envs=NUM_ENVS),
-#     gym.vector.make('Blackjack-v1', num_envs=NUM_ENVS),
-#     TestingEnv(observation_space=MultiDiscrete([5, 3])),
-#     TestingEnv(observation_space=MultiBinary(10)),
-#     TestingEnv(observation_space=MultiBinary([3, 4])),
-#     TestingEnv(observation_space=Dict()),
-#     TestingEnv(observation_space=Dict()),
-#     TestingEnv(observation_space=Tuple([]))
-# ]
-# IMAGE_ENVS = [env for env in ENVS if contains_space(env.observation_space, Box)]
-# COMPOSITE_ENVS = [env for env in ENVS if isinstance(env.observation_space, (Dict, Tuple))]
 
 
 @pytest.mark.parametrize(
