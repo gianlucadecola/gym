@@ -8,6 +8,7 @@ from gym.dev_wrappers.lambda_observations import (
     reshape_observations_v0,
     resize_observations_v0,
     grayscale_observations_v0,
+    observations_dtype_v0,
 )
 from gym.dev_wrappers.lambda_reward import clip_rewards_v0, lambda_reward_v0
 from gym.wrappers.atari_preprocessing import AtariPreprocessing

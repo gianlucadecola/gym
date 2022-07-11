@@ -64,7 +64,7 @@ class lambda_observations_v0(gym.ObservationWrapper):
         super().__init__(env)
         self.func = func
         self.args = args
-        
+
         if observation_space is None:
             self.observation_space = env.observation_space
         else:
@@ -386,8 +386,8 @@ class observations_dtype_v0(lambda_observations_v0):
         ...     observation_space=Dict(
         ...         left_arm=Box(-10,10,(1,), dtype=int),
         ...         right_arm=Box(-10,10,(1,), dtype=int)
-        ...     ) 
-        ... )   
+        ...     )
+        ... )
         >>> env = observations_dtype_v0(env, {"left_arm": np.dtype('float64')})
         >>> env.observation_space.sample()
         OrderedDict([('left_arm', array([2.43149078])), ('right_arm', array([-5]))])
@@ -412,6 +412,7 @@ class observations_dtype_v0(lambda_observations_v0):
     import numpy as np
 
     def __init__(
+        # self, env: gym.Env, args: FuncArgType[jp.dtype]
         self, env: gym.Env, args: FuncArgType[np.dtype]
     ):
         """Constructor for observation dtype wrapper.
