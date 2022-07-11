@@ -8,7 +8,10 @@ from tests.dev_wrappers.mock_data import (
     NUM_ENVS,
     DICT_SPACE,
     NESTED_DICT_SPACE,
-    DOUBLY_NESTED_DICT_SPACE
+    DOUBLY_NESTED_DICT_SPACE,
+    TWO_BOX_TUPLE_SPACE,
+    NESTED_TUPLE_SPACE,
+    DOUBLY_NESTED_TUPLE_SPACE
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -93,3 +96,24 @@ def test_observation_dtype_v0_nested_dict(env, args):
         dict_subspace = dict_subspace["nested"]
         dict_args = dict_args["nested"]
     assert dict_subspace.dtype == dict_args
+
+
+@pytest.mark.parametrize(
+    ("env", "args"),
+    [
+        (TestingEnv(observation_space=TWO_BOX_TUPLE_SPACE), [None, np.dtype('int32')]),
+        (TestingEnv(observation_space=TWO_BOX_TUPLE_SPACE), [np.dtype('int32'), None]),
+        (TestingEnv(observation_space=TWO_BOX_TUPLE_SPACE), [np.dtype('int32'), np.dtype('int32')]),
+    ]
+)
+def test_observation_dtype_v0_tuple(env, args):
+    """Test correct dtype is applied to observation."""
+    wrapped_env = observations_dtype_v0(env, args)
+    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+
+    for subspace, arg in zip(obs, args):
+        if arg:
+            assert subspace.dtype == arg
+
+
+        

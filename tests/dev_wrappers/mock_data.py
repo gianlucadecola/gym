@@ -1,5 +1,6 @@
 """Reusable mock data for easier testing."""
 from gym.spaces import Box, Dict, Discrete, Tuple
+import numpy as np
 
 SEED = 1
 
@@ -12,7 +13,7 @@ DISCRETE_ACTION = 0
 
 # Box data
 BOX_LOW, BOX_HIGH, BOX_DIM = -5, 5, 1
-BOX_SPACE = Box(BOX_LOW, BOX_HIGH, (BOX_DIM,))
+BOX_SPACE = Box(BOX_LOW, BOX_HIGH, (BOX_DIM,), dtype=np.dtype('float64'))
 
 NEW_BOX_LOW, NEW_BOX_HIGH = 0, 2
 NEW_BOX_DIM = (1, 1)
@@ -40,6 +41,7 @@ DOUBLY_NESTED_DICT_SPACE = Dict(
 
 # Tuple data
 TUPLE_SPACE = Tuple([DISCRETE_SPACE, BOX_SPACE])
+TWO_BOX_TUPLE_SPACE = Tuple([BOX_SPACE, BOX_SPACE])
 
 NESTED_TUPLE_SPACE = Tuple([BOX_SPACE, Tuple([DISCRETE_SPACE, BOX_SPACE])])
 
