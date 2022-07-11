@@ -5,8 +5,8 @@ import pytest
 from gym.error import InvalidAction
 
 from gym.dev_wrappers.lambda_action import lambda_action_v0
-from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
-    TESTING_BOX_ACTION_SPACE,
+from tests.dev_wrappers.mock_data import (
+    BOX_SPACE,
     NUM_ENVS,
 )
 from tests.dev_wrappers.utils import TestingEnv
@@ -16,7 +16,7 @@ from tests.dev_wrappers.utils import TestingEnv
     ("env", "fn", "action"),
     [
         (
-            TestingEnv(action_space=TESTING_BOX_ACTION_SPACE),
+            TestingEnv(action_space=BOX_SPACE),
             lambda action, _: action.astype(np.int32),
             np.float64(10),
         ),

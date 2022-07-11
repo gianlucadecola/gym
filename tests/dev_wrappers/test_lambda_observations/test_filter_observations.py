@@ -1,11 +1,10 @@
 import pytest
 
-import gym
 import numpy as np
 from gym.spaces import Box, Discrete, Dict, Tuple
 from gym.wrappers import filter_observations_v0
-from tests.dev_wrappers.test_lambda_observations.mock_data_observation import (
-    DISCRETE_VALUE,
+from tests.dev_wrappers.mock_data import (
+    DISCRETE_ACTION,
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -48,7 +47,7 @@ def test_tuple_filter_observation_v0(env, args, filtered_space_size):
 
     assert len(wrapped_env.observation_space) == filtered_space_size
 
-    obs, _, _, _ = wrapped_env.step(DISCRETE_VALUE)
+    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert len(obs) == filtered_space_size
 
@@ -73,7 +72,7 @@ def test_tuple_filter_observation_v0(env, args, filtered_space_size):
 def test_nested_filter_observation_v0(env, args):
     """Test correct filtering of `Tuple` observation space."""
     wrapped_env = filter_observations_v0(env, args)
-    obs, _, _, _ = wrapped_env.step(DISCRETE_VALUE)
+    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert len(obs['x']) == 1
     assert 'box' in obs['y']

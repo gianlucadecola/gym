@@ -2,25 +2,26 @@ import pytest
 
 import gym
 from gym.wrappers import resize_observations_v0
-from tests.dev_wrappers.test_lambda_observations.mock_data_observation import (
-    SEED,
-    TESTING_DICT_OBSERVATION_SPACE,
-    TESTING_TUPLE_OBSERVATION_SPACE,
-)
+from gym.spaces import Tuple, Box, Dict
+from tests.dev_wrappers.mock_data import SEED
 from tests.dev_wrappers.utils import TestingEnv
 
 
+TUPLE_SPACE = Tuple([
+    Box(-1,1,(10,10)),
+    Box(-1,1,(10,10))
+])
+
+DICT_SPACE = Dict(
+    key_1=Box(-1,1,(10,10)),
+    key_2=Box(-1,1,(10,10))
+)
+
+
 @pytest.mark.parametrize(
-    (
-        "env",
-        "args",
-    ),
-    [
-        (
-            gym.make("CarRacingDiscrete-v1"),  # Box(0, 255, (96, 96, 3), uint8)
-            (32, 32, 3),
-        )
-    ],
+    ("env", "args"),
+    # Box(0, 255, (96, 96, 3), uint8)
+    [(gym.make("CarRacingDiscrete-v1"), (32, 32, 3))],
 )
 def test_resize_observations_box_v0(env, args):
     """Test correct resizing of box observations."""
@@ -35,17 +36,14 @@ def test_resize_observations_box_v0(env, args):
 
 
 @pytest.mark.parametrize(
-    (
-        "env",
-        "args",
-    ),
+    ("env", "args"),
     [
         (
-            TestingEnv(observation_space=TESTING_TUPLE_OBSERVATION_SPACE),
+            TestingEnv(observation_space=TUPLE_SPACE),
             [(5, 5), (2, 2)],
         ),
-        (TestingEnv(observation_space=TESTING_TUPLE_OBSERVATION_SPACE), [(5, 5), None]),
-        (TestingEnv(observation_space=TESTING_TUPLE_OBSERVATION_SPACE), [None, (5, 5)]),
+        (TestingEnv(observation_space=TUPLE_SPACE), [(5, 5), None]),
+        (TestingEnv(observation_space=TUPLE_SPACE), [None, (5, 5)]),
     ],
 )
 def test_resize_observations_tuple_v0(env, args):
@@ -68,17 +66,14 @@ def test_resize_observations_tuple_v0(env, args):
 
 
 @pytest.mark.parametrize(
-    (
-        "env",
-        "args",
-    ),
+    ("env", "args"),
     [
         (
-            TestingEnv(observation_space=TESTING_DICT_OBSERVATION_SPACE),
+            TestingEnv(observation_space=DICT_SPACE),
             {"key_1": (5, 5)},
         ),
         (
-            TestingEnv(observation_space=TESTING_DICT_OBSERVATION_SPACE),
+            TestingEnv(observation_space=DICT_SPACE),
             {"key_1": (5, 5), "key_2": (2, 2)},
         ),
     ],

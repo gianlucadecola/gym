@@ -5,21 +5,19 @@ import pytest
 import gym
 from collections import OrderedDict
 from gym.dev_wrappers.lambda_action import clip_actions_v0
-from tests.dev_wrappers.test_lambda_actions.mock_data_actions import (
+from tests.dev_wrappers.mock_data import (
     NUM_ENVS,
     NEW_BOX_HIGH,
     NEW_BOX_LOW,
-    NEW_NESTED_BOX_HIGH,
-    NEW_NESTED_BOX_LOW,
     SEED,
-    TESTING_DICT_ACTION_SPACE,
-    TESTING_DICT_WITHIN_TUPLE_ACTION_SPACE,
-    TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE,
-    TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE,
-    TESTING_NESTED_DICT_ACTION_SPACE,
-    TESTING_NESTED_TUPLE_ACTION_SPACE,
-    TESTING_TUPLE_ACTION_SPACE,
-    TESTING_TUPLE_WITHIN_DICT_ACTION_SPACE,
+    DICT_SPACE,
+    DICT_WITHIN_TUPLE_SPACE,
+    DOUBLY_NESTED_DICT_SPACE,
+    DOUBLY_NESTED_TUPLE_SPACE,
+    NESTED_DICT_SPACE,
+    NESTED_TUPLE_SPACE,
+    TUPLE_SPACE,
+    TUPLE_WITHIN_DICT_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -111,7 +109,7 @@ def test_clip_actions_v0_vector_env(env, args, action_unclipped_env, action_clip
     ("env", "args", "action"),
     [
         (
-            TestingEnv(action_space=TESTING_DICT_ACTION_SPACE),
+            TestingEnv(action_space=DICT_SPACE),
             {"box": (NEW_BOX_LOW, NEW_BOX_HIGH)},
             {"box": NEW_BOX_HIGH + 1, "discrete": 0},
         )
@@ -134,29 +132,29 @@ def test_clip_actions_v0_dict_action(env, args, action):
     ("env", "args", "action"),
     [
         (  # one level of nested dict
-            TestingEnv(action_space=TESTING_NESTED_DICT_ACTION_SPACE),
+            TestingEnv(action_space=NESTED_DICT_SPACE),
             {
                 "box": (NEW_BOX_LOW, NEW_BOX_HIGH),
-                "nested": {"nested": (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)},
+                "nested": {"nested": (NEW_BOX_LOW, NEW_BOX_HIGH)},
             },
             {
                 "box": NEW_BOX_HIGH + 1,
                 "discrete": 0,
-                "nested": {"nested": NEW_NESTED_BOX_HIGH + 1},
+                "nested": {"nested": NEW_BOX_HIGH + 1},
             },
         ),
         (  # two levels of nested dict
-            TestingEnv(action_space=TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE),
+            TestingEnv(action_space=DOUBLY_NESTED_DICT_SPACE),
             {
                 "box": (NEW_BOX_LOW, NEW_BOX_HIGH),
                 "nested": {
-                    "nested": {"nested": (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)}
+                    "nested": {"nested": (NEW_BOX_LOW, NEW_BOX_HIGH)}
                 },
             },
             {
                 "box": NEW_BOX_HIGH + 1,
                 "discrete": 0,
-                "nested": {"nested": {"nested": NEW_NESTED_BOX_HIGH + 1}},
+                "nested": {"nested": {"nested": NEW_BOX_HIGH + 1}},
             },
         ),
     ],
@@ -176,14 +174,14 @@ def test_clip_actions_v0_nested_dict_action(env, args, action):
         nested_action = nested_action["nested"]
 
     assert executed_actions["box"] == NEW_BOX_HIGH
-    assert nested_action == NEW_NESTED_BOX_HIGH
+    assert nested_action == NEW_BOX_HIGH
 
 
 @pytest.mark.parametrize(
     ("env", "args", "action"),
     [
         (
-            TestingEnv(action_space=TESTING_TUPLE_ACTION_SPACE),
+            TestingEnv(action_space=TUPLE_SPACE),
             [None, (NEW_BOX_LOW, NEW_BOX_HIGH)],
             [0, NEW_BOX_HIGH + 1],
         )
@@ -206,20 +204,20 @@ def test_clip_actions_v0_tuple_action(env, args, action):
     ("env", "args", "action"),
     [
         (  # one level of nesting
-            TestingEnv(action_space=TESTING_NESTED_TUPLE_ACTION_SPACE),
+            TestingEnv(action_space=NESTED_TUPLE_SPACE),
             [
                 (NEW_BOX_LOW, NEW_BOX_HIGH),
-                [None, (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)],
+                [None, (NEW_BOX_LOW, NEW_BOX_HIGH)],
             ],
-            [NEW_BOX_HIGH + 1, [0, NEW_NESTED_BOX_HIGH + 1]],
+            [NEW_BOX_HIGH + 1, [0, NEW_BOX_HIGH + 1]],
         ),
         (  # two levels of nesting
-            TestingEnv(action_space=TESTING_DOUBLY_NESTED_TUPLE_ACTION_SPACE),
+            TestingEnv(action_space=DOUBLY_NESTED_TUPLE_SPACE),
             [
                 (NEW_BOX_LOW, NEW_BOX_HIGH),
-                [None, [None, (NEW_NESTED_BOX_LOW, NEW_NESTED_BOX_HIGH)]],
+                [None, [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]],
             ],
-            [NEW_BOX_HIGH + 1, [0, [0, (NEW_NESTED_BOX_HIGH + 1)]]],
+            [NEW_BOX_HIGH + 1, [0, [0, (NEW_BOX_HIGH + 1)]]],
         ),
     ],
 )
@@ -238,14 +236,14 @@ def test_clip_actions_v0_nested_tuple_action(env, args, action):
         nested_action = nested_action[-1]
 
     assert executed_actions[0] == NEW_BOX_HIGH
-    assert nested_action == NEW_NESTED_BOX_HIGH
+    assert nested_action == NEW_BOX_HIGH
 
 
 @pytest.mark.parametrize(
     ("env", "args", "action"),
     [
         (
-            TestingEnv(action_space=TESTING_DICT_WITHIN_TUPLE_ACTION_SPACE),
+            TestingEnv(action_space=DICT_WITHIN_TUPLE_SPACE),
             [None, {"dict": (NEW_BOX_LOW, NEW_BOX_HIGH)}],
             [0, {"dict": NEW_BOX_HIGH + 1}],
         )
@@ -268,7 +266,7 @@ def test_clip_actions_v0_dict_within_tuple(env, args, action):
     ("env", "args", "action"),
     [
         (
-            TestingEnv(action_space=TESTING_TUPLE_WITHIN_DICT_ACTION_SPACE),
+            TestingEnv(action_space=TUPLE_WITHIN_DICT_SPACE),
             {"tuple": [(NEW_BOX_LOW, NEW_BOX_HIGH)]},
             {"discrete": 0, "tuple": [NEW_BOX_HIGH + 1]},
         )

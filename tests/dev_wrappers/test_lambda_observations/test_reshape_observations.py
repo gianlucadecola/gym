@@ -2,16 +2,16 @@ import pytest
 
 import gym
 from gym.wrappers import reshape_observations_v0
-from tests.dev_wrappers.test_lambda_observations.mock_data_observation import (
+from tests.dev_wrappers.mock_data import (
     NEW_BOX_DIM,
     NEW_BOX_DIM_IMPOSSIBLE,
     NUM_STEPS,
     SEED,
-    TESTING_BOX_OBSERVATION_SPACE,
-    TESTING_DICT_OBSERVATION_SPACE,
-    TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE,
-    TESTING_NESTED_DICT_ACTION_SPACE,
-    TESTING_TUPLE_OBSERVATION_SPACE,
+    BOX_SPACE,
+    DICT_SPACE,
+    DOUBLY_NESTED_DICT_SPACE,
+    NESTED_DICT_SPACE,
+    TUPLE_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -19,15 +19,9 @@ NUM_ENVS = 3
 
 
 @pytest.mark.parametrize(
-    (
-        "env",
-        "args",
-    ),
+    ("env", "args"),
     [
-        (
-            TestingEnv(observation_space=TESTING_BOX_OBSERVATION_SPACE),
-            NEW_BOX_DIM,
-        ),
+        (TestingEnv(observation_space=BOX_SPACE), NEW_BOX_DIM),
         (gym.make("CarRacing-v1"), (96, 48, 6)),  # Box(0, 255, (96, 96, 3), uint8)
     ],
 )
@@ -50,27 +44,17 @@ def test_reshape_observations_box_impossible_v0():
     A wrong new shape is a shape that can not be
     obtained from the original shape.
     """
-    env = TestingEnv(observation_space=TESTING_BOX_OBSERVATION_SPACE)
+    env = TestingEnv(observation_space=BOX_SPACE)
 
     with pytest.raises(ValueError):
         reshape_observations_v0(env, NEW_BOX_DIM_IMPOSSIBLE)
 
 
 @pytest.mark.parametrize(
-    (
-        "env",
-        "args",
-    ),
+    ("env", "args"),
     [
-        (
-            TestingEnv(observation_space=TESTING_DICT_OBSERVATION_SPACE),
-            {"key_1": NEW_BOX_DIM},
-        ),
-        (
-            TestingEnv(observation_space=TESTING_DICT_OBSERVATION_SPACE),
-            {"key_1": NEW_BOX_DIM, "key_2": NEW_BOX_DIM},
-        ),
-        (TestingEnv(observation_space=TESTING_DICT_OBSERVATION_SPACE), {}),
+        (TestingEnv(observation_space=DICT_SPACE), {"box": NEW_BOX_DIM}),
+        (TestingEnv(observation_space=DICT_SPACE), {}),
     ],
 )
 def test_reshape_observations_dict_v0(env, args):
@@ -93,17 +77,14 @@ def test_reshape_observations_dict_v0(env, args):
 
 
 @pytest.mark.parametrize(
-    (
-        "env",
-        "args",
-    ),
+    ("env", "args"),
     [
         (
-            TestingEnv(observation_space=TESTING_NESTED_DICT_ACTION_SPACE),
+            TestingEnv(observation_space=NESTED_DICT_SPACE),
             {"nested": {"nested": NEW_BOX_DIM}},
         ),
         (
-            TestingEnv(observation_space=TESTING_DOUBLY_NESTED_DICT_ACTION_SPACE),
+            TestingEnv(observation_space=DOUBLY_NESTED_DICT_SPACE),
             {"nested": {"nested": {"nested": NEW_BOX_DIM}}},
         ),
     ],
@@ -134,7 +115,7 @@ def test_reshape_observations_tuple_v0():
     Expected behaviour is that the reshape observation
     space matches the shape provided.
     """
-    env = TestingEnv(observation_space=TESTING_TUPLE_OBSERVATION_SPACE)
+    env = TestingEnv(observation_space=TUPLE_SPACE)
     args = [None, NEW_BOX_DIM]
 
     wrapped_env = reshape_observations_v0(env, args)

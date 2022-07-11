@@ -4,8 +4,8 @@ import gym
 import numpy as np
 from gym.spaces import Box, Dict
 from gym.wrappers import lambda_observations_v0
-from tests.dev_wrappers.test_lambda_observations.mock_data_observation import (
-    DISCRETE_VALUE,
+from tests.dev_wrappers.mock_data import (
+    DISCRETE_ACTION,
     NUM_ENVS,
     SEED,
 )
@@ -25,11 +25,11 @@ from tests.dev_wrappers.utils import TestingEnv
 def test_lambda_observation_v0(env, func, args):
     """Test correct function is applied to observation."""
     env.reset(seed=SEED)
-    obs, _, _, _ = env.step(DISCRETE_VALUE)
+    obs, _, _, _ = env.step(DISCRETE_ACTION)
 
     wrapped_env = lambda_observations_v0(env, func, args)
     wrapped_env.reset(seed=SEED)
-    lambda_obs, _, _, _ = wrapped_env.step(DISCRETE_VALUE)
+    lambda_obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert np.alltrue(lambda_obs == obs * args)
 
@@ -52,11 +52,11 @@ def test_lambda_observation_v0(env, func, args):
 def test_lambda_observation_v0_vector_env(env, func, args):
     """Test correct function is applied to observation in vector environment."""
     env.reset(seed=SEED)
-    obs, _, _, _ = env.step([DISCRETE_VALUE for _ in range(NUM_ENVS)])
+    obs, _, _, _ = env.step([DISCRETE_ACTION for _ in range(NUM_ENVS)])
 
     wrapped_env = lambda_observations_v0(env, func, args)
     wrapped_env.reset(seed=SEED)
-    lambda_obs, _, _, _ = wrapped_env.step([DISCRETE_VALUE for _ in range(NUM_ENVS)])
+    lambda_obs, _, _, _ = wrapped_env.step([DISCRETE_ACTION for _ in range(NUM_ENVS)])
 
     assert np.alltrue(lambda_obs == obs * args)
 
@@ -77,11 +77,11 @@ def test_composite_space_lambda_observation_v0(env, func, args):
     Test if function is applied correctly to composite action space.
     """
     env.reset(seed=SEED)
-    obs, _, _, _ = env.step(DISCRETE_VALUE)
+    obs, _, _, _ = env.step(DISCRETE_ACTION)
 
     wrapped_env = lambda_observations_v0(env, func, args)
     wrapped_env.reset(seed=SEED)
-    lambda_obs, _, _, _ = wrapped_env.step(DISCRETE_VALUE)
+    lambda_obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for arg, arg_value in args.items():
         assert np.alltrue(lambda_obs[arg] == obs[arg] * arg_value)
