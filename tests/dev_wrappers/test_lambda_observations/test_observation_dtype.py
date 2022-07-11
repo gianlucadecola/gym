@@ -20,7 +20,7 @@ from tests.dev_wrappers.utils import TestingEnv
     ]
 )
 def test_observation_dtype_v0(env, args):
-    """Test correct function is applied to observation."""
+    """Test correct dtype is applied to observation."""
     wrapped_env = observations_dtype_v0(env, args)
     obs, _, _, _ = wrapped_env.step(DISCRETE_VALUE)
 
@@ -35,7 +35,7 @@ def test_observation_dtype_v0(env, args):
     ]
 )
 def test_observation_dtype_v0_within_vector(env, args):
-    """Test correct function is applied to observation."""
+    """Test correct dtype is applied to observation in vectorized envs."""
     wrapped_env = observations_dtype_v0(env, args)
     observations, _, _, _ = wrapped_env.step([DISCRETE_VALUE for _ in range(NUM_ENVS)])
 

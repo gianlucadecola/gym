@@ -404,10 +404,15 @@ class observations_dtype_v0(lambda_observations_v0):
         >>> env.observation_space.sample()
         (array([5.92455305]), array([2]), array([6.51440713]), array([-3]))
 
-        >>> env = ExampleEnv(observation_space=Dict(Tuple()))
-        >>> env = observations_dtype_v0(env, TODO)
-        >>> env.observation_space
-        TODO
+        >>> env = ExampleEnv(
+        ...     observation_space=Dict(
+        ...         x=Tuple([Box(1,1,(1,), dtype=np.float32), Box(1,1,(1,), dtype=np.float32)]),
+        ...         y=Box(1,1,(1,), dtype=np.float32)
+        ...     )
+        ... )
+        >>> env = observations_dtype_v0(env, {"x": [None, np.dtype('int32')], "y": np.dtype('int32')})
+        >>> env.observation_space.sample()
+        OrderedDict([('x', (array([1.], dtype=float32), array([1], dtype=int32))), ('y', array([1], dtype=int32))])
     """
     import numpy as np
 
