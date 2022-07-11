@@ -12,10 +12,9 @@ from tests.dev_wrappers.mock_data import (
     DOUBLY_NESTED_DICT_SPACE,
     NESTED_DICT_SPACE,
     TUPLE_SPACE,
+    NUM_ENVS
 )
 from tests.dev_wrappers.utils import TestingEnv
-
-NUM_ENVS = 3
 
 
 @pytest.mark.parametrize(

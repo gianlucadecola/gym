@@ -22,8 +22,9 @@ NEW_BOX_DIM_IMPOSSIBLE = (3,)
 DICT_SPACE = Dict(
     discrete=DISCRETE_SPACE,
     box=BOX_SPACE,
+    box2=BOX_SPACE
 )
-FLATTENEND_DICT_SIZE = 2 # 1 discrete + 1 Box
+FLATTENEND_DICT_SIZE = 3 # 1 discrete + 1 Box + 1 Box
 
 NESTED_DICT_SPACE = Dict(
     discrete=DISCRETE_SPACE,
