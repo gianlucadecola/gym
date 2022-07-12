@@ -18,9 +18,19 @@ def grayscale_space(
     """Make observation space grayscale (i.e. flatten third dimension)."""
 
 
+@singledispatch
+def grayscale_vector_space(
+    space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+) -> Any:
+    """Make observation space grayscale (i.e. flatten third dimension)."""
+
+
 @grayscale_space.register(Discrete)
 @grayscale_space.register(MultiBinary)
 @grayscale_space.register(MultiDiscrete)
+@grayscale_vector_space.register(Discrete)
+@grayscale_vector_space.register(MultiBinary)
+@grayscale_vector_space.register(MultiDiscrete)
 def _grayscale_space_not_reshapable(
     space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ):
@@ -39,6 +49,22 @@ def _grayscale_space_not_reshapable(
 @grayscale_space.register(Box)
 def _grayscale_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
     if len(space.shape) != 3 and space.shape[-1] != 3:
+        """raise if we are not dealing with an image-like space"""
+        raise InvalidRGBShape(
+            f"Grayscale transformation is supported for RGB spaces (m, n, 3). "
+            f"Current space has shape {space.shape}"
+        )
+    if space.dtype != np.uint8:
+        warnings.warn(
+            f"Found observation space of dtype {space.dtype} while expected dtype for grayscale conversion is of type `uint8`."
+        )
+    w, h = space.shape[0], space.shape[1]
+    return Box(0, 255, shape=(w, h), dtype=np.uint8)
+
+
+@grayscale_vector_space.register(Box)
+def _grayscale_vector_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+    if len(space.shape) != 4 and space.shape[-1] != 3:
         """raise if we are not dealing with an image-like space"""
         raise InvalidRGBShape(
             f"Grayscale transformation is supported for RGB spaces (m, n, 3). "

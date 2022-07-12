@@ -11,7 +11,7 @@ from gym import spaces
 from gym.core import ObsType
 from gym.dev_wrappers import ArgType, FuncArgType
 from gym.dev_wrappers.utils.filter_space import filter_space
-from gym.dev_wrappers.utils.grayscale_space import grayscale_space
+from gym.dev_wrappers.utils.grayscale_space import grayscale_space, grayscale_vector_space
 from gym.dev_wrappers.utils.reshape_space import reshape_space
 from gym.dev_wrappers.utils.resize_spaces import resize_space
 from gym.spaces.utils import apply_function, flatten, flatten_space
@@ -265,6 +265,8 @@ class grayscale_observations_v0(lambda_observations_v0):
 
     def _grayscale_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
         """Process the space and apply the grayscale transformation."""
+        if hasattr(env, "is_vector_env"):
+            return grayscale_vector_space(env.observation_space, args, grayscale_vector_space)
         return grayscale_space(env.observation_space, args, grayscale_space)
 
 
