@@ -4,6 +4,7 @@ from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
 import tinyscaler
+import numpy as np
 
 from gym.dev_wrappers import FuncArgType
 from gym.error import InvalidSpaceOperation
@@ -36,10 +37,23 @@ def _resize_space_not_reshapable(
 @resize_space.register(Box)
 def _resize_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
     if args is not None:
+        if len(space.shape) == 4: # vectorized environment
+            num_envs = space.low.shape[0]
+            new_lows = tinyscaler.scale(space.low[0,:], args, mode="bilinear")
+            new_highs = tinyscaler.scale(space.low[0,:], args, mode="bilinear")
+
+            space_low = np.repeat(new_lows[None, ...], num_envs, axis=0)
+            space_high = np.repeat(new_highs[None, ...], num_envs, axis=0)
+        else:
+            space_low = tinyscaler.scale(space.low, args, mode="bilinear")
+            space_high = tinyscaler.scale(space.high, args, mode="bilinear")
+
+        shape = space_low.shape
+
         return Box(
-            tinyscaler.scale(space.low, args, mode="bilinear"),
-            tinyscaler.scale(space.high, args, mode="bilinear"),
-            shape=args,
+            space_low,
+            space_high,
+            shape=shape,
             dtype=space.dtype,
         )
     return space
