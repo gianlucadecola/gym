@@ -2,13 +2,12 @@
 from functools import singledispatch
 from typing import Any, Callable
 from typing import Tuple as TypingTuple
-from copy import deepcopy
 
 import jumpy as jp
 
 from gym.dev_wrappers import FuncArgType
 from gym.error import InvalidSpaceOperation
-from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space, Dict, Tuple
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 
 def is_nestable(space: Space):

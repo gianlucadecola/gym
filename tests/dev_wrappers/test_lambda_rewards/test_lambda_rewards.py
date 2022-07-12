@@ -5,11 +5,7 @@ import pytest
 import gym
 from gym.error import InvalidBound
 from gym.wrappers import clip_rewards_v0, lambda_reward_v0
-from tests.dev_wrappers.mock_data import (
-    DISCRETE_ACTION,
-    SEED,
-    NUM_ENVS
-)
+from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
 
 ENV_ID = "CartPole-v1"
 

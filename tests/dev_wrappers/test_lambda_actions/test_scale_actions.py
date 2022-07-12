@@ -1,24 +1,25 @@
 """Test suite for scale_actions_v0."""
-from typing import Sequence
 from collections import OrderedDict
+from typing import Sequence
+
 import numpy as np
 import pytest
 
 import gym
 from gym.dev_wrappers.lambda_action import scale_actions_v0
 from tests.dev_wrappers.mock_data import (
-    NUM_ENVS,
-    DISCRETE_ACTION,
     BOX_HIGH,
+    BOX_LOW,
+    DISCRETE_ACTION,
+    DOUBLY_NESTED_DICT_SPACE,
+    DOUBLY_NESTED_TUPLE_SPACE,
+    NESTED_DICT_SPACE,
+    NESTED_TUPLE_SPACE,
     NEW_BOX_HIGH,
     NEW_BOX_LOW,
-    BOX_LOW,
+    NUM_ENVS,
     SEED,
-    NESTED_DICT_SPACE,
-    DOUBLY_NESTED_DICT_SPACE,
     TUPLE_SPACE,
-    NESTED_TUPLE_SPACE,
-    DOUBLY_NESTED_TUPLE_SPACE
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -28,7 +29,7 @@ from tests.dev_wrappers.utils import TestingEnv
     [
         (
             # BipedalWalker action space: Box(-1.0, 1.0, (4,), float32)
-            gym.make('BipedalWalker-v3'),
+            gym.make("BipedalWalker-v3"),
             (-0.5, 0.5),
             np.array([1, 1, 1, 1]),
             np.array([0.5, 0.5, 0.5, 0.5]),
@@ -40,11 +41,11 @@ def test_scale_actions_v0_box(env, args, action, scaled_action):
 
     Scale action wrapper allow to rescale action
     to a new range.
-    Supposed the old action space is of type
+    Supposed the old action space is
     `Box(-1, 1, (1,))` and we rescale to
-    `Box(-0.5, 0.5, (1,))`, an action on the wrapped
-    environment with value `0.5` will be seen by the
-    environment as `1.0`.  TODO: maybe explain this better.
+    `Box(-0.5, 0.5, (1,))`, an action  with value
+    `0.5` will have the same effect of an action with value
+    `1.0` on the unwrapped env.
     """
     env.reset(seed=SEED)
     obs, _, _, _ = env.step(action)
@@ -61,7 +62,7 @@ def test_scale_actions_v0_box(env, args, action, scaled_action):
     ("env", "args", "action", "scaled_action"),
     [
         (
-            gym.vector.make('BipedalWalker-v3', num_envs=NUM_ENVS),
+            gym.vector.make("BipedalWalker-v3", num_envs=NUM_ENVS),
             (-0.5, 0.5),
             np.tile(np.array([1, 1, 1, 1]), (NUM_ENVS, 1)),
             np.tile(np.array([0.5, 0.5, 0.5, 0.5]), (NUM_ENVS, 1)),
@@ -98,7 +99,7 @@ def test_scale_action_v0_within_vector(env, args, action, scaled_action):
                 "nested": {"nested": BOX_HIGH},
             },
         ),
-                (
+        (
             TestingEnv(action_space=DOUBLY_NESTED_DICT_SPACE),
             {
                 "box": (NEW_BOX_LOW, NEW_BOX_HIGH),
@@ -109,7 +110,7 @@ def test_scale_action_v0_within_vector(env, args, action, scaled_action):
                 "discrete": DISCRETE_ACTION,
                 "nested": {"nested": {"nested": BOX_HIGH}},
             },
-        )
+        ),
     ],
 )
 def test_scale_actions_v0_nested_dict(env, args, action):
@@ -124,7 +125,6 @@ def test_scale_actions_v0_nested_dict(env, args, action):
     while isinstance(nested_action, OrderedDict):
         nested_action = nested_action["nested"]
     assert nested_action == BOX_HIGH
-
 
 
 def test_scale_actions_v0_tuple():
@@ -147,13 +147,13 @@ def test_scale_actions_v0_tuple():
         (
             TestingEnv(action_space=NESTED_TUPLE_SPACE),
             [None, [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]],
-            [BOX_HIGH, [DISCRETE_ACTION, NEW_BOX_HIGH]]
+            [BOX_HIGH, [DISCRETE_ACTION, NEW_BOX_HIGH]],
         ),
         (
             TestingEnv(action_space=DOUBLY_NESTED_TUPLE_SPACE),
             [None, [None, [None, (NEW_BOX_LOW, NEW_BOX_HIGH)]]],
-            [BOX_HIGH, [DISCRETE_ACTION, [DISCRETE_ACTION, NEW_BOX_HIGH]]]
-        )
+            [BOX_HIGH, [DISCRETE_ACTION, [DISCRETE_ACTION, NEW_BOX_HIGH]]],
+        ),
     ],
 )
 def test_scale_actions_v0_nested_tuple(env, args, action):
@@ -165,7 +165,6 @@ def test_scale_actions_v0_nested_tuple(env, args, action):
     nested_action = executed_actions[-1]
     while isinstance(nested_action, Sequence):
         nested_action = nested_action[-1]
-
 
     assert executed_actions[0] == BOX_HIGH
     assert nested_action == BOX_HIGH

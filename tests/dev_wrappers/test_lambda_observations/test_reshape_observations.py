@@ -3,16 +3,16 @@ import pytest
 import gym
 from gym.wrappers import reshape_observations_v0
 from tests.dev_wrappers.mock_data import (
-    NEW_BOX_DIM,
-    NEW_BOX_DIM_IMPOSSIBLE,
-    NUM_STEPS,
-    SEED,
     BOX_SPACE,
     DICT_SPACE,
     DOUBLY_NESTED_DICT_SPACE,
     NESTED_DICT_SPACE,
+    NEW_BOX_DIM,
+    NEW_BOX_DIM_IMPOSSIBLE,
+    NUM_ENVS,
+    NUM_STEPS,
+    SEED,
     TUPLE_SPACE,
-    NUM_ENVS
 )
 from tests.dev_wrappers.utils import TestingEnv
 
@@ -21,11 +21,16 @@ from tests.dev_wrappers.utils import TestingEnv
     ("env", "args"),
     [
         (TestingEnv(observation_space=BOX_SPACE), NEW_BOX_DIM),
-        (gym.make("CarRacing-v1", disable_env_checker=True), (96, 48, 6)),  # Box(0, 255, (96, 96, 3), uint8)
         (
-            gym.vector.make("CarRacing-v1", num_envs=NUM_ENVS, disable_env_checker=True), # Box(0, 255, (NUM_ENVS, 96, 96, 3), uint8)
-            (96, 96, 3*NUM_ENVS)
-        )
+            gym.make("CarRacing-v1", disable_env_checker=True),
+            (96, 48, 6),
+        ),  # Box(0, 255, (96, 96, 3), uint8)
+        (
+            gym.vector.make(
+                "CarRacing-v1", num_envs=NUM_ENVS, disable_env_checker=True
+            ),  # Box(0, 255, (NUM_ENVS, 96, 96, 3), uint8)
+            (96, 96, 3 * NUM_ENVS),
+        ),
     ],
 )
 def test_reshape_observations_v0_box(env, args):

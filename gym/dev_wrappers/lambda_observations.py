@@ -71,11 +71,9 @@ class lambda_observations_v0(gym.ObservationWrapper):
         else:
             self.observation_space = observation_space
 
-
     def observation(self, observation: ObsType):
         """Apply function to the observation."""
         return apply_function(self.observation_space, observation, self.func, self.args)
-
 
 
 class filter_observations_v0(lambda_observations_v0):
@@ -319,7 +317,9 @@ class resize_observations_v0(lambda_observations_v0):
 
         super().__init__(
             env,
-            lambda obs, arg: scale(obs, arg) if not hasattr(env, "is_vector_env") else scale_vector(obs, arg),
+            lambda obs, arg: scale(obs, arg)
+            if not hasattr(env, "is_vector_env")
+            else scale_vector(obs, arg),
             args,
             observation_space,
         )
@@ -428,12 +428,10 @@ class observations_dtype_v0(lambda_observations_v0):
         >>> env.observation_space.sample()
         OrderedDict([('x', (array([1.], dtype=float32), array([1], dtype=int32))), ('y', array([1], dtype=int32))])
     """
+
     import numpy as np
 
-    def __init__(
-        # self, env: gym.Env, args: FuncArgType[jp.dtype]
-        self, env: gym.Env, args: FuncArgType[np.dtype]
-    ):
+    def __init__(self, env: gym.Env, args: FuncArgType[jp.dtype]):
         """Constructor for observation dtype wrapper.
 
         Args:
@@ -441,7 +439,7 @@ class observations_dtype_v0(lambda_observations_v0):
             args: The arguments for the dtype changes
         """
         observation_space = self._update_dtype(env, args)
-        
+
         super().__init__(env, lambda obs, arg: obs.astype(arg), args, observation_space)
 
     def _update_dtype(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):

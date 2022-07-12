@@ -28,7 +28,7 @@ def _update_dtype_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Calla
     """Change `Box` space low and high value."""
     if not args:
         return space
-    
+
     return Box(
         space.low.astype(args),
         space.high.astype(args),

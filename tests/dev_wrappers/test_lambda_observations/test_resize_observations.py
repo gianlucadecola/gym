@@ -1,21 +1,14 @@
 import pytest
 
 import gym
+from gym.spaces import Box, Dict, Tuple
 from gym.wrappers import resize_observations_v0
-from gym.spaces import Tuple, Box, Dict
-from tests.dev_wrappers.mock_data import SEED, NUM_ENVS, DISCRETE_ACTION
+from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
 from tests.dev_wrappers.utils import TestingEnv
 
+TUPLE_SPACE = Tuple([Box(-1, 1, (10, 10)), Box(-1, 1, (10, 10))])
 
-TUPLE_SPACE = Tuple([
-    Box(-1,1,(10,10)),
-    Box(-1,1,(10,10))
-])
-
-DICT_SPACE = Dict(
-    key_1=Box(-1,1,(10,10)),
-    key_2=Box(-1,1,(10,10))
-)
+DICT_SPACE = Dict(key_1=Box(-1, 1, (10, 10)), key_2=Box(-1, 1, (10, 10)))
 
 
 @pytest.mark.parametrize(

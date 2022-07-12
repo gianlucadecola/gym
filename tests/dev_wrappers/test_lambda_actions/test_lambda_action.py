@@ -1,14 +1,11 @@
 """Test suite for lambda_action_v0."""
-import gym
 import numpy as np
 import pytest
-from gym.error import InvalidAction
 
+import gym
 from gym.dev_wrappers.lambda_action import lambda_action_v0
-from tests.dev_wrappers.mock_data import (
-    BOX_SPACE,
-    NUM_ENVS,
-)
+from gym.error import InvalidAction
+from tests.dev_wrappers.mock_data import BOX_SPACE, NUM_ENVS
 from tests.dev_wrappers.utils import TestingEnv
 
 
@@ -38,7 +35,7 @@ def test_lambda_action_v0(env, fn, action):
     ("env", "fn", "action"),
     [
         (
-            gym.vector.make('CarRacingDiscrete-v1', num_envs=NUM_ENVS),
+            gym.vector.make("CarRacingDiscrete-v1", num_envs=NUM_ENVS),
             lambda action, _: action.astype(np.int32),
             [np.float64(1.2) for _ in range(NUM_ENVS)],
         ),

@@ -1,21 +1,22 @@
 """Test suite for clip_actions_v0."""
+from collections import OrderedDict
+
 import numpy as np
 import pytest
 
 import gym
-from collections import OrderedDict
 from gym.dev_wrappers.lambda_action import clip_actions_v0
 from tests.dev_wrappers.mock_data import (
-    NUM_ENVS,
-    NEW_BOX_HIGH,
-    NEW_BOX_LOW,
-    SEED,
     DICT_SPACE,
     DICT_WITHIN_TUPLE_SPACE,
     DOUBLY_NESTED_DICT_SPACE,
     DOUBLY_NESTED_TUPLE_SPACE,
     NESTED_DICT_SPACE,
     NESTED_TUPLE_SPACE,
+    NEW_BOX_HIGH,
+    NEW_BOX_LOW,
+    NUM_ENVS,
+    SEED,
     TUPLE_SPACE,
     TUPLE_WITHIN_DICT_SPACE,
 )
@@ -26,7 +27,7 @@ from tests.dev_wrappers.utils import TestingEnv
     ("env", "args", "action_unclipped_env", "action_clipped_env"),
     (
         [
-            # MountainCar action space: Box(-1.0, 1.0, (1,), float32) 
+            # MountainCar action space: Box(-1.0, 1.0, (1,), float32)
             gym.make("MountainCarContinuous-v0"),
             (np.array([-0.5], dtype="float32"), np.array([0.5], dtype="float32")),
             np.array([0.5]),
@@ -54,8 +55,8 @@ from tests.dev_wrappers.utils import TestingEnv
             gym.make("CarRacing-v1", disable_env_checker=True),
             (None, 0.5),
             np.array([0.5, 0.5, 0.5]),
-            np.array([1, 1, 1])
-        ]
+            np.array([1, 1, 1]),
+        ],
     ),
 )
 def test_clip_actions_v0(env, args, action_unclipped_env, action_clipped_env):
@@ -81,7 +82,9 @@ def test_clip_actions_v0(env, args, action_unclipped_env, action_clipped_env):
             # BipedalWalker action space: Box(-1.0, 1.0, (4,), float32)
             gym.vector.make("BipedalWalker-v3", num_envs=NUM_ENVS),
             (
-                np.tile(np.array([-0.5, -0.5, -0.5, -0.5], dtype="float32"), (NUM_ENVS, 1)),
+                np.tile(
+                    np.array([-0.5, -0.5, -0.5, -0.5], dtype="float32"), (NUM_ENVS, 1)
+                ),
                 np.tile(np.array([0.5, 0.5, 0.5, 0.5], dtype="float32"), (NUM_ENVS, 1)),
             ),
             np.array([0.5, 0.5, 0.5, 0.5]),
@@ -89,7 +92,9 @@ def test_clip_actions_v0(env, args, action_unclipped_env, action_clipped_env):
         ],
     ),
 )
-def test_clip_actions_v0_vector_env(env, args, action_unclipped_env, action_clipped_env):
+def test_clip_actions_v0_vector_env(
+    env, args, action_unclipped_env, action_clipped_env
+):
     """Tests clipped actions in vectorized environment.
 
     Tests whether out of bound actions
@@ -100,7 +105,9 @@ def test_clip_actions_v0_vector_env(env, args, action_unclipped_env, action_clip
 
     env.reset(seed=SEED)
     wrapped_env = clip_actions_v0(env, args)
-    wrapped_obs, _, _, _ = wrapped_env.step([action_clipped_env for _ in range(NUM_ENVS)])
+    wrapped_obs, _, _, _ = wrapped_env.step(
+        [action_clipped_env for _ in range(NUM_ENVS)]
+    )
 
     assert np.alltrue(obs == wrapped_obs)
 
@@ -147,9 +154,7 @@ def test_clip_actions_v0_dict_action(env, args, action):
             TestingEnv(action_space=DOUBLY_NESTED_DICT_SPACE),
             {
                 "box": (NEW_BOX_LOW, NEW_BOX_HIGH),
-                "nested": {
-                    "nested": {"nested": (NEW_BOX_LOW, NEW_BOX_HIGH)}
-                },
+                "nested": {"nested": {"nested": (NEW_BOX_LOW, NEW_BOX_HIGH)}},
             },
             {
                 "box": NEW_BOX_HIGH + 1,

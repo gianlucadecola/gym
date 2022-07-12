@@ -4,7 +4,7 @@ from typing import Any
 from typing import Tuple as TypingTuple
 
 from gym.dev_wrappers import FuncArgType
-from gym.spaces import Box, Dict, Discrete, Space, Tuple, MultiBinary, MultiDiscrete
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 
 @singledispatch

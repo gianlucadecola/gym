@@ -10,6 +10,15 @@ from gym.spaces import Box, Dict, Space, Tuple
 
 @singledispatch
 def extend_args(space: Space, args: dict, fn: Callable):
+    """Extend args for rescaling actions.
+
+    Action space args needs to be extended in order
+    to correctly rescale the actions.
+    i.e. args before: {"body":{"left_arm": (-0.5,0.5)}, ...}
+    args after: {"body":{"left_arm": (-0.5,0.5,-1,1)}, ...}
+    where -1, 1 was the old action space bound.
+    old action space is needed to rescale actions.
+    """
     ...
 
 
@@ -39,15 +48,6 @@ def _extend_args_tuple(
 def _extend_args_dict(
     space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ):
-    """Extend args for rescaling actions.
-
-    Action space args needs to be extended in order
-    to correctly rescale the actions.
-    i.e. args before: {"body":{"left_arm": (-0.5,0.5)}, ...}
-    args after: {"body":{"left_arm": (-0.5,0.5,-1,1)}, ...}
-    where -1, 1 was the old action space bound.
-    old action space is needed to rescale actions.
-    """
     extended_args = deepcopy(args)
 
     for arg in args:
