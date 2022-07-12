@@ -1,3 +1,4 @@
+from typing import OrderedDict
 import pytest
 
 import gym
@@ -92,7 +93,7 @@ def test_observation_dtype_v0_nested_dict(env, args):
 
     dict_subspace = obs["nested"]
     dict_args = args["nested"]
-    while "nested" in dict_subspace:
+    while isinstance(dict_subspace, OrderedDict):
         dict_subspace = dict_subspace["nested"]
         dict_args = dict_args["nested"]
     assert dict_subspace.dtype == dict_args

@@ -13,7 +13,7 @@ DISCRETE_ACTION = 0
 
 # Box data
 BOX_LOW, BOX_HIGH, BOX_DIM = -5, 5, 1
-BOX_SPACE = Box(BOX_LOW, BOX_HIGH, (BOX_DIM,), dtype=np.dtype('float64'))
+BOX_SPACE = Box(BOX_LOW, BOX_HIGH, (BOX_DIM,), dtype=np.float64)
 
 NEW_BOX_LOW, NEW_BOX_HIGH = 0, 2
 NEW_BOX_DIM = (1, 1)

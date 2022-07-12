@@ -1,0 +1,37 @@
+"""A set of utility functions for lambda wrappers."""
+from functools import singledispatch
+from typing import Any, Callable
+from typing import Tuple as TypingTuple
+
+from gym.dev_wrappers import FuncArgType
+from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
+
+
+@singledispatch
+def update_dtype(
+    space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+) -> Any:
+    """Transform space bounds with the provided args."""
+
+
+@update_dtype.register(Discrete)
+@update_dtype.register(MultiBinary)
+@update_dtype.register(MultiDiscrete)
+def _update_dtype_discrete(
+    space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+):
+    return space
+
+
+@update_dtype.register(Box)
+def _update_dtype_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+    """Change `Box` space low and high value."""
+    if not args:
+        return space
+    
+    return Box(
+        space.low.astype(args),
+        space.high.astype(args),
+        shape=space.shape,
+        dtype=args,
+    )

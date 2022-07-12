@@ -14,6 +14,7 @@ from gym.dev_wrappers.utils.filter_space import filter_space
 from gym.dev_wrappers.utils.grayscale_space import grayscale_space
 from gym.dev_wrappers.utils.reshape_space import reshape_space
 from gym.dev_wrappers.utils.resize_spaces import resize_space
+from gym.dev_wrappers.utils.update_dtype import update_dtype
 from gym.spaces.utils import apply_function, flatten, flatten_space
 
 
@@ -75,9 +76,6 @@ class lambda_observations_v0(gym.ObservationWrapper):
         """Apply function to the observation."""
         return apply_function(self.observation_space, observation, self.func, self.args)
 
-    def _reshape_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
-        """Process the space and apply the transformation."""
-        return reshape_space(env.observation_space, args, reshape_space)
 
 
 class filter_observations_v0(lambda_observations_v0):
@@ -377,6 +375,10 @@ class reshape_observations_v0(lambda_observations_v0):
             observation_space,
         )
 
+    def _reshape_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+        """Process the space and apply the transformation."""
+        return reshape_space(env.observation_space, args, reshape_space)
+
 
 class observations_dtype_v0(lambda_observations_v0):
     """A wrapper that converts the observation dtype returned by :meth:`step` and :meth:`reset` to a new shape.
@@ -438,11 +440,10 @@ class observations_dtype_v0(lambda_observations_v0):
             env: The environment to wrap
             args: The arguments for the dtype changes
         """
-        apply_function(
-            env.observation_space,
-            env.observation_space,
-            lambda x, arg: setattr(x, "dtype", arg),
-            args,
-        )
+        observation_space = self._update_dtype(env, args)
+        
+        super().__init__(env, lambda obs, arg: obs.astype(arg), args, observation_space)
 
-        super().__init__(env, lambda obs, arg: obs.astype(arg), args, env.observation_space)
+    def _update_dtype(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+        """Process the space and apply the transformation."""
+        return update_dtype(env.observation_space, args, update_dtype)

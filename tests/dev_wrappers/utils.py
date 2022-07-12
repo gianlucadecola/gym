@@ -15,6 +15,7 @@ class TestingEnv(gym.Env):
 
     The action and observation spaces provided are used to sample new observations or actions to test with the environment
     """
+    __test__ = False
 
     def __init__(
         self,

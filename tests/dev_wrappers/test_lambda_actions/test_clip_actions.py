@@ -51,7 +51,7 @@ from tests.dev_wrappers.utils import TestingEnv
         ],
         [
             # CarRacing action space: Box([-1.  0.  0.], 1.0, (3,), float32)
-            gym.make("CarRacing-v1"),
+            gym.make("CarRacing-v1", disable_env_checker=True),
             (None, 0.5),
             np.array([0.5, 0.5, 0.5]),
             np.array([1, 1, 1])

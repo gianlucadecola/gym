@@ -21,14 +21,14 @@ from tests.dev_wrappers.utils import TestingEnv
     ("env", "args"),
     [
         (TestingEnv(observation_space=BOX_SPACE), NEW_BOX_DIM),
-        (gym.make("CarRacing-v1"), (96, 48, 6)),  # Box(0, 255, (96, 96, 3), uint8)
+        (gym.make("CarRacing-v1", disable_env_checker=True), (96, 48, 6)),  # Box(0, 255, (96, 96, 3), uint8)
         (
-            gym.vector.make("CarRacing-v1", num_envs=NUM_ENVS), # Box(0, 255, (NUM_ENVS, 96, 96, 3), uint8)
+            gym.vector.make("CarRacing-v1", num_envs=NUM_ENVS, disable_env_checker=True), # Box(0, 255, (NUM_ENVS, 96, 96, 3), uint8)
             (96, 96, 3*NUM_ENVS)
         )
     ],
 )
-def test_reshape_observations_box_v0(env, args):
+def test_reshape_observations_v0_box(env, args):
     """Test correct reshaping of box observation spaces."""
     wrapped_env = reshape_observations_v0(env, args)
     wrapped_env.reset(seed=SEED)
@@ -41,7 +41,7 @@ def test_reshape_observations_box_v0(env, args):
         assert obs in wrapped_env.observation_space
 
 
-def test_reshape_observations_box_impossible_v0():
+def test_reshape_observations_v0_box_impossible():
     """Test wrong new shape raises ValueError.
 
     A wrong new shape is a shape that can not be
@@ -60,7 +60,7 @@ def test_reshape_observations_box_impossible_v0():
         (TestingEnv(observation_space=DICT_SPACE), {}),
     ],
 )
-def test_reshape_observations_dict_v0(env, args):
+def test_reshape_observations_v0_dict(env, args):
     """Test reshaping `Dict` observation spaces.
 
     Tests whether `Dict` observation spaces are correctly reshaped.
@@ -92,7 +92,7 @@ def test_reshape_observations_dict_v0(env, args):
         ),
     ],
 )
-def test_reshape_observations_nested_dict_v0(env, args):
+def test_reshape_observations_v0_nested_dict(env, args):
     """Test reshaping nested `Dict` observation spaces.
 
     Tests whether nested `Dict` observation spaces are correctly reshaped.
@@ -111,7 +111,7 @@ def test_reshape_observations_nested_dict_v0(env, args):
     assert nested_space.shape == nested_arg
 
 
-def test_reshape_observations_tuple_v0():
+def test_reshape_observations_v0_tuple():
     """Test reshaping `Tuple` observation spaces.
 
     Tests whether `Tuple` observation spaces are correctly reshaped.
