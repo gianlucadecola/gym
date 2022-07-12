@@ -3,7 +3,7 @@ import pytest
 import gym
 from gym.wrappers import resize_observations_v0
 from gym.spaces import Tuple, Box, Dict
-from tests.dev_wrappers.mock_data import SEED
+from tests.dev_wrappers.mock_data import SEED, NUM_ENVS, DISCRETE_ACTION
 from tests.dev_wrappers.utils import TestingEnv
 
 
@@ -30,9 +30,24 @@ def test_resize_observations_box_v0(env, args):
 
     assert wrapped_env.observation_space.shape == args
 
-    action = wrapped_env.action_space.sample()
-    obs, *res = wrapped_env.step(action)
+    obs, *res = wrapped_env.step(DISCRETE_ACTION)
     assert obs.shape == args
+
+
+@pytest.mark.parametrize(
+    ("env", "args"),
+    # Box(0, 255, (3, 96, 96, 3), uint8)
+    [(gym.vector.make("CarRacingDiscrete-v1", num_envs=NUM_ENVS), (32, 32, 3))],
+)
+def test_resize_observations_v0_vector(env, args):
+    """Test correct resizing of box observations in vector env."""
+    wrapped_env = resize_observations_v0(env, args)
+    wrapped_env.reset(seed=SEED)
+
+    assert wrapped_env.observation_space.shape == (NUM_ENVS, *args)
+
+    obs, _, _, _ = wrapped_env.step([DISCRETE_ACTION for _ in range(NUM_ENVS)])
+    assert obs.shape == (NUM_ENVS, *args)
 
 
 @pytest.mark.parametrize(
@@ -51,8 +66,7 @@ def test_resize_observations_tuple_v0(env, args):
     wrapped_env = resize_observations_v0(env, args)
     wrapped_env.reset(seed=SEED)
 
-    action = wrapped_env.action_space.sample()
-    obs, *res = wrapped_env.step(action)
+    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for i, arg in enumerate(args):
         if not arg:
@@ -83,8 +97,7 @@ def test_resize_observations_dict_v0(env, args):
     wrapped_env = resize_observations_v0(env, args)
     wrapped_env.reset(seed=SEED)
 
-    action = wrapped_env.action_space.sample()
-    obs, *res = wrapped_env.step(action)
+    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for k in obs:
         if k in args:

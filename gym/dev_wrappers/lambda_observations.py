@@ -307,10 +307,10 @@ class resize_observations_v0(lambda_observations_v0):
         """
         observation_space = self._resize_space(env, args)
 
-        def scale(obs, arg):
+        def scale(obs: ObsType, arg: FuncArgType):
             return obs if arg is None else tinyscaler.scale(obs, arg)
 
-        def scale_vector(obs, arg):
+        def scale_vector(obs: ObsType, arg: FuncArgType):
             if arg is None:
                 return obs
             new_obs = jp.zeros((self.env.num_envs, *arg), dtype=obs.dtype)
