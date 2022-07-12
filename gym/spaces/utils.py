@@ -6,7 +6,7 @@ These functions mostly take care of flattening and unflattening elements of spac
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
-from typing import Any, Callable, Optional, Sequence, TypeVar, Union, cast, List
+from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union, cast
 
 import numpy as np
 
@@ -386,7 +386,9 @@ def _apply_function_fundamental(_, x: Any, func: Callable, *args: Optional[Any])
 
 @apply_function.register(MultiBinary)
 @apply_function.register(MultiDiscrete)
-def _apply_function_multidiscrete(space: List, x: Any, func: Callable, *args: Optional[Any]):
+def _apply_function_multidiscrete(
+    space: List, x: Any, func: Callable, *args: Optional[Any]
+):
     return [
         apply_function(subspace, val, func, arg)
         for subspace, val, arg in zip(space, x, *args)
@@ -405,7 +407,9 @@ def _apply_function_dict(space: Dict, x: Any, func: Callable, args: Optional[Any
     elif isinstance(args, dict):
         return OrderedDict(
             [
-                (k, apply_function(subspace, val, func, args.get(k))) if args.get(k) is not None else (k, val)
+                (k, apply_function(subspace, val, func, args.get(k)))
+                if args.get(k) is not None
+                else (k, val)
                 for (k, subspace), val in zip(space.spaces.items(), x.values())
             ]
         )
