@@ -22,6 +22,10 @@ from tests.dev_wrappers.utils import TestingEnv
     [
         (TestingEnv(observation_space=BOX_SPACE), NEW_BOX_DIM),
         (gym.make("CarRacing-v1"), (96, 48, 6)),  # Box(0, 255, (96, 96, 3), uint8)
+        (
+            gym.vector.make("CarRacing-v1", num_envs=NUM_ENVS), # Box(0, 255, (NUM_ENVS, 96, 96, 3), uint8)
+            (96, 96, 3*NUM_ENVS)
+        )
     ],
 )
 def test_reshape_observations_box_v0(env, args):

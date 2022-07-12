@@ -74,10 +74,10 @@ def test_observation_dtype_v0_dict(env, args):
     [
         (TestingEnv(observation_space=NESTED_DICT_SPACE),
         {"nested": {"nested": np.dtype('int32')}}),
-        
+
         (TestingEnv(observation_space=NESTED_DICT_SPACE),
         {"box": np.dtype('uint8'), "nested": {"nested": np.dtype('int32')}}),
-        
+
         (TestingEnv(observation_space=DOUBLY_NESTED_DICT_SPACE),
         {"nested": {"nested": {"nested": np.dtype('int32')}}}),
     ]
@@ -116,4 +116,30 @@ def test_observation_dtype_v0_tuple(env, args):
             assert subspace.dtype == arg
 
 
-        
+@pytest.mark.parametrize(
+    ("env", "args"),
+    [
+        (TestingEnv(observation_space=NESTED_TUPLE_SPACE),
+        [None, [None, np.dtype('float32')]]),
+
+        (TestingEnv(observation_space=NESTED_TUPLE_SPACE),
+        [np.dtype('float32'), [None, np.dtype('float32')]]),
+
+        (TestingEnv(observation_space=DOUBLY_NESTED_TUPLE_SPACE),
+        [None, [None, [None, np.dtype('float32')]]]),
+    ]
+)
+def test_observation_dtype_v0_nested_tuple(env, args):
+    """Test correct dtype is applied to observation."""
+    wrapped_env = observations_dtype_v0(env, args)
+    obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
+
+    if args[0]:
+        assert obs[0].dtype == args[0]
+
+    tuple_subspace = obs[-1]
+    tuple_args = args[-1]
+    while isinstance(tuple_subspace[-1], tuple):
+        tuple_subspace = tuple_subspace[-1]
+        tuple_args = tuple_args[-1]
+    assert tuple_subspace[-1].dtype == tuple_args[-1]

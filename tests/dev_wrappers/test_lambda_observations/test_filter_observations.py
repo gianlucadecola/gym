@@ -13,7 +13,7 @@ from tests.dev_wrappers.utils import TestingEnv
     ("env", "args"),
     [
         (
-            TestingEnv(observation_space=Dict(obs=Box(-1, 1, ()), time=Discrete(3))),
+            TestingEnv(observation_space=Dict(obs=Box(-1, 1, (1,)), time=Discrete(3))),
             {"obs": True, "time": False}
         ),
     ]

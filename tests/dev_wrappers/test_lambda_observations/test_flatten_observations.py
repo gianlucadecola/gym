@@ -25,13 +25,8 @@ def test_flatten_observation_v0(env):
 
 @pytest.mark.parametrize(
     ("env", "flattened_size"),
-    [
-        (
-            TestingEnv(observation_space=DICT_SPACE),
-            FLATTENEND_DICT_SIZE
-        )
-    ]
-    )
+    [(TestingEnv(observation_space=DICT_SPACE), FLATTENEND_DICT_SIZE)]
+)
 def test_dict_flatten_observation_v0(env, flattened_size):
     wrapped_env = flatten_observations_v0(env)
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)

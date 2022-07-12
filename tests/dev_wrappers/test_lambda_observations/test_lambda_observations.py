@@ -14,13 +14,7 @@ from tests.dev_wrappers.utils import TestingEnv
 
 @pytest.mark.parametrize(
     ("env", "func", "args"),
-    [
-        (
-            gym.make("CartPole-v1"),
-            lambda obs, arg: obs * arg,
-            2
-        ),
-    ]
+    [(gym.make("CartPole-v1"), lambda obs, arg: obs * arg, 2)]
 )
 def test_lambda_observation_v0(env, func, args):
     """Test correct function is applied to observation."""
