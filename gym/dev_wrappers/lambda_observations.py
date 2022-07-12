@@ -311,13 +311,17 @@ class resize_observations_v0(lambda_observations_v0):
             return obs if arg is None else tinyscaler.scale(obs, arg)
 
         def scale_vector(obs, arg):
-            new_obs = jp.array([])
-            # TODO: apply tinyscaler to 4 dims array?
-            ...
+            if arg is None:
+                return obs
+            new_obs = jp.zeros((self.env.num_envs, *arg), dtype=obs.dtype)
+
+            for i, observation in enumerate(obs):
+                new_obs[i] = tinyscaler.scale(observation, arg)
+            return new_obs
 
         super().__init__(
             env,
-            scale if hasattr(env, "is_vector_env") else scale_vector,
+            lambda obs, arg: scale(obs, arg) if not hasattr(env, "is_vector_env") else scale_vector(obs, arg),
             args,
             observation_space,
         )
