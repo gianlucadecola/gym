@@ -285,9 +285,9 @@ class resize_observations_v0(lambda_observations_v0):
         >>> env = gym.vector.make("CarRacing-v1", num_envs=3)
         >>> env.observation_space
         Box(0, 255, (3, 96, 96, 3), uint8)
-        >>> env = resize_observations_v0(env, [(64, 64) for _ in range(3)])
+        >>> env = resize_observations_v0(env, (64, 64, 3))
         >>> env.observation_space
-        TODO
+        Box(0, 255, (3, 64, 64, 3), uint8)
 
     Composite Example with Partial Box observation space:
         >>> env = ExampleEnv(observation_space=Dict(obs=Box(0, 1, (96, 96, 3)), time=Discrete(10)))
