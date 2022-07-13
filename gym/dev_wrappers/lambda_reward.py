@@ -57,7 +57,6 @@ class clip_rewards_v0(lambda_reward_v0):
         >>> rew
         0.5
     """
-
     def __init__(
         self,
         env: gym.Env,

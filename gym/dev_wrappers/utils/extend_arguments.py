@@ -1,8 +1,9 @@
 """A set of utility functions for lambda wrappers."""
 from copy import deepcopy
 from functools import singledispatch
-from typing import Callable, Sequence
+from typing import Callable, Sequence, Any
 from typing import Tuple as TypingTuple
+from typing import Dict as TypingDict
 
 from gym.dev_wrappers import FuncArgType
 from gym.spaces import Box, Dict, Space, Tuple
@@ -30,9 +31,21 @@ def _extend_args_box(space: Space, args: Sequence, fn: Callable):
     return (*args, space.low.min(), space.high.max())
 
 
+@extend_args.register(Dict)
+def _extend_args_dict(
+    space: Tuple, args: FuncArgType[TypingDict[str, Any]], fn: Callable
+):
+    extended_args = deepcopy(args)
+
+    for arg in args:
+        extended_args[arg] = fn(space[arg], args[arg], fn)
+
+    return extended_args
+
+
 @extend_args.register(Tuple)
 def _extend_args_tuple(
-    space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space: Tuple, args: FuncArgType[TypingTuple[float, float]], fn: Callable
 ):
     assert isinstance(args, Sequence)
     assert len(space) == len(args)
@@ -41,16 +54,4 @@ def _extend_args_tuple(
 
     for i in range(len(args)):
         extended_args[i] = fn(space[i], args[i], fn)
-    return extended_args
-
-
-@extend_args.register(Dict)
-def _extend_args_dict(
-    space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn: Callable
-):
-    extended_args = deepcopy(args)
-
-    for arg in args:
-        extended_args[arg] = fn(space[arg], args[arg], fn)
-
     return extended_args

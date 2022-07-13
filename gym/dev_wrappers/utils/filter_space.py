@@ -2,6 +2,7 @@
 from functools import singledispatch
 from typing import Any
 from typing import Tuple as TypingTuple
+from typing import Dict as TypingDict
 
 from gym.dev_wrappers import FuncArgType
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
@@ -21,7 +22,7 @@ def _filter_space_box(space: Space, args: FuncArgType[TypingTuple[int, int]]):
 
 
 @filter_space.register(Dict)
-def _filter_space_dict(space: Space, args: FuncArgType[TypingTuple[int, int]]):
+def _filter_space_dict(space: Space, args: FuncArgType[TypingDict[str, Any]]):
     """Filter `Dict` observation space by args."""
     return Dict(
         [
@@ -33,6 +34,6 @@ def _filter_space_dict(space: Space, args: FuncArgType[TypingTuple[int, int]]):
 
 
 @filter_space.register(Tuple)
-def _filter_space_tuple(space: Space, args: FuncArgType[TypingTuple[int, int]]):
+def _filter_space_tuple(space: Space, args: FuncArgType[TypingTuple[float, float]]):
     """Filter `Tuple` observation space by args."""
     return Tuple([filter_space(value, arg) for value, arg in zip(space, args) if arg])

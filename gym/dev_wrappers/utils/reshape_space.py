@@ -10,11 +10,6 @@ from gym.error import InvalidSpaceOperation
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 
-def is_nestable(space: Space):
-    """Returns whether the input space can contains other spaces."""
-    return isinstance(space, Tuple) or isinstance(space, Dict)
-
-
 @singledispatch
 def reshape_space(
     space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable

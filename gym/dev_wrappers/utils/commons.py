@@ -1,7 +1,8 @@
 """A set of utility functions for lambda wrappers."""
 from copy import deepcopy
-from typing import Callable, Sequence
+from typing import Callable, Sequence, Any
 from typing import Tuple as TypingTuple
+from typing import Dict as TypingDict
 
 from gym.dev_wrappers import FuncArgType
 from gym.dev_wrappers.utils.grayscale_space import grayscale_space
@@ -18,7 +19,7 @@ from gym.spaces import Dict, Tuple
 @transform_space_bounds.register(Tuple)
 @update_dtype.register(Tuple)
 def _process_space_tuple(
-    space: Tuple, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space: Tuple, args: FuncArgType[TypingTuple[float, float]], fn: Callable
 ):
     assert isinstance(args, Sequence)
     assert len(space) == len(args)
@@ -37,7 +38,7 @@ def _process_space_tuple(
 @transform_space_bounds.register(Dict)
 @update_dtype.register(Dict)
 def _process_space_dict(
-    space: Dict, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space: Dict, args: FuncArgType[TypingDict[str, Any]], fn: Callable
 ):
     assert isinstance(args, dict)
     updated_space = deepcopy(space)

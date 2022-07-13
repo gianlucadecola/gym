@@ -35,7 +35,9 @@ def test_lambda_action_v0(env, fn, action):
     ("env", "fn", "action"),
     [
         (
-            gym.vector.make("CarRacingDiscrete-v1", num_envs=NUM_ENVS),
+            gym.vector.make(
+                "CarRacingDiscrete-v1", num_envs=NUM_ENVS, asynchronous=False
+            ),
             lambda action, _: action.astype(np.int32),
             [np.float64(1.2) for _ in range(NUM_ENVS)],
         ),

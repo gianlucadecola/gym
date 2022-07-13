@@ -428,9 +428,6 @@ class observations_dtype_v0(lambda_observations_v0):
         >>> env.observation_space.sample()
         OrderedDict([('x', (array([1.], dtype=float32), array([1], dtype=int32))), ('y', array([1], dtype=int32))])
     """
-
-    import numpy as np
-
     def __init__(self, env: gym.Env, args: FuncArgType[jp.dtype]):
         """Constructor for observation dtype wrapper.
 

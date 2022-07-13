@@ -3,6 +3,8 @@ from functools import singledispatch
 from typing import Any, Callable
 from typing import Tuple as TypingTuple
 
+import jumpy as jp
+
 from gym.dev_wrappers import FuncArgType
 from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
@@ -11,7 +13,7 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 def update_dtype(
     space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
 ) -> Any:
-    """Transform space bounds with the provided args."""
+    """Transform space dtype with the provided args."""
 
 
 @update_dtype.register(Discrete)
@@ -24,8 +26,7 @@ def _update_dtype_discrete(
 
 
 @update_dtype.register(Box)
-def _update_dtype_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
-    """Change `Box` space low and high value."""
+def _update_dtype_box(space, args: jp.dtype, fn: Callable):
     if not args:
         return space
 
