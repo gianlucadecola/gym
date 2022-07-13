@@ -8,7 +8,7 @@ import jumpy as jp
 import gym
 from gym import Space
 from gym.dev_wrappers import FuncArgType
-from gym.dev_wrappers.utils.extend_arguments import extend_args
+from gym.dev_wrappers.utils.make_scale_args import make_scale_args
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
 from gym.spaces.utils import apply_function
 
@@ -156,9 +156,9 @@ class scale_actions_v0(lambda_action_v0):
             args: The arguments for scaling the actions
         """
         action_space = self._transform_space(env, args)
-        args = self._extend_args(env, args)
+        args = self._make_scale_args(env, args)
 
-        def func(action, args):
+        def scale(action, args):
             new_low, new_high = args[:2]
             old_low, old_high = args[2:]
 
@@ -169,7 +169,7 @@ class scale_actions_v0(lambda_action_v0):
                 old_high,
             )
 
-        super().__init__(env, func, args, action_space)
+        super().__init__(env, scale, args, action_space)
 
-    def _extend_args(self, env: gym.Env, args: FuncArgType):
-        return extend_args(env.action_space, args, extend_args)
+    def _make_scale_args(self, env: gym.Env, args: FuncArgType):
+        return make_scale_args(env.action_space, args, make_scale_args)

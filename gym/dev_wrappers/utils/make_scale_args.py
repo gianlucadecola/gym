@@ -1,17 +1,17 @@
 """A set of utility functions for lambda wrappers."""
 from copy import deepcopy
 from functools import singledispatch
-from typing import Callable, Sequence, Any
+from typing import Callable, Sequence
 from typing import Tuple as TypingTuple
 from typing import Dict as TypingDict
 
-from gym.dev_wrappers import FuncArgType
+from gym.dev_wrappers import ArgType, FuncArgType
 from gym.spaces import Box, Dict, Space, Tuple
 
 
 @singledispatch
-def extend_args(space: Space, args: dict, fn: Callable):
-    """Extend args for rescaling actions.
+def make_scale_args(space: Space, args: FuncArgType, fn: Callable):
+    """Compute args for rescaling action function.
 
     Action space args needs to be extended in order
     to correctly rescale the actions.
@@ -23,17 +23,16 @@ def extend_args(space: Space, args: dict, fn: Callable):
     ...
 
 
-@extend_args.register(Box)
-def _extend_args_box(space: Space, args: Sequence, fn: Callable):
+@make_scale_args.register(Box)
+def _make_scale_args_box(space: Space, args: Sequence, fn: Callable):
     if args is None:
         return (space.low, space.high, space.low, space.high)
-    #  TODO: For asymmetrical spaces?
-    return (*args, space.low.min(), space.high.max())
+    return (*args, space.low, space.high)
 
 
-@extend_args.register(Dict)
-def _extend_args_dict(
-    space: Tuple, args: FuncArgType[TypingDict[str, Any]], fn: Callable
+@make_scale_args.register(Dict)
+def _make_scale_args_dict(
+    space: Tuple, args: FuncArgType[TypingDict[str, ArgType]], fn: Callable
 ):
     extended_args = deepcopy(args)
 
@@ -43,8 +42,8 @@ def _extend_args_dict(
     return extended_args
 
 
-@extend_args.register(Tuple)
-def _extend_args_tuple(
+@make_scale_args.register(Tuple)
+def _make_scale_args_tuple(
     space: Tuple, args: FuncArgType[TypingTuple[float, float]], fn: Callable
 ):
     assert isinstance(args, Sequence)
