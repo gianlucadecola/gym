@@ -2,7 +2,6 @@
 import warnings
 from functools import singledispatch
 from typing import Any, Callable
-from typing import Tuple as TypingTuple
 
 import numpy as np
 
@@ -13,7 +12,7 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 @singledispatch
 def grayscale_space(
-    space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space: Space, args: FuncArgType, fn: Callable
 ) -> Any:
     """Make observation space grayscale (i.e. flatten third dimension)."""
 
@@ -22,7 +21,7 @@ def grayscale_space(
 @grayscale_space.register(MultiBinary)
 @grayscale_space.register(MultiDiscrete)
 def _grayscale_space_not_reshapable(
-    space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space, args: FuncArgType, fn: Callable
 ):
     """Return original space shape for not reshable space.
 
@@ -37,7 +36,7 @@ def _grayscale_space_not_reshapable(
 
 
 @grayscale_space.register(Box)
-def _grayscale_space_box(space, args: FuncArgType[TypingTuple[int, int]], fn: Callable):
+def _grayscale_space_box(space, args: FuncArgType, fn: Callable):
     if len(space.shape) != 3 and space.shape[-1] != 3:
         """raise if we are not dealing with an image-like space"""
         raise InvalidRGBShape(

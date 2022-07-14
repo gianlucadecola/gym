@@ -78,7 +78,7 @@ class lambda_action_v0(gym.ActionWrapper):
         """Apply function to action."""
         return apply_function(self.action_space, action, self.func, self.func_args)
 
-    def _transform_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def _transform_space(self, env: gym.Env, args: FuncArgType):
         """Process the space and apply the transformation."""
         return transform_space_bounds(env.action_space, args, transform_space_bounds)
 
@@ -113,7 +113,7 @@ class clip_actions_v0(lambda_action_v0):
         Dict(body: Dict(head: Box(0.0, 3.0, (1,), float32)), left_arm: Discrete(4), right_arm: Box(0.0, 2.0, (1,), float32))
     """
 
-    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[float, float]]):
         """Constructor for the clip action wrapper.
 
         Args:
@@ -148,7 +148,7 @@ class scale_actions_v0(lambda_action_v0):
         Dict(left_arm: Box(-1, 1, (1,), float32), right_arm: Box(-1, 1, (1,), float32))
     """
 
-    def __init__(self, env: gym.Env, args: FuncArgType[float]):
+    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[float, float]]):
         """Constructor for the scale action wrapper.
 
         Args:

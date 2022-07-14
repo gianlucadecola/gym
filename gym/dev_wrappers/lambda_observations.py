@@ -1,7 +1,6 @@
 """Lambda observation wrappers that uses jumpy for compatibility with jax (i.e. brax) and numpy environments."""
 from typing import Any, Callable, Optional, OrderedDict
 from typing import Tuple as TypingTuple
-from typing import Union
 
 import jumpy as jp
 import tinyscaler
@@ -109,7 +108,7 @@ class filter_observations_v0(lambda_observations_v0):
         Dict(x:Tuple(Discrete(2)), y:Dict(box:Box(-1.0, 1.0, (1,), float32)))
     """
 
-    def __init__(self, env: gym.Env, args: FuncArgType[Union[str, int, bool]]):
+    def __init__(self, env: gym.Env, args: FuncArgType[bool]):
         """Constructor for the filter observation wrapper.
 
         Args:
@@ -120,11 +119,11 @@ class filter_observations_v0(lambda_observations_v0):
 
         super().__init__(env, lambda obs, arg: obs, args, observation_space)
 
-    def observation(self, observation: ObsType, args=None):
+    def observation(self, observation: ObsType):
         """Filter the observation."""
         return self._observation(observation, self.args)
 
-    def _observation(self, observation, args):
+    def _observation(self, observation: ObsType, args: FuncArgType):
         if isinstance(observation, tuple):
             return tuple(
                 self._observation(obs, arg)
@@ -136,8 +135,8 @@ class filter_observations_v0(lambda_observations_v0):
             return OrderedDict(
                 [
                     (key, self._observation(value, arg_value))
-                    for (key, value), (arg, arg_value) in zip(
-                        observation.items(), args.items()
+                    for (key, value), arg_value in zip(
+                        observation.items(), args.values()
                     )
                     if arg_value
                 ]
@@ -145,9 +144,7 @@ class filter_observations_v0(lambda_observations_v0):
         else:
             return observation
 
-    def _filter_space(
-        self, space: spaces.Space, args: FuncArgType[Union[str, int, bool]]
-    ):
+    def _filter_space(self, space: spaces.Space, args: FuncArgType[bool]):
         """Filter space with the provided args."""
         return filter_space(space, args)
 
@@ -259,7 +256,7 @@ class grayscale_observations_v0(lambda_observations_v0):
             observation_space,
         )
 
-    def _grayscale_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def _grayscale_space(self, env: gym.Env, args: FuncArgType[bool]):
         """Process the space and apply the grayscale transformation."""
         return grayscale_space(env.observation_space, args, grayscale_space)
 
@@ -294,7 +291,7 @@ class resize_observations_v0(lambda_observations_v0):
        Dict(obs=Box(0, 1, (64, 64, 3)), time=Discrete(10))
     """
 
-    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def __init__(self, env: gym.Env, args: FuncArgType[TypingTuple[int, ...]]):
         """Constructor for resize observation wrapper.
 
         Args:
@@ -324,7 +321,7 @@ class resize_observations_v0(lambda_observations_v0):
             observation_space,
         )
 
-    def _resize_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def _resize_space(self, env: gym.Env, args: FuncArgType[TypingTuple[int, ...]]):
         """Resize space to args dimension."""
         return resize_space(env.observation_space, args, resize_space)
 
@@ -428,6 +425,7 @@ class observations_dtype_v0(lambda_observations_v0):
         >>> env.observation_space.sample()
         OrderedDict([('x', (array([1.], dtype=float32), array([1], dtype=int32))), ('y', array([1], dtype=int32))])
     """
+
     def __init__(self, env: gym.Env, args: FuncArgType[jp.dtype]):
         """Constructor for observation dtype wrapper.
 
@@ -439,6 +437,6 @@ class observations_dtype_v0(lambda_observations_v0):
 
         super().__init__(env, lambda obs, arg: obs.astype(arg), args, observation_space)
 
-    def _update_dtype(self, env: gym.Env, args: FuncArgType[TypingTuple[int, int]]):
+    def _update_dtype(self, env: gym.Env, args: FuncArgType[jp.dtype]):
         """Process the space and apply the transformation."""
         return update_dtype(env.observation_space, args, update_dtype)

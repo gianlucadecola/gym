@@ -11,7 +11,7 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 @singledispatch
 def update_dtype(
-    space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space: Space, args: FuncArgType, fn: Callable
 ) -> Any:
     """Transform space dtype with the provided args."""
 
@@ -20,7 +20,7 @@ def update_dtype(
 @update_dtype.register(MultiBinary)
 @update_dtype.register(MultiDiscrete)
 def _update_dtype_discrete(
-    space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space, args: FuncArgType, fn: Callable
 ):
     return space
 

@@ -19,7 +19,7 @@ from gym.spaces import Dict, Tuple
 @transform_space_bounds.register(Tuple)
 @update_dtype.register(Tuple)
 def _process_space_tuple(
-    space: Tuple, args: FuncArgType[TypingTuple[float, float]], fn: Callable
+    space: Tuple, args: FuncArgType[TypingTuple[Any, ...]], fn: Callable
 ):
     assert isinstance(args, Sequence)
     assert len(space) == len(args)

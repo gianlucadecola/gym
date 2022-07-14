@@ -12,7 +12,7 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, T
 
 @singledispatch
 def reshape_space(
-    space: Space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space: Space, args: FuncArgType, fn: Callable
 ) -> Any:
     """Reshape space with the provided args."""
 
@@ -21,7 +21,7 @@ def reshape_space(
 @reshape_space.register(MultiBinary)
 @reshape_space.register(MultiDiscrete)
 def _reshape_space_not_reshapable(
-    space, args: FuncArgType[TypingTuple[int, int]], fn: Callable
+    space, args: FuncArgType, fn: Callable
 ):
     """Return original space shape for not reshable space.
 
