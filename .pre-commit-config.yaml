@@ -1,5 +1,4 @@
-default_language_version:
-  node: 12.21.0
+---
 repos:
   - repo: https://github.com/python/black
     rev: 22.3.0
