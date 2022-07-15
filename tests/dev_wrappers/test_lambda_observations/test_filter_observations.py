@@ -5,7 +5,10 @@ from gym.spaces import Box, Dict, Discrete, Tuple
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION
 from tests.dev_wrappers.utils import TestingEnv
 
-filter_observations_v0 = pytest.importorskip("gym.wrappers")
+try:
+    from gym.wrappers import filter_observations_v0
+except ImportError:
+    pytest.skip(allow_module_level=True)
 
 
 @pytest.mark.parametrize(

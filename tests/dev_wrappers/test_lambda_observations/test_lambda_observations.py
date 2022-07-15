@@ -6,7 +6,10 @@ from gym.spaces import Box, Dict
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
 from tests.dev_wrappers.utils import TestingEnv
 
-lambda_observations_v0 = pytest.importorskip("gym.wrappers")
+try:
+    from gym.wrappers import lambda_observations_v0
+except ImportError:
+    pytest.skip(allow_module_level=True)
 
 
 @pytest.mark.parametrize(

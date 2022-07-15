@@ -6,7 +6,11 @@ try:
 except ImportError:
     pass
 else:
-    from gym.dev_wrappers.lambda_action import lambda_action_v0, clip_actions_v0
+    from gym.dev_wrappers.lambda_action import (
+        lambda_action_v0,
+        clip_actions_v0,
+        scale_actions_v0,
+    )
     from gym.dev_wrappers.lambda_observations import (
         lambda_observations_v0,
         filter_observations_v0,

@@ -22,7 +22,10 @@ from tests.dev_wrappers.mock_data import (
 )
 from tests.dev_wrappers.utils import TestingEnv
 
-scale_actions_v0 = pytest.importorskip("gym.wrappers")
+try:
+    from gym.wrappers import scale_actions_v0
+except ImportError:
+    pytest.skip(allow_module_level=True)
 
 
 @pytest.mark.parametrize(

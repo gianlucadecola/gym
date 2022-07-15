@@ -5,7 +5,10 @@ from gym.spaces import Box, Dict, Tuple
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
 from tests.dev_wrappers.utils import TestingEnv
 
-resize_observations_v0 = pytest.importorskip("gym.wrappers")
+try:
+    from gym.wrappers import resize_observations_v0
+except ImportError:
+    pytest.skip(allow_module_level=True)
 
 TUPLE_SPACE = Tuple([Box(-1, 1, (10, 10)), Box(-1, 1, (10, 10))])
 
