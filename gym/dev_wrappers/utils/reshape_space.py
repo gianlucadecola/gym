@@ -7,22 +7,18 @@ import jumpy as jp
 
 from gym.dev_wrappers import FuncArgType
 from gym.error import InvalidSpaceOperation
-from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
+from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 
 @singledispatch
-def reshape_space(
-    space: Space, args: FuncArgType, fn: Callable
-) -> Any:
+def reshape_space(space: Space, args: FuncArgType, fn: Callable) -> Any:
     """Reshape space with the provided args."""
 
 
 @reshape_space.register(Discrete)
 @reshape_space.register(MultiBinary)
 @reshape_space.register(MultiDiscrete)
-def _reshape_space_not_reshapable(
-    space, args: FuncArgType, fn: Callable
-):
+def _reshape_space_not_reshapable(space, args: FuncArgType, fn: Callable):
     """Return original space shape for not reshable space.
 
     Trying to reshape `Discrete`, `Multibinary` and `MultiDiscrete`

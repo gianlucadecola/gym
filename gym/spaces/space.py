@@ -145,4 +145,9 @@ class Space(Generic[T_cov]):
         return sample_n
 
     def __eq__(self, other) -> bool:
-        return type(other) is Space and self._shape == other._shape and self.dtype == other.dtype
+        """Check whether `other` is equivalent to this instance."""
+        return (
+            type(other) is Space
+            and self._shape == other._shape
+            and self.dtype == other.dtype
+        )

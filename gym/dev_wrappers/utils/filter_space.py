@@ -1,8 +1,8 @@
 """A set of utility functions for lambda wrappers."""
 from functools import singledispatch
 from typing import Any
-from typing import Tuple as TypingTuple
 from typing import Dict as TypingDict
+from typing import Tuple as TypingTuple
 
 from gym.dev_wrappers import FuncArgType
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple

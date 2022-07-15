@@ -6,7 +6,6 @@ import numpy as np
 import pytest
 
 import gym
-from gym.dev_wrappers.lambda_action import scale_actions_v0
 from tests.dev_wrappers.mock_data import (
     BOX_HIGH,
     BOX_LOW,
@@ -22,6 +21,8 @@ from tests.dev_wrappers.mock_data import (
     TUPLE_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
+
+scale_actions_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(

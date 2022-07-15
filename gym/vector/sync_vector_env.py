@@ -4,9 +4,8 @@ from typing import Any, Callable, Iterator, List, Optional, Sequence, Union
 
 import numpy as np
 
-from gym import Env
+from gym import Env, spaces
 from gym.utils.step_api_compatibility import step_api_compatibility
-from gym import spaces
 from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
 

@@ -80,6 +80,7 @@ class InvalidSpaceOperation(Error):
 class InvalidSpaceArguments(Error):
     """Raised when using incompatible dtype arguments in lambda_wrappers."""
 
+
 # API errors
 
 

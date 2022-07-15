@@ -1,7 +1,6 @@
 """A set of utility functions for lambda wrappers."""
 from functools import singledispatch
 from typing import Any, Callable
-from typing import Tuple as TypingTuple
 
 import jumpy as jp
 
@@ -10,18 +9,14 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 
 @singledispatch
-def update_dtype(
-    space: Space, args: FuncArgType, fn: Callable
-) -> Any:
+def update_dtype(space: Space, args: FuncArgType, fn: Callable) -> Any:
     """Transform space dtype with the provided args."""
 
 
 @update_dtype.register(Discrete)
 @update_dtype.register(MultiBinary)
 @update_dtype.register(MultiDiscrete)
-def _update_dtype_discrete(
-    space, args: FuncArgType, fn: Callable
-):
+def _update_dtype_discrete(space, args: FuncArgType, fn: Callable):
     return space
 
 

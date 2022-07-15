@@ -1,8 +1,9 @@
 import pytest
 
 import gym
-from gym.wrappers import grayscale_observations_v0
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS
+
+grayscale_observations_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(
@@ -22,7 +23,10 @@ def test_grayscale_observation_v0(env):
     ("env"),
     [
         gym.vector.make(
-            "CarRacing-v2", continuous=False, num_envs=NUM_ENVS, disable_env_checker=True
+            "CarRacing-v2",
+            continuous=False,
+            num_envs=NUM_ENVS,
+            disable_env_checker=True,
         )
     ],
 )

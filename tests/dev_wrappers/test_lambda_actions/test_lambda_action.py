@@ -3,10 +3,11 @@ import numpy as np
 import pytest
 
 import gym
-from gym.dev_wrappers.lambda_action import lambda_action_v0
 from gym.error import InvalidAction
 from tests.dev_wrappers.mock_data import BOX_SPACE, NUM_ENVS
 from tests.dev_wrappers.utils import TestingEnv
+
+lambda_action_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(

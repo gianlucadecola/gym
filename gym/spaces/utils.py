@@ -10,6 +10,8 @@ from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union, cast
 
 import numpy as np
 
+from gym.dev_wrappers import FuncArgType
+from gym.error import InvalidSpaceArguments
 from gym.spaces import (
     Box,
     Dict,
@@ -21,8 +23,6 @@ from gym.spaces import (
     Space,
     Tuple,
 )
-from gym.dev_wrappers import FuncArgType
-from gym.error import InvalidSpaceArguments
 
 
 @singledispatch
@@ -344,6 +344,8 @@ def _flatten_space_graph(space: Graph) -> Graph:
         if space.edge_space is not None
         else None,
     )
+
+
 @singledispatch
 def apply_function(space: Space, x, func: Callable, args: FuncArgType[Any]) -> Any:
     """Applies a function on ``x`` of shape ``space`` using the ``func`` callable and ``args`` arguments.

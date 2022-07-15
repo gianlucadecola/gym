@@ -5,7 +5,6 @@ import numpy as np
 import pytest
 
 import gym
-from gym.dev_wrappers.lambda_action import clip_actions_v0
 from tests.dev_wrappers.mock_data import (
     DICT_SPACE,
     DICT_WITHIN_TUPLE_SPACE,
@@ -21,6 +20,8 @@ from tests.dev_wrappers.mock_data import (
     TUPLE_WITHIN_DICT_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
+
+clip_actions_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(

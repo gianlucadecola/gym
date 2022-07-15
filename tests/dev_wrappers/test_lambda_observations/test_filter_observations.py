@@ -2,9 +2,10 @@ import numpy as np
 import pytest
 
 from gym.spaces import Box, Dict, Discrete, Tuple
-from gym.wrappers import filter_observations_v0
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION
 from tests.dev_wrappers.utils import TestingEnv
+
+filter_observations_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(

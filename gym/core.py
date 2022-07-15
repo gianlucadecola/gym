@@ -18,7 +18,6 @@ from gym.logger import deprecation, warn
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
 
-
 if TYPE_CHECKING:
     from gym.envs.registration import EnvSpec
 

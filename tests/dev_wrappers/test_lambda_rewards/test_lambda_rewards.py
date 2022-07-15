@@ -4,8 +4,10 @@ import pytest
 
 import gym
 from gym.error import InvalidBound
-from gym.wrappers import clip_rewards_v0, lambda_reward_v0
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
+
+lambda_reward_v0 = pytest.importorskip("gym.wrappers")
+clip_rewards_v0 = pytest.importorskip("gym.wrappers")
 
 ENV_ID = "CartPole-v1"
 

@@ -4,13 +4,14 @@ from functools import reduce
 import pytest
 
 import gym
-from gym.wrappers import flatten_observations_v0
 from tests.dev_wrappers.mock_data import (
     DICT_SPACE,
     DISCRETE_ACTION,
     FLATTENEND_DICT_SIZE,
 )
 from tests.dev_wrappers.utils import TestingEnv
+
+flatten_observations_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(
@@ -27,7 +28,7 @@ def test_flatten_observation_v0(env):
 
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
-    assert wrapped_env.observation_space.shape[0] == flattened_shape
+    assert wrapped_env.observation_space.shape[0] == flattened_shape  # pyright: ignore
     assert obs.shape[0] == flattened_shape
 
 
@@ -39,5 +40,5 @@ def test_dict_flatten_observation_v0(env, flattened_size):
     wrapped_env = flatten_observations_v0(env)
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
-    assert wrapped_env.observation_space.shape[0] == flattened_size
+    assert wrapped_env.observation_space.shape[0] == flattened_size  # pyright: ignore
     assert obs.shape[0] == flattened_size

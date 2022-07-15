@@ -216,4 +216,12 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         return ret
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, Dict) and self.spaces.keys() == other.spaces.keys() and all(self.spaces[space] == other.spaces[space] for space in self.spaces.keys())
+        """Check whether `other` is equivalent to this instance."""
+        return (
+            isinstance(other, Dict)
+            and self.spaces.keys() == other.spaces.keys()
+            and all(
+                self.spaces[space] == other.spaces[space]
+                for space in self.spaces.keys()
+            )
+        )

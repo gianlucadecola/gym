@@ -1,10 +1,9 @@
-from typing import OrderedDict
+from collections import OrderedDict
 
 import numpy as np
 import pytest
 
 import gym
-from gym.wrappers import observations_dtype_v0
 from tests.dev_wrappers.mock_data import (
     DICT_SPACE,
     DISCRETE_ACTION,
@@ -16,6 +15,8 @@ from tests.dev_wrappers.mock_data import (
     TWO_BOX_TUPLE_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
+
+observations_dtype_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(

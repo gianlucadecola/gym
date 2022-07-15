@@ -1,7 +1,6 @@
 import pytest
 
 import gym
-from gym.wrappers import reshape_observations_v0
 from tests.dev_wrappers.mock_data import (
     BOX_SPACE,
     DICT_SPACE,
@@ -15,6 +14,8 @@ from tests.dev_wrappers.mock_data import (
     TUPLE_SPACE,
 )
 from tests.dev_wrappers.utils import TestingEnv
+
+reshape_observations_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(

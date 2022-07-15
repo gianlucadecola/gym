@@ -11,18 +11,14 @@ from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete, Space
 
 
 @singledispatch
-def grayscale_space(
-    space: Space, args: FuncArgType, fn: Callable
-) -> Any:
+def grayscale_space(space: Space, args: FuncArgType, fn: Callable) -> Any:
     """Make observation space grayscale (i.e. flatten third dimension)."""
 
 
 @grayscale_space.register(Discrete)
 @grayscale_space.register(MultiBinary)
 @grayscale_space.register(MultiDiscrete)
-def _grayscale_space_not_reshapable(
-    space, args: FuncArgType, fn: Callable
-):
+def _grayscale_space_not_reshapable(space, args: FuncArgType, fn: Callable):
     """Return original space shape for not reshable space.
 
     Trying to reshape `Discrete`, `Multibinary` and `MultiDiscrete`

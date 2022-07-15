@@ -2,9 +2,10 @@ import pytest
 
 import gym
 from gym.spaces import Box, Dict, Tuple
-from gym.wrappers import resize_observations_v0
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
 from tests.dev_wrappers.utils import TestingEnv
+
+resize_observations_v0 = pytest.importorskip("gym.wrappers")
 
 TUPLE_SPACE = Tuple([Box(-1, 1, (10, 10)), Box(-1, 1, (10, 10))])
 
@@ -30,7 +31,12 @@ def test_resize_observations_box_v0(env, args):
 @pytest.mark.parametrize(
     ("env", "args"),
     # Box(0, 255, (3, 96, 96, 3), uint8)
-    [(gym.vector.make("CarRacing-v2", continuous=False, num_envs=NUM_ENVS), (32, 32, 3))],
+    [
+        (
+            gym.vector.make("CarRacing-v2", continuous=False, num_envs=NUM_ENVS),
+            (32, 32, 3),
+        )
+    ],
 )
 def test_resize_observations_v0_vector(env, args):
     """Test correct resizing of box observations in vector env."""

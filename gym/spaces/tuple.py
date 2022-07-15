@@ -143,4 +143,7 @@ class Tuple(Space[tuple], Sequence):
 
     def __eq__(self, other) -> bool:
         """Check whether ``other`` is equivalent to this instance."""
-        return isinstance(other, Tuple) and all(subspace == other_subspace for subspace, other_subspace in zip(self.spaces, other.spaces))
+        return isinstance(other, Tuple) and all(
+            subspace == other_subspace
+            for subspace, other_subspace in zip(self.spaces, other.spaces)
+        )

@@ -3,9 +3,10 @@ import pytest
 
 import gym
 from gym.spaces import Box, Dict
-from gym.wrappers import lambda_observations_v0
 from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS, SEED
 from tests.dev_wrappers.utils import TestingEnv
+
+lambda_observations_v0 = pytest.importorskip("gym.wrappers")
 
 
 @pytest.mark.parametrize(

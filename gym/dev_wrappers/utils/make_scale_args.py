@@ -1,9 +1,10 @@
 """A set of utility functions for lambda wrappers."""
 from copy import deepcopy
 from functools import singledispatch
-from typing import Callable, Sequence
-from typing import Tuple as TypingTuple
+from typing import Callable
 from typing import Dict as TypingDict
+from typing import Sequence
+from typing import Tuple as TypingTuple
 
 from gym.dev_wrappers import ArgType, FuncArgType
 from gym.spaces import Box, Dict, Space, Tuple

@@ -1,11 +1,11 @@
 """Implementation of Atari 2600 Preprocessing following the guidelines of Machado et al., 2018."""
 import numpy as np
-from gym import spaces
 
 import gym
+from gym import spaces
+from gym.error import DependencyNotInstalled
 from gym.spaces import Box
 from gym.utils.step_api_compatibility import step_api_compatibility
-from gym.error import DependencyNotInstalled
 
 try:
     import cv2
