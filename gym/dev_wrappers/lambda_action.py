@@ -19,7 +19,7 @@ class lambda_action_v0(gym.ActionWrapper):
         >>> import gym
         >>> from gym.spaces import Dict
         >>> import numpy as np
-        >>> env = gym.make('CarRacingDiscrete-v1')
+        >>> env = gym.make("CarRacing-v2", continuous=False)
         >>> env = lambda_action_v0(env, lambda action, _: action.astype(np.int32), None)
         >>> env.action_space
         Discrete(5)
@@ -42,7 +42,7 @@ class lambda_action_v0(gym.ActionWrapper):
         {'action': OrderedDict([('left_arm', 1), ('right_arm', 11)])})
 
     Vectorized environment:
-        >>> env = gym.vector.make('CarRacingDiscrete-v1', num_envs=2)
+        >>> env = gym.vector.make("CarRacing-v2", continuous=False, num_envs=2)
         >>> env = lambda_action_v0(
         ...     env, lambda action, _: action.astype(np.int32), [None for _ in range(2)]
         ... )

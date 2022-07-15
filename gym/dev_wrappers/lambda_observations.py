@@ -155,7 +155,7 @@ class flatten_observations_v0(lambda_observations_v0):
     Basic Example, fully flattens the environment observation:
         >>> import gym
         >>> from gym.spaces import Dict, Box
-        >>> env = gym.make("CarRacingDiscrete-v1")
+        >>> env = gym.make("CarRacing-v2", continuous=False)
         >>> env.observation_space
         Box(0, 255, (96, 96, 3), uint8)
         >>> env = flatten_observations_v0(env)
