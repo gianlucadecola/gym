@@ -6,7 +6,7 @@ from tests.dev_wrappers.mock_data import DISCRETE_ACTION, NUM_ENVS
 
 
 @pytest.mark.parametrize(
-    ("env"), [gym.make("CarRacingDiscrete-v1", disable_env_checker=True)]
+    ("env"), [gym.make("CarRacing-v2", continuous=False, disable_env_checker=True)]
 )
 def test_grayscale_observation_v0(env):
     """Test correct transformation of observation in grayscale."""
@@ -22,7 +22,7 @@ def test_grayscale_observation_v0(env):
     ("env"),
     [
         gym.vector.make(
-            "CarRacingDiscrete-v1", num_envs=NUM_ENVS, disable_env_checker=True
+            "CarRacing-v2", continuous=False, num_envs=NUM_ENVS, disable_env_checker=True
         )
     ],
 )

@@ -6,7 +6,6 @@ from typing import Tuple as TypingTuple
 import jumpy as jp
 
 import gym
-from gym import Space
 from gym.dev_wrappers import FuncArgType
 from gym.dev_wrappers.utils.make_scale_args import make_scale_args
 from gym.dev_wrappers.utils.transform_space_bounds import transform_space_bounds
@@ -55,7 +54,7 @@ class lambda_action_v0(gym.ActionWrapper):
         env: gym.Env,
         func: Callable,
         args: FuncArgType[Any],
-        action_space: Space = None,
+        action_space: gym.Space = None,
     ):
         """Initialize lambda_action.
 

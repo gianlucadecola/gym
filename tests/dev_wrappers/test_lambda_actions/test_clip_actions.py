@@ -50,13 +50,6 @@ from tests.dev_wrappers.utils import TestingEnv
             np.array([0.5, 0.5, 1, 1]),
             np.array([10, 10, 10, 10]),
         ],
-        [
-            # CarRacing action space: Box([-1.  0.  0.], 1.0, (3,), float32)
-            gym.make("CarRacing-v1", disable_env_checker=True),
-            (None, 0.5),
-            np.array([0.5, 0.5, 0.5]),
-            np.array([1, 1, 1]),
-        ],
     ),
 )
 def test_clip_actions_v0(env, args, action_unclipped_env, action_clipped_env):

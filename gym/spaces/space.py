@@ -144,5 +144,5 @@ class Space(Generic[T_cov]):
         # By default, assume identity is JSONable
         return sample_n
 
-    def __eq__(self, other: Space) -> bool:
+    def __eq__(self, other) -> bool:
         return type(other) is Space and self._shape == other._shape and self.dtype == other.dtype

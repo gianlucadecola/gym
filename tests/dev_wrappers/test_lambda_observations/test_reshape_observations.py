@@ -22,12 +22,12 @@ from tests.dev_wrappers.utils import TestingEnv
     [
         (TestingEnv(observation_space=BOX_SPACE), NEW_BOX_DIM),
         (
-            gym.make("CarRacing-v1", disable_env_checker=True),
+            gym.make("CarRacing-v2", disable_env_checker=True),
             (96, 48, 6),
         ),  # Box(0, 255, (96, 96, 3), uint8)
         (
             gym.vector.make(
-                "CarRacing-v1", num_envs=NUM_ENVS, disable_env_checker=True
+                "CarRacing-v2", num_envs=NUM_ENVS, disable_env_checker=True
             ),  # Box(0, 255, (NUM_ENVS, 96, 96, 3), uint8)
             (96, 96, 3 * NUM_ENVS),
         ),

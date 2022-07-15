@@ -1,6 +1,7 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
+from __future__ import annotations
+
 import sys
-from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -16,11 +17,8 @@ from typing import (
 
 from gym import spaces
 from gym.logger import deprecation, warn
-from gym.envs.registration import EnvSpec
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
-
-from __future__ import annotations
 
 
 if TYPE_CHECKING:

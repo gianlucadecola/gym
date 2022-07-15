@@ -16,7 +16,7 @@ from tests.dev_wrappers.utils import TestingEnv
 @pytest.mark.parametrize(
     ("env"),
     [
-        gym.make("CarRacingDiscrete-v1", disable_env_checker=True),
+        gym.make("CarRacing-v2", continuous=False, disable_env_checker=True),
     ],
 )
 def test_flatten_observation_v0(env):

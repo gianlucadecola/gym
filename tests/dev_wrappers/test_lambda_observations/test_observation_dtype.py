@@ -28,6 +28,7 @@ from tests.dev_wrappers.utils import TestingEnv
 def test_observation_dtype_v0(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     assert obs.dtype == args
@@ -43,6 +44,7 @@ def test_observation_dtype_v0(env, args):
 def test_observation_dtype_v0_within_vector(env, args):
     """Test correct dtype is applied to observation in vectorized envs."""
     wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env.reset()
     observations, _, _, _ = wrapped_env.step([DISCRETE_ACTION for _ in range(NUM_ENVS)])
 
     for obs in observations:
@@ -66,6 +68,7 @@ def test_observation_dtype_v0_within_vector(env, args):
 def test_observation_dtype_v0_dict(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for subspace in obs:
@@ -93,6 +96,7 @@ def test_observation_dtype_v0_dict(env, args):
 def test_observation_dtype_v0_nested_dict(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     if "box" in args:
@@ -120,6 +124,7 @@ def test_observation_dtype_v0_nested_dict(env, args):
 def test_observation_dtype_v0_tuple(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     for subspace, arg in zip(obs, args):
@@ -147,6 +152,7 @@ def test_observation_dtype_v0_tuple(env, args):
 def test_observation_dtype_v0_nested_tuple(env, args):
     """Test correct dtype is applied to observation."""
     wrapped_env = observations_dtype_v0(env, args)
+    wrapped_env.reset()
     obs, _, _, _ = wrapped_env.step(DISCRETE_ACTION)
 
     if args[0]:
