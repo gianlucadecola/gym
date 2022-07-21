@@ -2,7 +2,6 @@
 from typing import Callable, Optional, Union
 
 import jumpy as jp
-import numpy as np
 
 import gym
 from gym.error import InvalidBound
@@ -24,7 +23,7 @@ class lambda_reward_v0(gym.RewardWrapper):
     def __init__(
         self,
         env: gym.Env,
-        fn: Callable[[Union[float, int, np.ndarray]], Union[float, int, np.ndarray]],
+        fn: Callable[[Union[float, int, jp.ndarray]], Union[float, int, jp.ndarray]],
     ):
         """Initialize lambda_reward_v0 wrapper.
 
@@ -36,11 +35,11 @@ class lambda_reward_v0(gym.RewardWrapper):
 
         self.fn = fn
 
-    def reward(self, reward: Union[float, int, np.ndarray]):
+    def reward(self, reward: Union[float, int, jp.ndarray]):
         """Apply function to reward.
 
         Args:
-            reward (Union[float, int, np.ndarray]): environment's reward
+            reward (Union[float, int, jp.ndarray]): environment's reward
         """
         return self.fn(reward)
 
