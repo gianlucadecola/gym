@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 import gym
@@ -31,6 +33,7 @@ def test_resize_observations_box_v0(env, args):
     assert obs.shape == args
 
 
+@pytest.mark.skipif(sys.version_info <= (3, 7))
 @pytest.mark.parametrize(
     ("env", "args"),
     # Box(0, 255, (3, 96, 96, 3), uint8)
